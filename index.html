@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canto Verde - Sistema de Estoque</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --fill-accent: #3b82f6;
+            --on-accent: #ffffff;
+            --surface-0: #f5f5f5;
+            --surface-2: #ffffff;
+            --text-primary: #1a1a1a;
+            --radius: 16px;
+            --border: #e0e0e0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --surface-0: #1a1a1a;
+                --surface-2: #3a3a3a;
+                --text-primary: #f0f0f0;
+                --border: #404040;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--surface-0);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 64px;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 3rem;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 480px) {
+            .buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn {
+            padding: 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: 0.5px solid var(--border);
+        }
+
+        .btn-primary {
+            background: var(--fill-accent);
+            color: var(--on-accent);
+            grid-column: 1 / -1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--surface-2);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-0);
+            transform: translateY(-2px);
+        }
+
+        .info {
+            background: var(--surface-2);
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: left;
+            margin-top: 2rem;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .info h3 {
+            margin-bottom: 1rem;
+            font-size: 16px;
+        }
+
+        .info-item {
+            margin-bottom: 0.8rem;
+        }
+
+        .info-item strong {
+            color: var(--fill-accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🎯</div>
+        <h1>Canto Verde</h1>
+        <p class="subtitle">Sistema de Controle de Estoque</p>
+
+        <div class="buttons">
+            <a href="/contagem.html" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Contagem de Estoque
+            </a>
+            <a href="/painel.html" class="btn btn-secondary">
+                <i class="fas fa-chart-bar"></i>
+                Painel de Gerenciamento
+            </a>
+            <a href="/painel.html" class="btn btn-secondary">
+                <i class="fas fa-cog"></i>
+                Configurações
+            </a>
+        </div>
+
+        <div class="info">
+            <h3>📋 Links Rápidos</h3>
+            <div class="info-item">
+                <strong>Funcionário:</strong> Acesse a contagem de estoque para registrar quantidades
+            </div>
+            <div class="info-item">
+                <strong>Gerente:</strong> Use o painel para visualizar dados e gerenciar compras
+            </div>
+            <div class="info-item" style="margin-top: 1rem; padding-top: 1rem; border-top: 0.5px solid var(--border);">
+                <strong>Última atualização:</strong> Sistema pronto para uso
+            </div>
+        </div>
+    </div>
+</body>
+</html>

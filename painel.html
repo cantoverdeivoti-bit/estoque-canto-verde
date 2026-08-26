@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Gerenciamento - Canto Verde</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --text-primary: #1a1a1a;
+            --text-secondary: #666;
+            --text-muted: #999;
+            --surface-0: #f5f5f5;
+            --surface-1: #efefef;
+            --surface-2: #ffffff;
+            --border: #e0e0e0;
+            --border-strong: #ccc;
+            --fill-accent: #3b82f6;
+            --on-accent: #ffffff;
+            --bg-accent: #dbeafe;
+            --text-accent: #1e40af;
+            --bg-warning: #fef3c7;
+            --text-warning: #92400e;
+            --bg-success: #dcfce7;
+            --text-success: #166534;
+            --bg-danger: #fee2e2;
+            --text-danger: #991b1b;
+            --radius: 16px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text-primary: #f0f0f0;
+                --text-secondary: #b0b0b0;
+                --text-muted: #808080;
+                --surface-0: #1a1a1a;
+                --surface-1: #2a2a2a;
+                --surface-2: #3a3a3a;
+                --border: #404040;
+                --border-strong: #505050;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--surface-0);
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 0.5px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--fill-accent);
+            color: var(--on-accent);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: var(--surface-2);
+            border: 0.5px solid var(--border-strong);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-1);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--surface-2);
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--fill-accent);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        select {
+            padding: 8px 12px;
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface-2);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .table-wrapper {
+            background: var(--surface-2);
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--fill-accent);
+            color: var(--on-accent);
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-top: 0.5px solid var(--border);
+            font-size: 14px;
+        }
+
+        tbody tr:hover {
+            background: var(--surface-1);
+        }
+
+        .setor-badge {
+            display: inline-block;
+            background: var(--bg-accent);
+            color: var(--text-accent);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .input-field {
+            padding: 6px 10px;
+            border: 0.5px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface-0);
+            color: var(--text-primary);
+            font-size: 13px;
+            width: 100px;
+        }
+
+        .money-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--surface-0);
+            border: 0.5px solid var(--border);
+            border-radius: 8px;
+            padding: 4px 8px;
+            width: fit-content;
+        }
+
+        .money-input-wrapper span {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .money-input-wrapper input {
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            width: 80px;
+            padding: 0;
+        }
+
+        .money-input-wrapper input:focus {
+            outline: none;
+        }
+
+        .btn-status {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .btn-comprar {
+            background: var(--bg-danger);
+            color: var(--text-danger);
+            border: 0.5px solid var(--text-danger);
+        }
+
+        .btn-comprado {
+            background: var(--bg-success);
+            color: var(--text-success);
+            border: 0.5px solid var(--text-success);
+        }
+
+        .btn-nao-necessita {
+            background: #f0f0f0;
+            color: #666;
+            border: 0.5px solid #ccc;
+        }
+
+        .status-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .status-btn {
+            padding: 8px 14px;
+            border: 0.5px solid var(--border-strong);
+            border-radius: 20px;
+            background: var(--surface-2);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .status-btn:hover {
+            background: var(--surface-1);
+        }
+
+        .status-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--surface-2);
+            border: 0.5px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 100;
+            min-width: 150px;
+            margin-top: 4px;
+        }
+
+        .status-menu.show {
+            display: block;
+        }
+
+        .status-option {
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            color: var(--text-primary);
+        }
+
+        .status-option:first-child {
+            border-radius: 12px 12px 0 0;
+        }
+
+        .status-option:last-child {
+            border-radius: 0 0 12px 12px;
+        }
+
+        .status-option:hover {
+            background: var(--surface-1);
+        }
+
+        .status-option.comprar {
+            color: var(--text-danger);
+        }
+
+        .status-option.comprado {
+            color: var(--text-success);
+        }
+
+        .status-option.nao-necessita {
+            color: #666;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .last-update {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 1rem;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 2rem 0 1rem 0;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🎯 Painel de Gerenciamento</h1>
+                <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">Canto Verde - Controle de Estoque</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="atualizarDados()">
+                    <i class="fas fa-sync"></i>
+                    Atualizar
+                </button>
+                <button class="btn btn-primary" onclick="window.open('https://estoquecantoverde.netlify.app', '_blank')">
+                    <i class="fas fa-arrow-right"></i>
+                    Ir para Contagem
+                </button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Produtos Contados</div>
+                <div class="stat-value" id="totalContados">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Itens para Comprar</div>
+                <div class="stat-value" id="totalCompras">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Última Atualização</div>
+                <div style="font-size: 14px; color: var(--text-secondary);" id="ultimaAtualizacao">-</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label>Filtrar por setor:</label>
+                <select id="filterSetor" onchange="filtrar()">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>
+                    <input type="checkbox" id="apenasComprar" onchange="filtrar()">
+                    Apenas itens para comprar
+                </label>
+            </div>
+        </div>
+
+        <h2 class="section-title">📊 Controle de Estoque e Compras</h2>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 12%;">Setor</th>
+                        <th style="width: 22%;">Produto</th>
+                        <th style="width: 10%;">Ideal</th>
+                        <th style="width: 12%;">Estoque</th>
+                        <th style="width: 12%;">Preço Anterior</th>
+                        <th style="width: 12%;">Preço Atual</th>
+                        <th style="width: 20%;">Situação</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr><td colspan="7" class="no-data">Carregando dados...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="last-update" id="lastUpdate"></div>
+    </div>
+
+    <script>
+        let setoresConfig = {
+            'CARNES': [
+                { nome: 'peito frango', ideal: '60kg' },
+                { nome: 'coxão mole', ideal: '60kg' },
+                { nome: 'salsichão', ideal: '40kg' },
+                { nome: 'alcatra com maminha', ideal: '-' },
+                { nome: 'Maminha', ideal: '30kg' },
+                { nome: 'Filé Mignon', ideal: '20kg' },
+                { nome: 'Capa do filé', ideal: '20kg' },
+                { nome: 'Costela Porco/barbecue', ideal: '40kg' },
+                { nome: 'Picanha de Porco/maracuja', ideal: '-' },
+                { nome: 'Cupim', ideal: '-' }
+            ],
+            'CONGELADOS E RESFRIADOS': [
+                { nome: 'queijo coalho', ideal: '10uni' },
+                { nome: 'bacon cubos', ideal: '-' },
+                { nome: 'massa Tortei', ideal: '10uni' },
+                { nome: 'Massa ravioli Verde', ideal: '-' },
+                { nome: 'massa larga fettucine', ideal: '-' },
+                { nome: 'macarrão', ideal: '-' },
+                { nome: 'Massa gaelzer', ideal: '-' },
+                { nome: 'batata frita', ideal: '4cx' },
+                { nome: 'Dado de tapioca', ideal: '4cx' },
+                { nome: 'gorgonzola', ideal: '-' },
+                { nome: 'balde nata', ideal: '-' },
+                { nome: 'queijo mussarela', ideal: '-' },
+                { nome: 'manteiga', ideal: '-' },
+                { nome: 'geleia de pimenta/maçã', ideal: '-' },
+                { nome: 'Creme de Alho', ideal: '-' },
+                { nome: 'Molho de Pimenta', ideal: '-' },
+                { nome: 'molho barbecue', ideal: '-' },
+                { nome: 'molho maracuja', ideal: '-' }
+            ],
+            'BEBIDAS': [
+                { nome: 'coca lata normal 350ml', ideal: '20dz' },
+                { nome: 'coca lata 350ml zero', ideal: '20dz' },
+                { nome: 'schwepps citrus', ideal: '-' },
+                { nome: 'sprite', ideal: '-' },
+                { nome: 'tonica lata', ideal: '-' },
+                { nome: 'fruki guarana', ideal: '-' },
+                { nome: 'agua sem gás', ideal: '20dz' },
+                { nome: 'agua com gás', ideal: '20dz' },
+                { nome: 'suco laranja', ideal: '5dz' },
+                { nome: 'suco uva', ideal: '5dz' },
+                { nome: 'Cachaça Rota 48', ideal: '-' },
+                { nome: 'chopp - barril', ideal: '1 barril' },
+                { nome: 'chopp - meio barril', ideal: '-' },
+                { nome: 'aperol', ideal: '2' },
+                { nome: 'xarope limão ciciliano', ideal: '2' },
+                { nome: 'xarope frutas vermelha', ideal: '2' },
+                { nome: 'xarope maçã verde', ideal: '-' },
+                { nome: 'heineken long', ideal: '12' },
+                { nome: 'heineken long zero', ideal: '12' },
+                { nome: 'weber balsamo', ideal: '-' },
+                { nome: 'weber amburana', ideal: '-' },
+                { nome: 'Vodka', ideal: '-' },
+                { nome: 'weber acassafras', ideal: '-' },
+                { nome: 'weber gin', ideal: '-' },
+                { nome: 'weber rum', ideal: '-' },
+                { nome: 'Espumante moscatel', ideal: '-' },
+                { nome: 'Espumante moscatel Rosé', ideal: '-' },
+                { nome: 'Espumante Brut', ideal: '-' },
+                { nome: 'Refri Litro Almoço', ideal: '-' }
+            ],
+            'Verduras': [
+                { nome: 'batata branca', ideal: '1saco' },
+                { nome: 'mix', ideal: '1dz' },
+                { nome: 'tempero verde', ideal: '4 unidades' },
+                { nome: 'cebola branca', ideal: '1saco' },
+                { nome: 'alho', ideal: '-' },
+                { nome: 'limão', ideal: '6kg' },
+                { nome: 'morango', ideal: 'bdj' },
+                { nome: 'maracuja', ideal: '4pote' },
+                { nome: 'cenoura', ideal: '-' },
+                { nome: 'limão siciliano', ideal: '-' },
+                { nome: 'manjericão', ideal: '-' },
+                { nome: 'hortelã', ideal: '-' },
+                { nome: 'Tomate seco', ideal: '-' },
+                { nome: 'cebolete massa', ideal: '-' },
+                { nome: 'cebolete maionese', ideal: '-' }
+            ],
+            'SECOS': [
+                { nome: 'leite', ideal: '10uni' },
+                { nome: 'leite em pó', ideal: '-' },
+                { nome: 'sagu', ideal: '-' },
+                { nome: 'Queijo Ralado parmesão', ideal: '-' },
+                { nome: 'ovo pó integral', ideal: '2uni' },
+                { nome: 'molho branco pó', ideal: '-' },
+                { nome: 'óleo oliva', ideal: '-' },
+                { nome: 'lemon pepper', ideal: '2uni' },
+                { nome: 'Chimichuri', ideal: '-' },
+                { nome: 'Tempero para Frango', ideal: '-' },
+                { nome: 'café 500gr', ideal: '5uni' },
+                { nome: 'bisnaga cheddar', ideal: '-' },
+                { nome: 'cheddar fatiado', ideal: '-' },
+                { nome: 'bisnaga Requeijão c/amido', ideal: '-' },
+                { nome: 'sal fino', ideal: '12uni' },
+                { nome: 'nozes', ideal: '-' },
+                { nome: 'corante gema ovo', ideal: '2uni' },
+                { nome: 'Molho tomate', ideal: '-' },
+                { nome: 'farinha panko', ideal: '-' },
+                { nome: 'farinha temperada fritz frida', ideal: '-' },
+                { nome: 'Farinha de mandioca', ideal: '-' },
+                { nome: 'paprica defumada', ideal: '-' },
+                { nome: 'shoyo', ideal: '-' },
+                { nome: 'molho inglês', ideal: '-' },
+                { nome: 'Tempero Batata', ideal: '-' },
+                { nome: 'arroz', ideal: '5kg' },
+                { nome: 'feijão', ideal: '5kg' },
+                { nome: 'vinagre', ideal: '6uni' },
+                { nome: 'Vinagre de Vinho Tinto', ideal: '-' },
+                { nome: 'sal grosso', ideal: '12' },
+                { nome: 'amido milho', ideal: '6uni' },
+                { nome: 'óleo soja', ideal: '20un' },
+                { nome: 'óleo algodão', ideal: '1balde' },
+                { nome: 'açúcar', ideal: '10uni' },
+                { nome: 'amaciante carne', ideal: '2unid' },
+                { nome: 'farinha trigo', ideal: '6uni' },
+                { nome: 'Doce de leite fritz frida', ideal: '-' },
+                { nome: 'Orégano', ideal: '-' },
+                { nome: 'Creme de Leite', ideal: '-' },
+                { nome: 'leite condesado', ideal: '-' },
+                { nome: 'Pêssego', ideal: '-' },
+                { nome: 'figo', ideal: '-' },
+                { nome: 'Ovos', ideal: '-' },
+                { nome: 'suco maracuja', ideal: '-' },
+                { nome: 'suco morango', ideal: '-' }
+            ],
+            'Limpeza e Embalagens': [
+                { nome: 'detergente', ideal: '2' },
+                { nome: 'Desinfetante andiroba', ideal: '2' },
+                { nome: 'adocante', ideal: '1' },
+                { nome: 'Alvejante', ideal: '2' },
+                { nome: 'Detergente Desinfetante', ideal: '2' },
+                { nome: 'copo térmico 100ml', ideal: '-' },
+                { nome: 'Copinho de Café', ideal: '-' },
+                { nome: 'colher café', ideal: '2' },
+                { nome: 'canudo', ideal: '2' },
+                { nome: 'bobina impressora', ideal: '10' },
+                { nome: 'Bobina maquininha', ideal: '-' },
+                { nome: 'esponja', ideal: '6' },
+                { nome: 'bombril', ideal: '3' },
+                { nome: 'saco lixo 100lt', ideal: '2pct' },
+                { nome: 'saco lixo 60l', ideal: '2pct' },
+                { nome: 'saco lixo 30lt', ideal: '-' },
+                { nome: 'F200 desengordurante', ideal: '2uni' },
+                { nome: 'bloco sanitário', ideal: '6' },
+                { nome: 'guardanapo sache', ideal: '2cx' },
+                { nome: 'saco talher', ideal: '2saco' },
+                { nome: 'papel toalha rolo', ideal: '6uni' },
+                { nome: 'papel higiênico', ideal: '6uni' },
+                { nome: 'Papel Toalha Intercalado', ideal: '-' },
+                { nome: 'luva nitrílica M', ideal: '-' },
+                { nome: 'luvas nitrílica GG', ideal: '2uni' },
+                { nome: 'papel alumínio', ideal: '2uni' },
+                { nome: 'Esfregão de Aço para chapa', ideal: '1 tira' },
+                { nome: 'Álcool', ideal: '1' },
+                { nome: 'Palito de dente', ideal: '1' },
+                { nome: 'Touca descartável', ideal: '1' },
+                { nome: 'Sabonete Líquido', ideal: '-' }
+            ],
+            'SALGADOS': [
+                { nome: 'rissole brócolis', ideal: '-' },
+                { nome: 'rissole salsicha', ideal: '-' },
+                { nome: 'Rissole calabresa', ideal: '-' },
+                { nome: 'mini churros doce de leite', ideal: '-' },
+                { nome: 'Folhado goiaba', ideal: '-' },
+                { nome: 'Enroladinho', ideal: '-' },
+                { nome: 'rissole queijo/milho', ideal: '-' },
+                { nome: 'Coxinha panko', ideal: '-' },
+                { nome: 'trouxinha', ideal: '-' }
+            ]
+        };
+
+        let dados = {};
+        let compras = {};
+        let precosAnteriores = {};
+        let precosAtuais = {};
+        let statusProdutos = {};
+
+        function carregarDados() {
+            const saved = localStorage.getItem('estoque_contagem');
+            if (saved) dados = JSON.parse(saved);
+
+            const comprasSaved = localStorage.getItem('estoque_compras');
+            if (comprasSaved) compras = JSON.parse(comprasSaved);
+
+            const precosAnterioresSaved = localStorage.getItem('estoque_precos_anteriores');
+            if (precosAnterioresSaved) precosAnteriores = JSON.parse(precosAnterioresSaved);
+
+            const precosAtuaisSaved = localStorage.getItem('estoque_precos_atuais');
+            if (precosAtuaisSaved) precosAtuais = JSON.parse(precosAtuaisSaved);
+
+            const statusSaved = localStorage.getItem('estoque_status_produtos');
+            if (statusSaved) statusProdutos = JSON.parse(statusSaved);
+
+            const dataAtualizada = localStorage.getItem('estoque_data');
+            if (dataAtualizada) {
+                document.getElementById('ultimaAtualizacao').textContent = dataAtualizada;
+                document.getElementById('lastUpdate').innerHTML = `<i class="fas fa-info-circle"></i> Última atualização: ${dataAtualizada}`;
+            }
+        }
+
+        function renderizarTabela() {
+            const tableBody = document.getElementById('tableBody');
+            const filterSetor = document.getElementById('filterSetor').value;
+
+            let totalContados = 0;
+            let totalCompras = 0;
+
+            const setoresFilter = document.getElementById('filterSetor');
+            setoresFilter.innerHTML = '<option value="">Todos</option>';
+
+            let rows = [];
+
+            Object.keys(setoresConfig).forEach(setor => {
+                setoresConfig[setor].forEach(item => {
+                    const qtdEstoque = dados[item.nome] || '';
+                    const qtdCompra = compras[item.nome] || '';
+                    const precoAnterior = precosAnteriores[item.nome] || '';
+                    const precoAtual = precosAtuais[item.nome] || '';
+
+                    if (!Array.from(setoresFilter.options).find(o => o.value === setor) && setor !== '') {
+                        const option = document.createElement('option');
+                        option.value = setor;
+                        option.textContent = setor;
+                        setoresFilter.appendChild(option);
+                    }
+
+                    if (filterSetor && filterSetor !== setor) return;
+
+                    if (qtdEstoque) totalContados++;
+                    if (qtdCompra) totalCompras++;
+
+                    rows.push({ setor, item, qtdEstoque, qtdCompra, precoAnterior, precoAtual });
+                });
+            });
+
+            if (rows.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="7" class="no-data">Nenhum dado disponível</td></tr>';
+            } else {
+                tableBody.innerHTML = rows.map(row => {
+                    const status = statusProdutos[row.item.nome] || 'nao-necessita';
+                    let btnText = '';
+                    if (status === 'comprar') btnText = '🔴 Comprar';
+                    else if (status === 'comprado') btnText = '✅ Comprado';
+                    else btnText = '⚪ Não necessita';
+                    
+                    return `
+                        <tr>
+                            <td><span class="setor-badge">${row.setor}</span></td>
+                            <td><strong>${row.item.nome}</strong></td>
+                            <td>${row.item.ideal}</td>
+                            <td><strong>${row.qtdEstoque || '-'}</strong></td>
+                            <td>
+                                <div class="money-input-wrapper">
+                                    <span>R$</span>
+                                    <input type="number" value="${row.precoAnterior}" step="0.01" placeholder="0,00" onchange="salvarPrecoAnterior('${row.item.nome}', this.value)">
+                                </div>
+                            </td>
+                            <td>
+                                <div class="money-input-wrapper">
+                                    <span>R$</span>
+                                    <input type="number" value="${row.precoAtual}" step="0.01" placeholder="0,00" onchange="salvarPrecoAtual('${row.item.nome}', this.value)">
+                                </div>
+                            </td>
+                            <td>
+                                <div class="status-dropdown">
+                                    <button class="status-btn" onclick="toggleDropdown(event, '${row.item.nome}')">${btnText} ▼</button>
+                                    <div class="status-menu" id="menu_${row.item.nome}">
+                                        <button class="status-option comprar" onclick="salvarStatus('${row.item.nome}', 'comprar')">🔴 Comprar</button>
+                                        <button class="status-option comprado" onclick="salvarStatus('${row.item.nome}', 'comprado')">✅ Comprado</button>
+                                        <button class="status-option nao-necessita" onclick="salvarStatus('${row.item.nome}', 'nao-necessita')">⚪ Não necessita</button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+            }
+
+            document.getElementById('totalContados').textContent = totalContados;
+            document.getElementById('totalCompras').textContent = totalCompras;
+        }
+
+        function salvarCompra(nomeProduto, qtd) {
+            if (qtd.trim() === '') {
+                delete compras[nomeProduto];
+            } else {
+                compras[nomeProduto] = parseFloat(qtd);
+            }
+            localStorage.setItem('estoque_compras', JSON.stringify(compras));
+            renderizarTabela();
+        }
+
+        function salvarPrecoAnterior(nomeProduto, preco) {
+            if (preco.trim() === '') {
+                delete precosAnteriores[nomeProduto];
+            } else {
+                precosAnteriores[nomeProduto] = parseFloat(preco);
+            }
+            localStorage.setItem('estoque_precos_anteriores', JSON.stringify(precosAnteriores));
+        }
+
+        function salvarPrecoAtual(nomeProduto, preco) {
+            if (preco.trim() === '') {
+                delete precosAtuais[nomeProduto];
+            } else {
+                precosAtuais[nomeProduto] = parseFloat(preco);
+            }
+            localStorage.setItem('estoque_precos_atuais', JSON.stringify(precosAtuais));
+        }
+
+        function salvarStatus(nomeProduto, status) {
+            statusProdutos[nomeProduto] = status;
+            localStorage.setItem('estoque_status_produtos', JSON.stringify(statusProdutos));
+            fecharTodosDropdowns();
+            renderizarTabela();
+        }
+
+        function toggleDropdown(event, nomeProduto) {
+            event.stopPropagation();
+            fecharTodosDropdowns();
+            const menu = document.getElementById(`menu_${nomeProduto}`);
+            if (menu) {
+                menu.classList.add('show');
+            }
+        }
+
+        function fecharTodosDropdowns() {
+            const menus = document.querySelectorAll('.status-menu');
+            menus.forEach(menu => menu.classList.remove('show'));
+        }
+
+        // Fechar dropdown ao clicar fora
+        setTimeout(() => {
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.status-dropdown')) {
+                    fecharTodosDropdowns();
+                }
+            });
+        }, 100);
+
+        function filtrar() {
+            renderizarTabela();
+        }
+
+        function atualizarDados() {
+            carregarDados();
+            renderizarTabela();
+        }
+
+        carregarDados();
+        renderizarTabela();
+
+        setInterval(() => {
+            carregarDados();
+            renderizarTabela();
+        }, 10000);
+    </script>
+</body>
+</html>
