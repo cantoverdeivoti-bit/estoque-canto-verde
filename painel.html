@@ -155,19 +155,33 @@
             color: #666;
             margin-top: 4px;
         }
+
+        .estoque-vazio {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .estoque-baixo {
+            color: #f59e0b;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>📊 Painel de Gerenciamento - Canto Verde</h1>
-            <p style="color: #666; margin-top: 0.5rem;">Estoque do Google Drive - Atualizado em tempo real</p>
+            <p style="color: #666; margin-top: 0.5rem;">Estoque da Semana - Google Drive</p>
         </div>
 
         <div class="info-bar">
             <div class="info-card">
                 <div class="info-value" id="totalProdutos">0</div>
-                <div class="info-label">Produtos Registrados</div>
+                <div class="info-label">Produtos Total</div>
+            </div>
+            <div class="info-card">
+                <div class="info-value" id="produtosVazios">0</div>
+                <div class="info-label">Sem Estoque</div>
             </div>
             <div class="info-card">
                 <div class="info-value" id="ultimaAtualizacao">Agora</div>
@@ -180,8 +194,8 @@
                 <option value="">Todos os Setores</option>
             </select>
             <label>
-                <input type="checkbox" id="apenasComEstoque">
-                Apenas com estoque
+                <input type="checkbox" id="apenasVazios">
+                Apenas sem estoque
             </label>
         </div>
 
@@ -190,7 +204,7 @@
                 <tr>
                     <th style="width: 15%;">Setor</th>
                     <th style="width: 35%;">Produto</th>
-                    <th style="width: 20%;">Estoque (Drive)</th>
+                    <th style="width: 20%;">Estoque</th>
                     <th style="width: 30%;">Preço Atual (R$)</th>
                 </tr>
             </thead>
@@ -210,8 +224,8 @@
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database(app);
 
-        // Dados de estoque DO GOOGLE DRIVE (já contados)
-        const estoqueDoGoogleDrive = {
+        // TODOS OS PRODUTOS COM ESTOQUE DA SEMANA (DO GOOGLE DRIVE)
+        const estoqueCompleto = {
             "CARNES": {
                 "peito frango": "4 PCT",
                 "coxão mole": "4 KG",
@@ -226,6 +240,7 @@
             },
             "CONGELADOS E RESFRIADOS": {
                 "queijo coalho": "3 UNI",
+                "bacon cubos": "",
                 "massa Tortei": "1 PCT GRANDE",
                 "Massa ravioli Verde": "13 PCT",
                 "massa larga fettucine": "4 PCT",
@@ -254,9 +269,21 @@
                 "agua com gas": "4 FARDOS",
                 "suco laranja": "1 FARDOS",
                 "suco uva": "1 FARDOS",
+                "Cachaça Rota 48": "",
+                "chopp barril": "",
+                "chopp meio barril": "",
+                "aperol": "",
                 "xarope limão ciciliano": "1",
                 "xarope frutas vermelha": "1",
                 "xarope maçã verde": "1 UNI",
+                "heineken long": "",
+                "heineken long zero": "",
+                "weber balsamo": "",
+                "weber amburana": "",
+                "weber acassafras": "",
+                "weber gin": "",
+                "weber rum": "",
+                "Vodka": "",
                 "Espumante moscatel": "6 UNI",
                 "Espumante moscatel Rosé": "3 UNI",
                 "Espumante Brut": "5 UNI",
@@ -264,6 +291,7 @@
             },
             "VERDURAS": {
                 "batata branca": "1 SACO",
+                "mix": "",
                 "tempero verde": "0 PCT",
                 "cebola branca": "1/2 SACO",
                 "alho": "7 CBÇ",
@@ -271,23 +299,38 @@
                 "morango": "0",
                 "maracuja": "0",
                 "cenoura": "0 UNI",
-                "Tomate seco": "3 BALDINHO"
+                "limão siciliano": "0",
+                "manjericão": "0 PCT",
+                "hortelã": "0 PCT",
+                "Tomate seco": "3 BALDINHO",
+                "cebolete massa": "0",
+                "cebolete maionese": ""
             },
             "SECOS": {
                 "leite": "4 LTR",
                 "leite em pó": "0 PCT",
                 "sagu": "7 PCTS",
+                "Queijo Ralado parmesão": "0",
                 "ovo em pó integral": "2 PCTS",
                 "molho branco pó": "1 PCT",
                 "óleo oliva": "1/4 GALÃO",
                 "lemon pepper": "1/2 BALDINHO",
                 "Chimichuri": "2 PCTs",
+                "Tempero para Frango": "0",
                 "café 500gr": "3 PCTS",
                 "bisnaga cheddar": "1 PCT",
+                "cheddar fatiado": "0 PCT",
+                "bisnaga Requeijão c/amido": "1/2 PCT",
                 "sal fino": "7 PCT",
                 "nozes": "0,5 PCT",
                 "corante gema ovo": "0,25",
+                "Molho tomate": "0 PCT",
                 "farinha panko": "13 PCT",
+                "farinha temperada fritz frida": "0 PCTS",
+                "Farinha de mandioca": "0,5 BALDE",
+                "paprica defumada": "1 BLD",
+                "shoyu": "0,5 FRASCO",
+                "molho inglês": "1 FRASCO",
                 "Tempero Batata": "18 PCTS",
                 "arroz": "9 PCT",
                 "feijão": "5 PCT",
@@ -295,35 +338,53 @@
                 "Vinagre de Vinho Tinto": "6 UNI",
                 "sal grosso": "9 PCT",
                 "amido milho": "5 kg",
+                "óleo soja": "0 UNI",
                 "óleo algodão": "1/4 BLD",
                 "açúcar": "8 PCT",
+                "amaciante carne": "0 balde",
                 "farinha trigo": "10 PCT",
                 "Doce de leite fritz frida": "1/2 BALDINHO",
                 "Orégano": "1/3 BALDINHO",
                 "Creme de Leite": "2 UNI",
+                "leite condensado": "0 UNI",
                 "Pêssego": "5 UNI",
                 "figo": "5 UNI",
-                "Ovos": "90 UNI"
+                "Ovos": "90 UNI",
+                "suco maracuja": "",
+                "suco morango": ""
             },
             "LIMPEZA E EMBALAGENS": {
                 "detergente": "0 GALÃO",
                 "Desinfetante andiroba": "1 GALÃO",
                 "adocante": "2 UNI",
+                "Alvejante": "0",
+                "Detergente Desinfetante": "0 GALÃO",
                 "copo termico 100ml": "16 PCT",
                 "Copinho de Café": "11 PCT",
                 "colher café": "4 PCT",
+                "canudo": "0,5 CX",
                 "bobina impressora": "1 CX",
                 "Bobina maquininha": "1 CX",
                 "esponja": "5 UNI",
+                "bombril": "0 PCT",
+                "saco lixo 100lt": "3 PCT",
+                "saco lixo 60l": "3 PCT",
+                "saco lixo 30lt": "0 PCT",
+                "F200 desengordurante": "1 GALÃO",
                 "bloco sanitário": "12 PCT",
                 "guardanapo sache": "1,5 CX",
+                "saco talher": "0 PCTS",
                 "papel toalha rolo": "2 PCTS",
                 "papel higiênico": "7 UNI",
                 "Papel Toalha Intercalado": "12 UNI",
                 "luvas nitrílica M": "1 PCT",
                 "luvas nitrílica GG": "1 PCT",
+                "papel alumínio": "0 PCT",
+                "Esfregão de Aço para chapa": "1 PCT",
+                "Álcool": "0 GALÃO",
                 "Palito de dente": "1 PCT",
-                "Touca descartável": "1 PCT"
+                "Touca descartável": "1 PCT",
+                "Sabonete Líquido": "0 GALÃO"
             },
             "SALGADOS": {
                 "risole brócolis": "1,5 PCT",
@@ -343,7 +404,7 @@
         function inicializar() {
             // Popula filtro de setores
             const setorFilter = document.getElementById('setorFilter');
-            Object.keys(estoqueDoGoogleDrive).forEach(setor => {
+            Object.keys(estoqueCompleto).forEach(setor => {
                 const option = document.createElement('option');
                 option.value = setor;
                 option.textContent = setor;
@@ -358,10 +419,11 @@
                     precos = {};
                 }
                 renderizar();
+                atualizarInfos();
             });
 
             document.getElementById('setorFilter').addEventListener('change', renderizar);
-            document.getElementById('apenasComEstoque').addEventListener('change', renderizar);
+            document.getElementById('apenasVazios').addEventListener('change', renderizar);
 
             renderizar();
             atualizarInfos();
@@ -370,29 +432,29 @@
         function renderizar() {
             const tabela = document.getElementById('tabela');
             const setorSelecionado = document.getElementById('setorFilter').value;
-            const apenasComEstoque = document.getElementById('apenasComEstoque').checked;
+            const apenasVazios = document.getElementById('apenasVazios').checked;
 
             tabela.innerHTML = '';
 
-            Object.keys(estoqueDoGoogleDrive).forEach(setor => {
+            Object.keys(estoqueCompleto).forEach(setor => {
                 if (setorSelecionado && setorSelecionado !== setor) return;
 
-                const produtos = estoqueDoGoogleDrive[setor];
+                const produtos = estoqueCompleto[setor];
 
                 Object.keys(produtos).forEach(produto => {
                     const estoque = produtos[produto];
                     const chave = `${setor}|${produto}`;
+                    const estaVazio = estoque === '' || estoque === '0' || estoque === '0 PEÇAS' || estoque === '0 PCT' || estoque === '0 BLDS' || estoque === '0 DZ' || estoque === '0 GALÃO';
                     
-                    // Filtra produtos com estoque 0
-                    if (apenasComEstoque && (estoque === '0' || estoque === '0 PEÇAS' || estoque === '0 PCT' || estoque === '0 BLDS' || estoque === '0 DZ' || estoque === '0 GALÃO')) {
-                        return;
-                    }
+                    if (apenasVazios && !estaVazio) return;
 
                     const tr = document.createElement('tr');
+                    const classeEstoque = estaVazio ? 'estoque-vazio' : '';
+                    
                     tr.innerHTML = `
                         <td><span class="setor-badge">${setor}</span></td>
                         <td>${produto}</td>
-                        <td>${estoque}</td>
+                        <td class="${classeEstoque}">${estoque || '⚠️ VAZIO'}</td>
                         <td>
                             <input type="text" class="preco-input" id="preco_${chave}"
                                    placeholder="R$ 0,00"
@@ -411,11 +473,22 @@
         }
 
         function atualizarInfos() {
-            let total = 0;
-            Object.keys(estoqueDoGoogleDrive).forEach(setor => {
-                total += Object.keys(estoqueDoGoogleDrive[setor]).length;
+            let totalProdutos = 0;
+            let produtosVazios = 0;
+
+            Object.keys(estoqueCompleto).forEach(setor => {
+                const produtos = estoqueCompleto[setor];
+                Object.keys(produtos).forEach(produto => {
+                    totalProdutos++;
+                    const estoque = produtos[produto];
+                    if (estoque === '' || estoque === '0' || estoque === '0 PEÇAS' || estoque === '0 PCT' || estoque === '0 BLDS' || estoque === '0 DZ' || estoque === '0 GALÃO') {
+                        produtosVazios++;
+                    }
+                });
             });
-            document.getElementById('totalProdutos').textContent = total;
+
+            document.getElementById('totalProdutos').textContent = totalProdutos;
+            document.getElementById('produtosVazios').textContent = produtosVazios;
             document.getElementById('ultimaAtualizacao').textContent = new Date().toLocaleTimeString('pt-BR');
         }
 
