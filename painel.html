@@ -128,32 +128,6 @@
             font-size: 13px;
         }
 
-        .btn-status {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            color: var(--text);
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .status-comprar {
-            background: #dc2626;
-            color: white;
-        }
-
-        .status-comprado {
-            background: #16a34a;
-            color: white;
-        }
-
-        .status-nao {
-            background: #6b7280;
-            color: white;
-        }
-
         .info-bar {
             display: flex;
             gap: 2rem;
@@ -181,25 +155,19 @@
             color: #666;
             margin-top: 4px;
         }
-
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: #666;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>📊 Painel de Gerenciamento - Canto Verde</h1>
-            <p style="color: #666; margin-top: 0.5rem;">Atualizações em tempo real</p>
+            <p style="color: #666; margin-top: 0.5rem;">Estoque do Google Drive - Atualizado em tempo real</p>
         </div>
 
         <div class="info-bar">
             <div class="info-card">
                 <div class="info-value" id="totalProdutos">0</div>
-                <div class="info-label">Produtos Contados</div>
+                <div class="info-label">Produtos Registrados</div>
             </div>
             <div class="info-card">
                 <div class="info-value" id="ultimaAtualizacao">Agora</div>
@@ -212,8 +180,8 @@
                 <option value="">Todos os Setores</option>
             </select>
             <label>
-                <input type="checkbox" id="apenasPreenchidos">
-                Apenas preenchidos
+                <input type="checkbox" id="apenasComEstoque">
+                Apenas com estoque
             </label>
         </div>
 
@@ -222,15 +190,11 @@
                 <tr>
                     <th style="width: 15%;">Setor</th>
                     <th style="width: 35%;">Produto</th>
-                    <th style="width: 20%;">Quantidade</th>
+                    <th style="width: 20%;">Estoque (Drive)</th>
                     <th style="width: 30%;">Preço Atual (R$)</th>
                 </tr>
             </thead>
-            <tbody id="tabela">
-                <tr>
-                    <td colspan="4" class="loading">⏳ Carregando dados...</td>
-                </tr>
-            </tbody>
+            <tbody id="tabela"></tbody>
         </table>
     </div>
 
@@ -246,176 +210,134 @@
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database(app);
 
+        // Dados de estoque DO GOOGLE DRIVE (já contados)
         const estoqueDoGoogleDrive = {
             "CARNES": {
-                "peito frango": "60kg",
-                "coxão mole": "60kg",
-                "salsichão": "40kg",
-                "alcatra com maminha": "varia",
-                "Maminha": "30kg",
-                "Filé Mignon": "20kg",
-                "Capa do filé": "20kg",
-                "Costela Porco/barbecue": "40kg",
-                "Picanha de Porco/maracuja": "varia",
-                "Cupim": "varia"
+                "peito frango": "4 PCT",
+                "coxão mole": "4 KG",
+                "salsichão": "1/2 PCT",
+                "alcatra com maminha": "4 PÇS",
+                "Maminha": "0 PEÇAS",
+                "Filé Mignon": "0 PEÇAS",
+                "Capa do filé": "3 PEÇA",
+                "Costela Porco/barbecue": "3 PÇS",
+                "Picanha de Porco/maracuja": "6 PEÇAS",
+                "Cupim": "7 PEÇAS"
             },
             "CONGELADOS E RESFRIADOS": {
-                "queijo coalho": "10uni",
-                "bacon cubos": "varia",
-                "massa Tortei": "10uni",
-                "Massa ravioli Verde": "varia",
-                "massa larga fettucine": "varia",
-                "macarrão": "varia",
-                "Massa gaelzer": "varia",
-                "batata frita": "4cx",
-                "Dado de tapioca": "4cx",
-                "gorgonzola": "varia",
-                "balde nata": "varia",
-                "queijo mussarela": "varia",
-                "manteiga": "varia",
-                "geleia de pimenta/maçã": "varia",
-                "Creme de Alho": "varia",
-                "Molho de Pimenta": "varia",
-                "molho barbecue": "varia",
-                "molho maracuja": "varia"
+                "queijo coalho": "3 UNI",
+                "massa Tortei": "1 PCT GRANDE",
+                "Massa ravioli Verde": "13 PCT",
+                "massa larga fettucine": "4 PCT",
+                "macarrão": "7 UNI",
+                "Massa gaelzer": "5 PCT",
+                "batata frita": "5 e 1/2 PCT",
+                "Dado de tapioca": "9 PCT",
+                "gorgonzola": "1/2 PEÇA",
+                "balde nata": "0 BLDS",
+                "queijo mussarela": "1/2 PCT",
+                "manteiga": "1/2 BLD",
+                "geleia de pimenta/maçã": "0 BLD",
+                "Creme de Alho": "0 PCTS",
+                "Molho de Pimenta": "1/2 FRASCO",
+                "molho barbecue": "0",
+                "molho maracuja": "0"
             },
             "BEBIDAS": {
-                "coca lata normal 350ml": "20dz",
-                "coca lata 350ml zero": "20dz",
-                "schwepps citrus": "varia",
-                "sprite": "varia",
-                "tonica lata": "varia",
-                "fruki guarana": "varia",
-                "agua sem gás": "20dz",
-                "agua com gas": "20dz",
-                "suco laranja": "5dz",
-                "suco uva": "5dz",
-                "Cachaça Rota 48": "varia",
-                "chopp - barril": "varia",
-                "chopp - meio barril": "varia",
-                "aperol": "2",
-                "xarope limão ciciliano": "varia",
-                "xarope frutas vermelha": "varia",
-                "xarope maçã verde": "varia",
-                "heineken long": "12",
-                "heineken long zero": "12",
-                "weber balsamo": "varia",
-                "weber amburana": "varia",
-                "weber acassafras": "varia",
-                "weber gin": "varia",
-                "weber rum": "varia",
-                "Vodka": "varia",
-                "Espumantes": "varia",
-                "Refri Litro Almoço": "varia"
+                "coca lata normal 350ml": "0 DZ",
+                "coca lata 350ml zero": "0",
+                "schwepps citrus": "3 FRDS",
+                "sprite": "1 FRDS",
+                "tonica lata": "2 FRDS",
+                "fruki guarana": "3 FRDS",
+                "agua sem gás": "3 FARDO",
+                "agua com gas": "4 FARDOS",
+                "suco laranja": "1 FARDOS",
+                "suco uva": "1 FARDOS",
+                "xarope limão ciciliano": "1",
+                "xarope frutas vermelha": "1",
+                "xarope maçã verde": "1 UNI",
+                "Espumante moscatel": "6 UNI",
+                "Espumante moscatel Rosé": "3 UNI",
+                "Espumante Brut": "5 UNI",
+                "Refri Litro Almoço": "4 LTRS"
             },
             "VERDURAS": {
-                "batata branca": "1saco",
-                "mix": "1dz",
-                "tempero verde": "4uni",
-                "cebola branca": "1saco",
-                "alho": "varia",
-                "limão": "6kg",
-                "morango": "varia",
-                "maracuja": "4pote",
-                "cenoura": "varia",
-                "limão siciliano": "varia",
-                "manjericão": "varia",
-                "hortelã": "varia",
-                "Tomate seco": "varia",
-                "cebolete massa": "varia",
-                "cebolete maionese": "varia"
+                "batata branca": "1 SACO",
+                "tempero verde": "0 PCT",
+                "cebola branca": "1/2 SACO",
+                "alho": "7 CBÇ",
+                "limão": "0",
+                "morango": "0",
+                "maracuja": "0",
+                "cenoura": "0 UNI",
+                "Tomate seco": "3 BALDINHO"
             },
             "SECOS": {
-                "leite": "10uni",
-                "leite em pó": "varia",
-                "sagu": "varia",
-                "Queijo Ralado parmesão": "varia",
-                "ovo em pó integral": "2uni",
-                "molho branco pó": "varia",
-                "óleo oliva": "varia",
-                "lemon pepper": "2uni",
-                "Chimichuri": "varia",
-                "Tempero para Frango": "varia",
-                "café 500gr": "5uni",
-                "bisnaga cheddar": "varia",
-                "cheddar fatiado": "varia",
-                "bisnaga Requeijão c/amido": "varia",
-                "sal fino": "12uni",
-                "nozes": "varia",
-                "corante gema ovo": "2uni",
-                "Molho tomate": "varia",
-                "farinha panko": "varia",
-                "farinha temperada fritz frida": "varia",
-                "Farinha de mandioca": "varia",
-                "páprica defumada": "varia",
-                "shoyu": "varia",
-                "molho inglês": "varia",
-                "Tempero Batata": "varia",
-                "arroz": "5kg",
-                "feijão": "5kg",
-                "vinagre": "varia",
-                "sal grosso": "12",
-                "amido milho": "6uni",
-                "óleo soja": "20un",
-                "óleo algodão": "1balde",
-                "açúcar": "10uni",
-                "amaciante carne": "2unid",
-                "farinha trigo": "varia",
-                "Doce de leite fritz frida": "varia",
-                "Orégano": "varia",
-                "Creme de Leite": "varia",
-                "leite condensado": "varia",
-                "Pêssego": "varia",
-                "figo": "varia",
-                "Ovos": "varia",
-                "suco maracuja": "varia",
-                "suco morango": "varia"
+                "leite": "4 LTR",
+                "leite em pó": "0 PCT",
+                "sagu": "7 PCTS",
+                "ovo em pó integral": "2 PCTS",
+                "molho branco pó": "1 PCT",
+                "óleo oliva": "1/4 GALÃO",
+                "lemon pepper": "1/2 BALDINHO",
+                "Chimichuri": "2 PCTs",
+                "café 500gr": "3 PCTS",
+                "bisnaga cheddar": "1 PCT",
+                "sal fino": "7 PCT",
+                "nozes": "0,5 PCT",
+                "corante gema ovo": "0,25",
+                "farinha panko": "13 PCT",
+                "Tempero Batata": "18 PCTS",
+                "arroz": "9 PCT",
+                "feijão": "5 PCT",
+                "vinagre": "15 UNI",
+                "Vinagre de Vinho Tinto": "6 UNI",
+                "sal grosso": "9 PCT",
+                "amido milho": "5 kg",
+                "óleo algodão": "1/4 BLD",
+                "açúcar": "8 PCT",
+                "farinha trigo": "10 PCT",
+                "Doce de leite fritz frida": "1/2 BALDINHO",
+                "Orégano": "1/3 BALDINHO",
+                "Creme de Leite": "2 UNI",
+                "Pêssego": "5 UNI",
+                "figo": "5 UNI",
+                "Ovos": "90 UNI"
             },
             "LIMPEZA E EMBALAGENS": {
-                "detergente": "2",
-                "Desinfetante andiroba": "2",
-                "adocante": "1",
-                "Alvejante": "2",
-                "Detergente Desinfetante": "2",
-                "copos": "varia",
-                "colher café": "2",
-                "canudo": "2",
-                "bobinas": "varia",
-                "esponja": "6",
-                "bombril": "3",
-                "sacos lixo 100lt": "varia",
-                "sacos lixo 60l": "varia",
-                "sacos lixo 30lt": "varia",
-                "F200": "2uni",
-                "bloco sanitário": "6",
-                "guardanapo sache": "2cx",
-                "saco talher": "2saco",
-                "papel toalha rolo": "6uni",
-                "papel higiênico": "6uni",
-                "Papel Toalha Intercalado": "varia",
-                "luvas nitrílica M": "varia",
-                "luvas nitrílica GG": "varia",
-                "papel alumínio": "2uni",
-                "Esfregão chapa": "1tira",
-                "Álcool": "1",
-                "Palito de dente": "1",
-                "Touca descartável": "1",
-                "Sabonete Líquido": "varia"
+                "detergente": "0 GALÃO",
+                "Desinfetante andiroba": "1 GALÃO",
+                "adocante": "2 UNI",
+                "copo termico 100ml": "16 PCT",
+                "Copinho de Café": "11 PCT",
+                "colher café": "4 PCT",
+                "bobina impressora": "1 CX",
+                "Bobina maquininha": "1 CX",
+                "esponja": "5 UNI",
+                "bloco sanitário": "12 PCT",
+                "guardanapo sache": "1,5 CX",
+                "papel toalha rolo": "2 PCTS",
+                "papel higiênico": "7 UNI",
+                "Papel Toalha Intercalado": "12 UNI",
+                "luvas nitrílica M": "1 PCT",
+                "luvas nitrílica GG": "1 PCT",
+                "Palito de dente": "1 PCT",
+                "Touca descartável": "1 PCT"
             },
             "SALGADOS": {
-                "rissole brócolis": "varia",
-                "rissole salsicha": "varia",
-                "Risole calabresa": "varia",
-                "Risole queijo-milho": "varia",
-                "mini churros doce de leite": "varia",
-                "Folhado goiaba": "varia",
-                "Enroladinho": "varia",
-                "Coxinha panko": "varia",
-                "trouxinha": "varia"
+                "risole brócolis": "1,5 PCT",
+                "risole salsicha": "1 PCT",
+                "Risole calabresa": "2,5 PCT",
+                "mini churros doce de leite": "1,5 PCT",
+                "Folhado goiaba": "1 PCT",
+                "Enroladinho": "2 PCT",
+                "risole queijo/milho": "1 PCT",
+                "Coxinha panko": "0,5 PCT",
+                "trouxinha": "0,25 PCT"
             }
         };
 
-        let dados = {};
         let precos = {};
 
         function inicializar() {
@@ -428,17 +350,7 @@
                 setorFilter.appendChild(option);
             });
 
-            // Carrega dados em tempo real
-            database.ref('estoque').on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    dados = snapshot.val();
-                } else {
-                    dados = {};
-                }
-                renderizar();
-                atualizarInfos();
-            });
-
+            // Carrega preços do Firebase
             database.ref('precos').on('value', (snapshot) => {
                 if (snapshot.exists()) {
                     precos = snapshot.val();
@@ -449,17 +361,18 @@
             });
 
             document.getElementById('setorFilter').addEventListener('change', renderizar);
-            document.getElementById('apenasPreenchidos').addEventListener('change', renderizar);
+            document.getElementById('apenasComEstoque').addEventListener('change', renderizar);
+
+            renderizar();
+            atualizarInfos();
         }
 
         function renderizar() {
             const tabela = document.getElementById('tabela');
             const setorSelecionado = document.getElementById('setorFilter').value;
-            const apenasPreenchidos = document.getElementById('apenasPreenchidos').checked;
+            const apenasComEstoque = document.getElementById('apenasComEstoque').checked;
 
             tabela.innerHTML = '';
-
-            let temDados = false;
 
             Object.keys(estoqueDoGoogleDrive).forEach(setor => {
                 if (setorSelecionado && setorSelecionado !== setor) return;
@@ -467,18 +380,19 @@
                 const produtos = estoqueDoGoogleDrive[setor];
 
                 Object.keys(produtos).forEach(produto => {
+                    const estoque = produtos[produto];
                     const chave = `${setor}|${produto}`;
-                    const quantidade = dados[chave] || '';
-
-                    if (apenasPreenchidos && !quantidade) return;
-
-                    temDados = true;
+                    
+                    // Filtra produtos com estoque 0
+                    if (apenasComEstoque && (estoque === '0' || estoque === '0 PEÇAS' || estoque === '0 PCT' || estoque === '0 BLDS' || estoque === '0 DZ' || estoque === '0 GALÃO')) {
+                        return;
+                    }
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td><span class="setor-badge">${setor}</span></td>
                         <td>${produto}</td>
-                        <td>${quantidade || '-'}</td>
+                        <td>${estoque}</td>
                         <td>
                             <input type="text" class="preco-input" id="preco_${chave}"
                                    placeholder="R$ 0,00"
@@ -489,12 +403,6 @@
                     tabela.appendChild(tr);
                 });
             });
-
-            if (!temDados && !apenasPreenchidos) {
-                tabela.innerHTML = '<tr><td colspan="4" class="loading">⏳ Aguardando dados do funcionário...</td></tr>';
-            } else if (!temDados && apenasPreenchidos) {
-                tabela.innerHTML = '<tr><td colspan="4" class="loading">Nenhum produto preenchido ainda</td></tr>';
-            }
         }
 
         function salvarPreco(chave) {
@@ -503,7 +411,10 @@
         }
 
         function atualizarInfos() {
-            const total = Object.keys(dados).length;
+            let total = 0;
+            Object.keys(estoqueDoGoogleDrive).forEach(setor => {
+                total += Object.keys(estoqueDoGoogleDrive[setor]).length;
+            });
             document.getElementById('totalProdutos').textContent = total;
             document.getElementById('ultimaAtualizacao').textContent = new Date().toLocaleTimeString('pt-BR');
         }
