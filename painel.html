@@ -128,15 +128,8 @@
             font-size: 13px;
         }
 
-        .dropdown-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-        }
-
         .btn-status {
-            width: 100%;
-            padding: 8px;
+            padding: 8px 12px;
             border: 1px solid var(--border);
             background: var(--surface);
             color: var(--text);
@@ -146,49 +139,17 @@
             font-weight: 500;
         }
 
-        .status-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-top: none;
-            border-radius: 0 0 4px 4px;
-            z-index: 10;
-        }
-
-        .status-menu.open {
-            display: block;
-        }
-
-        .status-item {
-            padding: 10px 12px;
-            cursor: pointer;
-            border-bottom: 1px solid var(--border);
-            font-size: 13px;
-        }
-
-        .status-item:last-child {
-            border-bottom: none;
-        }
-
-        .status-item:hover {
-            background: rgba(59, 130, 246, 0.1);
-        }
-
-        .btn-comprar {
+        .status-comprar {
             background: #dc2626;
             color: white;
         }
 
-        .btn-comprado {
+        .status-comprado {
             background: #16a34a;
             color: white;
         }
 
-        .btn-nao-necessita {
+        .status-nao {
             background: #6b7280;
             color: white;
         }
@@ -221,19 +182,10 @@
             margin-top: 4px;
         }
 
-        .btn-atualizar {
-            padding: 10px 20px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-weight: 600;
-            margin-bottom: 2rem;
-        }
-
-        .btn-atualizar:hover {
-            background: #2563eb;
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
         }
     </style>
 </head>
@@ -241,17 +193,13 @@
     <div class="container">
         <div class="header">
             <h1>📊 Painel de Gerenciamento - Canto Verde</h1>
-            <p style="color: #666; margin-top: 0.5rem;">Controle de estoque em tempo real</p>
+            <p style="color: #666; margin-top: 0.5rem;">Atualizações em tempo real</p>
         </div>
 
         <div class="info-bar">
             <div class="info-card">
                 <div class="info-value" id="totalProdutos">0</div>
-                <div class="info-label">Total de Produtos</div>
-            </div>
-            <div class="info-card">
-                <div class="info-value" id="paraComprar">0</div>
-                <div class="info-label">Itens para Comprar</div>
+                <div class="info-label">Produtos Contados</div>
             </div>
             <div class="info-card">
                 <div class="info-value" id="ultimaAtualizacao">Agora</div>
@@ -264,154 +212,213 @@
                 <option value="">Todos os Setores</option>
             </select>
             <label>
-                <input type="checkbox" id="apenasComprar">
-                Apenas itens para comprar
+                <input type="checkbox" id="apenasPreenchidos">
+                Apenas preenchidos
             </label>
-            <button class="btn-atualizar" onclick="salvarDados()">💾 Salvar Dados</button>
         </div>
 
         <table>
             <thead>
                 <tr>
                     <th style="width: 15%;">Setor</th>
-                    <th style="width: 25%;">Produto</th>
-                    <th style="width: 15%;">Estoque Atual</th>
-                    <th style="width: 15%;">Preço Atual</th>
-                    <th style="width: 30%;">Situação</th>
+                    <th style="width: 35%;">Produto</th>
+                    <th style="width: 20%;">Quantidade</th>
+                    <th style="width: 30%;">Preço Atual (R$)</th>
                 </tr>
             </thead>
-            <tbody id="tabela"></tbody>
+            <tbody id="tabela">
+                <tr>
+                    <td colspan="4" class="loading">⏳ Carregando dados...</td>
+                </tr>
+            </tbody>
         </table>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script>
+
     <script>
-        // Dados do Google Drive (estoque real)
+        // Configuração Firebase
+        const firebaseConfig = {
+            databaseURL: "https://canto-verde-estoque-default-rtdb.firebaseio.com"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database(app);
+
         const estoqueDoGoogleDrive = {
             "CARNES": {
-                "peito frango": "4 PCT",
-                "coxão mole": "4 KG",
-                "salsichão": "1/2 PCT",
-                "alcatra com maminha": "4 PÇS",
-                "Maminha": "0 PEÇAS",
-                "Filé Mignon": "0 PEÇAS",
-                "Capa do filé": "3 PEÇA",
-                "Costela Porco/barbecue": "3 PÇS",
-                "Picanha de Porco/maracuja": "6 PEÇAS",
-                "Cupim": "7 PEÇAS"
+                "peito frango": "60kg",
+                "coxão mole": "60kg",
+                "salsichão": "40kg",
+                "alcatra com maminha": "varia",
+                "Maminha": "30kg",
+                "Filé Mignon": "20kg",
+                "Capa do filé": "20kg",
+                "Costela Porco/barbecue": "40kg",
+                "Picanha de Porco/maracuja": "varia",
+                "Cupim": "varia"
             },
             "CONGELADOS E RESFRIADOS": {
-                "queijo coalho": "3 UNI",
-                "massa Tortei": "1 PCT GRANDE",
-                "Massa ravioli Verde": "13 PCT",
-                "massa larga fettucine": "4 PCT",
-                "macarrão": "7 UNI",
-                "Massa gaelzer": "5 PCT",
-                "batata frita": "5 e 1/2 PCT",
-                "Dado de tapioca": "9 PCT",
-                "gorgonzola": "1/2 PEÇA",
-                "balde nata": "0 BLDS",
-                "queijo mussarela": "1/2 PCT",
-                "manteiga": "1/2 BLD",
-                "geleia de pimenta/maçã": "0 BLD",
-                "Creme de Alho": "0 PCTS",
-                "Molho de Pimenta": "1/2 FRASCO",
-                "molho barbecue": "0",
-                "molho maracuja": "0"
+                "queijo coalho": "10uni",
+                "bacon cubos": "varia",
+                "massa Tortei": "10uni",
+                "Massa ravioli Verde": "varia",
+                "massa larga fettucine": "varia",
+                "macarrão": "varia",
+                "Massa gaelzer": "varia",
+                "batata frita": "4cx",
+                "Dado de tapioca": "4cx",
+                "gorgonzola": "varia",
+                "balde nata": "varia",
+                "queijo mussarela": "varia",
+                "manteiga": "varia",
+                "geleia de pimenta/maçã": "varia",
+                "Creme de Alho": "varia",
+                "Molho de Pimenta": "varia",
+                "molho barbecue": "varia",
+                "molho maracuja": "varia"
             },
             "BEBIDAS": {
-                "coca lata normal 350ml": "0 DZ",
-                "coca lata 350ml zero": "0",
-                "schwepps citrus": "3 FRDS",
-                "sprite": "1 FRDS",
-                "tonica lata": "2 FRDS",
-                "fruki guarana": "3 FRDS",
-                "agua sem gás": "3 FARDO",
-                "agua com gas": "4 FARDOS",
-                "suco laranja": "1 FARDOS",
-                "suco uva": "1 FARDOS",
-                "Espumante moscatel": "6 UNI",
-                "Espumante moscatel Rosé": "3 UNI",
-                "Espumante Brut": "5 UNI",
-                "Refri Litro Almoço": "4 LTRS"
+                "coca lata normal 350ml": "20dz",
+                "coca lata 350ml zero": "20dz",
+                "schwepps citrus": "varia",
+                "sprite": "varia",
+                "tonica lata": "varia",
+                "fruki guarana": "varia",
+                "agua sem gás": "20dz",
+                "agua com gas": "20dz",
+                "suco laranja": "5dz",
+                "suco uva": "5dz",
+                "Cachaça Rota 48": "varia",
+                "chopp - barril": "varia",
+                "chopp - meio barril": "varia",
+                "aperol": "2",
+                "xarope limão ciciliano": "varia",
+                "xarope frutas vermelha": "varia",
+                "xarope maçã verde": "varia",
+                "heineken long": "12",
+                "heineken long zero": "12",
+                "weber balsamo": "varia",
+                "weber amburana": "varia",
+                "weber acassafras": "varia",
+                "weber gin": "varia",
+                "weber rum": "varia",
+                "Vodka": "varia",
+                "Espumantes": "varia",
+                "Refri Litro Almoço": "varia"
             },
             "VERDURAS": {
-                "batata branca": "1 SACO",
-                "tempero verde": "0 PCT",
-                "cebola branca": "1/2 SACO",
-                "alho": "7 CBÇ",
-                "limão": "0",
-                "morango": "0",
-                "maracuja": "0",
-                "cenoura": "0 UNI",
-                "Tomate seco": "3 BALDINHO"
+                "batata branca": "1saco",
+                "mix": "1dz",
+                "tempero verde": "4uni",
+                "cebola branca": "1saco",
+                "alho": "varia",
+                "limão": "6kg",
+                "morango": "varia",
+                "maracuja": "4pote",
+                "cenoura": "varia",
+                "limão siciliano": "varia",
+                "manjericão": "varia",
+                "hortelã": "varia",
+                "Tomate seco": "varia",
+                "cebolete massa": "varia",
+                "cebolete maionese": "varia"
             },
             "SECOS": {
-                "leite": "4 LTR",
-                "leite em pó": "0 PCT",
-                "sagu": "7 PCTS",
-                "ovo em pó integral": "2 PCTS",
-                "molho branco pó": "1 PCT",
-                "óleo oliva": "1/4 GALÃO",
-                "lemon pepper": "1/2 BALDINHO",
-                "Chimichuri": "2 PCTs",
-                "café 500gr": "3 PCTS",
-                "bisnaga cheddar": "1 PCT",
-                "sal fino": "7 PCT",
-                "nozes": "0,5 PCT",
-                "farinha panko": "13 PCT",
-                "Tempero Batata": "18 PCTS",
-                "arroz": "9 PCT",
-                "feijão": "5 PCT",
-                "vinagre": "15 UNI",
-                "sal grosso": "9 PCT",
-                "amido milho": "5 kg",
-                "açúcar": "8 PCT",
-                "farinha trigo": "10 PCT",
-                "Ovos": "90 UNI"
+                "leite": "10uni",
+                "leite em pó": "varia",
+                "sagu": "varia",
+                "Queijo Ralado parmesão": "varia",
+                "ovo em pó integral": "2uni",
+                "molho branco pó": "varia",
+                "óleo oliva": "varia",
+                "lemon pepper": "2uni",
+                "Chimichuri": "varia",
+                "Tempero para Frango": "varia",
+                "café 500gr": "5uni",
+                "bisnaga cheddar": "varia",
+                "cheddar fatiado": "varia",
+                "bisnaga Requeijão c/amido": "varia",
+                "sal fino": "12uni",
+                "nozes": "varia",
+                "corante gema ovo": "2uni",
+                "Molho tomate": "varia",
+                "farinha panko": "varia",
+                "farinha temperada fritz frida": "varia",
+                "Farinha de mandioca": "varia",
+                "páprica defumada": "varia",
+                "shoyu": "varia",
+                "molho inglês": "varia",
+                "Tempero Batata": "varia",
+                "arroz": "5kg",
+                "feijão": "5kg",
+                "vinagre": "varia",
+                "sal grosso": "12",
+                "amido milho": "6uni",
+                "óleo soja": "20un",
+                "óleo algodão": "1balde",
+                "açúcar": "10uni",
+                "amaciante carne": "2unid",
+                "farinha trigo": "varia",
+                "Doce de leite fritz frida": "varia",
+                "Orégano": "varia",
+                "Creme de Leite": "varia",
+                "leite condensado": "varia",
+                "Pêssego": "varia",
+                "figo": "varia",
+                "Ovos": "varia",
+                "suco maracuja": "varia",
+                "suco morango": "varia"
             },
             "LIMPEZA E EMBALAGENS": {
-                "detergente": "0 GALÃO",
-                "Desinfetante andiroba": "1 GALÃO",
-                "adocante": "2 UNI",
-                "copo termico 100ml": "16 PCT",
-                "Copinho de Café": "11 PCT",
-                "colher café": "4 PCT",
-                "bobina impressora": "1 CX",
-                "esponja": "5 UNI",
-                "bloco sanitário": "12 PCT",
-                "guardanapo sache": "1,5 CX",
-                "papel toalha rolo": "2 PCTS",
-                "papel higiênico": "7 UNI",
-                "Papel Toalha Intercalado": "12 UNI",
-                "luvas nitrílica M": "1 PCT",
-                "luvas nitrílica GG": "1 PCT",
-                "Palito de dente": "1 PCT",
-                "Touca descartável": "1 PCT"
+                "detergente": "2",
+                "Desinfetante andiroba": "2",
+                "adocante": "1",
+                "Alvejante": "2",
+                "Detergente Desinfetante": "2",
+                "copos": "varia",
+                "colher café": "2",
+                "canudo": "2",
+                "bobinas": "varia",
+                "esponja": "6",
+                "bombril": "3",
+                "sacos lixo 100lt": "varia",
+                "sacos lixo 60l": "varia",
+                "sacos lixo 30lt": "varia",
+                "F200": "2uni",
+                "bloco sanitário": "6",
+                "guardanapo sache": "2cx",
+                "saco talher": "2saco",
+                "papel toalha rolo": "6uni",
+                "papel higiênico": "6uni",
+                "Papel Toalha Intercalado": "varia",
+                "luvas nitrílica M": "varia",
+                "luvas nitrílica GG": "varia",
+                "papel alumínio": "2uni",
+                "Esfregão chapa": "1tira",
+                "Álcool": "1",
+                "Palito de dente": "1",
+                "Touca descartável": "1",
+                "Sabonete Líquido": "varia"
             },
             "SALGADOS": {
-                "risole brócolis": "1,5 PCT",
-                "risole salsicha": "1 PCT",
-                "Risole calabresa": "2,5 PCT",
-                "mini churros doce de leite": "1,5 PCT",
-                "Folhado goiaba": "1 PCT",
-                "Enroladinho": "2 PCT",
-                "risole queijo/milho": "1 PCT",
-                "Coxinha panko": "0,5 PCT",
-                "trouxinha": "0,25 PCT"
+                "rissole brócolis": "varia",
+                "rissole salsicha": "varia",
+                "Risole calabresa": "varia",
+                "Risole queijo-milho": "varia",
+                "mini churros doce de leite": "varia",
+                "Folhado goiaba": "varia",
+                "Enroladinho": "varia",
+                "Coxinha panko": "varia",
+                "trouxinha": "varia"
             }
         };
 
+        let dados = {};
         let precos = {};
-        let status = {};
 
         function inicializar() {
-            // Carrega preços e status salvos
-            const precosSalvos = localStorage.getItem('estoque_precos');
-            if (precosSalvos) precos = JSON.parse(precosSalvos);
-
-            const statusSalvo = localStorage.getItem('estoque_status');
-            if (statusSalvo) status = JSON.parse(statusSalvo);
-
             // Popula filtro de setores
             const setorFilter = document.getElementById('setorFilter');
             Object.keys(estoqueDoGoogleDrive).forEach(setor => {
@@ -421,16 +428,38 @@
                 setorFilter.appendChild(option);
             });
 
-            renderizar();
-            atualizarInfos();
+            // Carrega dados em tempo real
+            database.ref('estoque').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    dados = snapshot.val();
+                } else {
+                    dados = {};
+                }
+                renderizar();
+                atualizarInfos();
+            });
+
+            database.ref('precos').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    precos = snapshot.val();
+                } else {
+                    precos = {};
+                }
+                renderizar();
+            });
+
+            document.getElementById('setorFilter').addEventListener('change', renderizar);
+            document.getElementById('apenasPreenchidos').addEventListener('change', renderizar);
         }
 
         function renderizar() {
             const tabela = document.getElementById('tabela');
             const setorSelecionado = document.getElementById('setorFilter').value;
-            const apenasComprar = document.getElementById('apenasComprar').checked;
+            const apenasPreenchidos = document.getElementById('apenasPreenchidos').checked;
 
             tabela.innerHTML = '';
+
+            let temDados = false;
 
             Object.keys(estoqueDoGoogleDrive).forEach(setor => {
                 if (setorSelecionado && setorSelecionado !== setor) return;
@@ -438,101 +467,48 @@
                 const produtos = estoqueDoGoogleDrive[setor];
 
                 Object.keys(produtos).forEach(produto => {
-                    const estoque = produtos[produto];
                     const chave = `${setor}|${produto}`;
-                    const statusAtual = status[chave] || 'comprar';
+                    const quantidade = dados[chave] || '';
 
-                    if (apenasComprar && statusAtual !== 'comprar') return;
+                    if (apenasPreenchidos && !quantidade) return;
+
+                    temDados = true;
 
                     const tr = document.createElement('tr');
-
-                    const iconeStatus = statusAtual === 'comprar' ? '🔴' : statusAtual === 'comprado' ? '✅' : '⚪';
-                    const labelStatus = statusAtual === 'comprar' ? 'Comprar' : statusAtual === 'comprado' ? 'Comprado' : 'Não necessita';
-
                     tr.innerHTML = `
                         <td><span class="setor-badge">${setor}</span></td>
                         <td>${produto}</td>
-                        <td>${estoque}</td>
+                        <td>${quantidade || '-'}</td>
                         <td>
-                            <input type="number" class="preco-input" id="preco_${chave}" 
-                                   placeholder="R$" step="0.01" min="0"
+                            <input type="text" class="preco-input" id="preco_${chave}"
+                                   placeholder="R$ 0,00"
                                    value="${precos[chave] || ''}"
                                    onchange="salvarPreco('${chave}')">
                         </td>
-                        <td>
-                            <div class="dropdown-wrapper">
-                                <button class="btn-status btn-${statusAtual}" onclick="abrirDropdown(this)">
-                                    ${iconeStatus} ${labelStatus}
-                                </button>
-                                <div class="status-menu">
-                                    <div class="status-item" onclick="mudarStatus('${chave}', 'comprar', this)">🔴 Comprar</div>
-                                    <div class="status-item" onclick="mudarStatus('${chave}', 'comprado', this)">✅ Comprado</div>
-                                    <div class="status-item" onclick="mudarStatus('${chave}', 'nao-necessita', this)">⚪ Não necessita</div>
-                                </div>
-                            </div>
-                        </td>
                     `;
-
                     tabela.appendChild(tr);
                 });
             });
-        }
 
-        function abrirDropdown(btn) {
-            const menu = btn.nextElementSibling;
-            const aberto = menu.classList.contains('open');
-            document.querySelectorAll('.status-menu').forEach(m => m.classList.remove('open'));
-            if (!aberto) menu.classList.add('open');
-        }
-
-        function mudarStatus(chave, novoStatus, item) {
-            status[chave] = novoStatus;
-            item.closest('.status-menu').classList.remove('open');
-            renderizar();
-            atualizarInfos();
+            if (!temDados && !apenasPreenchidos) {
+                tabela.innerHTML = '<tr><td colspan="4" class="loading">⏳ Aguardando dados do funcionário...</td></tr>';
+            } else if (!temDados && apenasPreenchidos) {
+                tabela.innerHTML = '<tr><td colspan="4" class="loading">Nenhum produto preenchido ainda</td></tr>';
+            }
         }
 
         function salvarPreco(chave) {
             const input = document.getElementById(`preco_${chave}`);
-            precos[chave] = input.value;
-            localStorage.setItem('estoque_precos', JSON.stringify(precos));
-        }
-
-        function salvarDados() {
-            localStorage.setItem('estoque_status', JSON.stringify(status));
-            localStorage.setItem('estoque_precos', JSON.stringify(precos));
-            localStorage.setItem('estoque_data', new Date().toLocaleString('pt-BR'));
-            alert('✅ Dados salvos com sucesso!');
-            atualizarInfos();
+            database.ref(`precos/${chave}`).set(input.value);
         }
 
         function atualizarInfos() {
-            let totalProdutos = 0;
-            let paraComprar = 0;
-
-            Object.keys(estoqueDoGoogleDrive).forEach(setor => {
-                totalProdutos += Object.keys(estoqueDoGoogleDrive[setor]).length;
-            });
-
-            Object.keys(status).forEach(chave => {
-                if (status[chave] === 'comprar') paraComprar++;
-            });
-
-            document.getElementById('totalProdutos').textContent = totalProdutos;
-            document.getElementById('paraComprar').textContent = paraComprar;
-
-            const dataAtualizada = localStorage.getItem('estoque_data');
-            if (dataAtualizada) {
-                document.getElementById('ultimaAtualizacao').textContent = dataAtualizada;
-            }
+            const total = Object.keys(dados).length;
+            document.getElementById('totalProdutos').textContent = total;
+            document.getElementById('ultimaAtualizacao').textContent = new Date().toLocaleTimeString('pt-BR');
         }
-
-        document.getElementById('setorFilter').addEventListener('change', renderizar);
-        document.getElementById('apenasComprar').addEventListener('change', renderizar);
 
         inicializar();
     </script>
 </body>
-</html>
-</html>
 </html>
