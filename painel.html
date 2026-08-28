@@ -119,7 +119,7 @@
         }
 
         .preco-input {
-            width: 100px;
+            width: 120px;
             padding: 6px 8px;
             border: 1px solid var(--border);
             border-radius: 4px;
@@ -156,14 +156,33 @@
             margin-top: 4px;
         }
 
-        .estoque-vazio {
-            color: #dc2626;
+        .estoque-contado {
+            background: #d1fae5;
+            padding: 4px 8px;
+            border-radius: 4px;
             font-weight: 600;
+            color: #065f46;
         }
 
-        .estoque-baixo {
-            color: #f59e0b;
+        .link-contagem {
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            text-decoration: none;
             font-weight: 600;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+
+        .link-contagem:hover {
+            background: #2563eb;
+        }
+
+        .status-sync {
+            font-size: 12px;
+            color: var(--primary);
+            margin-top: 0.5rem;
         }
     </style>
 </head>
@@ -171,8 +190,10 @@
     <div class="container">
         <div class="header">
             <h1>📊 Painel de Gerenciamento - Canto Verde</h1>
-            <p style="color: #666; margin-top: 0.5rem;">Estoque da Semana - Google Drive</p>
+            <p style="color: #666; margin-top: 0.5rem;">Sincronizado em tempo real com contagem</p>
         </div>
+
+        <a href="contagem.html" class="link-contagem">➕ Ir para Contagem</a>
 
         <div class="info-bar">
             <div class="info-card">
@@ -180,22 +201,22 @@
                 <div class="info-label">Produtos Total</div>
             </div>
             <div class="info-card">
-                <div class="info-value" id="produtosVazios">0</div>
-                <div class="info-label">Sem Estoque</div>
+                <div class="info-value" id="produtosContados">0</div>
+                <div class="info-label">Já Contados</div>
             </div>
             <div class="info-card">
-                <div class="info-value" id="ultimaAtualizacao">Agora</div>
+                <div class="info-value" id="ultimaAtualizacao">⏳</div>
                 <div class="info-label">Última Atualização</div>
             </div>
         </div>
 
         <div class="filters">
-            <select id="setorFilter">
-                <option value="">Todos os Setores</option>
+            <select id="setorFilter" onchange="filtrar()">
+                <option value="">📦 Todos os Setores</option>
             </select>
             <label>
-                <input type="checkbox" id="apenasVazios">
-                Apenas sem estoque
+                <input type="checkbox" id="apenasContados" onchange="filtrar()">
+                Apenas contados
             </label>
         </div>
 
@@ -203,12 +224,17 @@
             <thead>
                 <tr>
                     <th style="width: 15%;">Setor</th>
-                    <th style="width: 35%;">Produto</th>
-                    <th style="width: 20%;">Estoque</th>
-                    <th style="width: 30%;">Preço Atual (R$)</th>
+                    <th style="width: 25%;">Produto</th>
+                    <th style="width: 20%;">Contagem</th>
+                    <th style="width: 20%;">Ideal</th>
+                    <th style="width: 20%;">Preço (R$)</th>
                 </tr>
             </thead>
-            <tbody id="tabela"></tbody>
+            <tbody id="tabela">
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 2rem;">⏳ Carregando...</td>
+                </tr>
+            </tbody>
         </table>
     </div>
 
@@ -216,7 +242,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script>
 
     <script>
-        // Configuração Firebase
+        // Firebase
         const firebaseConfig = {
             databaseURL: "https://canto-verde-estoque-default-rtdb.firebaseio.com"
         };
@@ -224,194 +250,197 @@
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database(app);
 
-        // TODOS OS PRODUTOS COM ESTOQUE DA SEMANA (DO GOOGLE DRIVE)
-        const estoqueCompleto = {
+        // ESTOQUE IDEAL DO GOOGLE DRIVE
+        const estoqueIdeal = {
             "CARNES": {
-                "peito frango": "4 PCT",
-                "coxão mole": "4 KG",
-                "salsichão": "1/2 PCT",
-                "alcatra com maminha": "4 PÇS",
-                "Maminha": "0 PEÇAS",
-                "Filé Mignon": "0 PEÇAS",
-                "Capa do filé": "3 PEÇA",
-                "Costela Porco/barbecue": "3 PÇS",
-                "Picanha de Porco/maracuja": "6 PEÇAS",
-                "Cupim": "7 PEÇAS"
+                "peito frango": "60kg",
+                "coxão mole": "60kg",
+                "salsichão": "40kg",
+                "alcatra com maminha": "varia",
+                "Maminha": "30kg",
+                "Filé Mignon": "20kg",
+                "Capa do filé": "20kg",
+                "Costela Porco/barbecue": "40kg",
+                "Picanha de Porco/maracuja": "varia",
+                "Cupim": "varia"
             },
             "CONGELADOS E RESFRIADOS": {
-                "queijo coalho": "3 UNI",
-                "bacon cubos": "",
-                "massa Tortei": "1 PCT GRANDE",
-                "Massa ravioli Verde": "13 PCT",
-                "massa larga fettucine": "4 PCT",
-                "macarrão": "7 UNI",
-                "Massa gaelzer": "5 PCT",
-                "batata frita": "5 e 1/2 PCT",
-                "Dado de tapioca": "9 PCT",
-                "gorgonzola": "1/2 PEÇA",
-                "balde nata": "0 BLDS",
-                "queijo mussarela": "1/2 PCT",
-                "manteiga": "1/2 BLD",
-                "geleia de pimenta/maçã": "0 BLD",
-                "Creme de Alho": "0 PCTS",
-                "Molho de Pimenta": "1/2 FRASCO",
-                "molho barbecue": "0",
-                "molho maracuja": "0"
+                "queijo coalho": "10uni",
+                "bacon cubos": "varia",
+                "massa Tortei": "10uni",
+                "Massa ravioli Verde": "varia",
+                "massa larga fettucine": "varia",
+                "macarrão": "varia",
+                "Massa gaelzer": "varia",
+                "batata frita": "4cx",
+                "Dado de tapioca": "4cx",
+                "gorgonzola": "varia",
+                "balde nata": "varia",
+                "queijo mussarela": "varia",
+                "manteiga": "varia",
+                "geleia de pimenta/maçã": "varia",
+                "Creme de Alho": "varia",
+                "Molho de Pimenta": "varia",
+                "molho barbecue": "varia",
+                "molho maracuja": "varia"
             },
             "BEBIDAS": {
-                "coca lata normal 350ml": "0 DZ",
-                "coca lata 350ml zero": "0",
-                "schwepps citrus": "3 FRDS",
-                "sprite": "1 FRDS",
-                "tonica lata": "2 FRDS",
-                "fruki guarana": "3 FRDS",
-                "agua sem gás": "3 FARDO",
-                "agua com gas": "4 FARDOS",
-                "suco laranja": "1 FARDOS",
-                "suco uva": "1 FARDOS",
-                "Cachaça Rota 48": "",
-                "chopp barril": "",
-                "chopp meio barril": "",
-                "aperol": "",
-                "xarope limão ciciliano": "1",
-                "xarope frutas vermelha": "1",
-                "xarope maçã verde": "1 UNI",
-                "heineken long": "",
-                "heineken long zero": "",
-                "weber balsamo": "",
-                "weber amburana": "",
-                "weber acassafras": "",
-                "weber gin": "",
-                "weber rum": "",
-                "Vodka": "",
-                "Espumante moscatel": "6 UNI",
-                "Espumante moscatel Rosé": "3 UNI",
-                "Espumante Brut": "5 UNI",
-                "Refri Litro Almoço": "4 LTRS"
+                "coca lata normal 350ml": "20dz",
+                "coca lata 350ml zero": "20dz",
+                "schwepps citrus": "varia",
+                "sprite": "varia",
+                "tonica lata": "varia",
+                "fruki guarana": "varia",
+                "agua sem gás": "20dz",
+                "agua com gas": "20dz",
+                "suco laranja": "5dz",
+                "suco uva": "5dz",
+                "Cachaça Rota 48": "varia",
+                "chopp barril": "varia",
+                "chopp meio barril": "varia",
+                "aperol": "2",
+                "xarope limão ciciliano": "varia",
+                "xarope frutas vermelha": "varia",
+                "xarope maçã verde": "varia",
+                "heineken long": "12",
+                "heineken long zero": "12",
+                "Espumante moscatel": "varia",
+                "Espumante moscatel Rosé": "varia",
+                "Espumante Brut": "varia",
+                "Refri Litro Almoço": "varia"
             },
             "VERDURAS": {
-                "batata branca": "1 SACO",
-                "mix": "",
-                "tempero verde": "0 PCT",
-                "cebola branca": "1/2 SACO",
-                "alho": "7 CBÇ",
-                "limão": "0",
-                "morango": "0",
-                "maracuja": "0",
-                "cenoura": "0 UNI",
-                "limão siciliano": "0",
-                "manjericão": "0 PCT",
-                "hortelã": "0 PCT",
-                "Tomate seco": "3 BALDINHO",
-                "cebolete massa": "0",
-                "cebolete maionese": ""
+                "batata branca": "1saco",
+                "mix": "1dz",
+                "tempero verde": "4uni",
+                "cebola branca": "1saco",
+                "alho": "varia",
+                "limão": "6kg",
+                "morango": "varia",
+                "maracuja": "4pote",
+                "cenoura": "varia",
+                "limão siciliano": "varia",
+                "manjericão": "varia",
+                "hortelã": "varia",
+                "Tomate seco": "varia",
+                "cebolete massa": "varia",
+                "cebolete maionese": "varia"
             },
             "SECOS": {
-                "leite": "4 LTR",
-                "leite em pó": "0 PCT",
-                "sagu": "7 PCTS",
-                "Queijo Ralado parmesão": "0",
-                "ovo em pó integral": "2 PCTS",
-                "molho branco pó": "1 PCT",
-                "óleo oliva": "1/4 GALÃO",
-                "lemon pepper": "1/2 BALDINHO",
-                "Chimichuri": "2 PCTs",
-                "Tempero para Frango": "0",
-                "café 500gr": "3 PCTS",
-                "bisnaga cheddar": "1 PCT",
-                "cheddar fatiado": "0 PCT",
-                "bisnaga Requeijão c/amido": "1/2 PCT",
-                "sal fino": "7 PCT",
-                "nozes": "0,5 PCT",
-                "corante gema ovo": "0,25",
-                "Molho tomate": "0 PCT",
-                "farinha panko": "13 PCT",
-                "farinha temperada fritz frida": "0 PCTS",
-                "Farinha de mandioca": "0,5 BALDE",
-                "paprica defumada": "1 BLD",
-                "shoyu": "0,5 FRASCO",
-                "molho inglês": "1 FRASCO",
-                "Tempero Batata": "18 PCTS",
-                "arroz": "9 PCT",
-                "feijão": "5 PCT",
-                "vinagre": "15 UNI",
-                "Vinagre de Vinho Tinto": "6 UNI",
-                "sal grosso": "9 PCT",
-                "amido milho": "5 kg",
-                "óleo soja": "0 UNI",
-                "óleo algodão": "1/4 BLD",
-                "açúcar": "8 PCT",
-                "amaciante carne": "0 balde",
-                "farinha trigo": "10 PCT",
-                "Doce de leite fritz frida": "1/2 BALDINHO",
-                "Orégano": "1/3 BALDINHO",
-                "Creme de Leite": "2 UNI",
-                "leite condensado": "0 UNI",
-                "Pêssego": "5 UNI",
-                "figo": "5 UNI",
-                "Ovos": "90 UNI",
-                "suco maracuja": "",
-                "suco morango": ""
+                "leite": "10uni",
+                "leite em pó": "varia",
+                "sagu": "varia",
+                "Queijo Ralado parmesão": "varia",
+                "ovo em pó integral": "2uni",
+                "molho branco pó": "varia",
+                "óleo oliva": "varia",
+                "lemon pepper": "2uni",
+                "Chimichuri": "varia",
+                "Tempero para Frango": "varia",
+                "café 500gr": "5uni",
+                "bisnaga cheddar": "varia",
+                "cheddar fatiado": "varia",
+                "bisnaga Requeijão c/amido": "varia",
+                "sal fino": "12uni",
+                "nozes": "varia",
+                "corante gema ovo": "2uni",
+                "Molho tomate": "varia",
+                "farinha panko": "varia",
+                "farinha temperada fritz frida": "varia",
+                "Farinha de mandioca": "varia",
+                "páprica defumada": "varia",
+                "shoyu": "varia",
+                "molho inglês": "varia",
+                "Tempero Batata": "varia",
+                "arroz": "5kg",
+                "feijão": "5kg",
+                "vinagre": "varia",
+                "sal grosso": "12",
+                "amido milho": "6uni",
+                "óleo soja": "20un",
+                "óleo algodão": "1balde",
+                "açúcar": "10uni",
+                "amaciante carne": "2unid",
+                "farinha trigo": "varia",
+                "Doce de leite fritz frida": "varia",
+                "Orégano": "varia",
+                "Creme de Leite": "varia",
+                "leite condensado": "varia",
+                "Pêssego": "varia",
+                "figo": "varia",
+                "Ovos": "varia",
+                "suco maracuja": "varia",
+                "suco morango": "varia"
             },
             "LIMPEZA E EMBALAGENS": {
-                "detergente": "0 GALÃO",
-                "Desinfetante andiroba": "1 GALÃO",
-                "adocante": "2 UNI",
-                "Alvejante": "0",
-                "Detergente Desinfetante": "0 GALÃO",
-                "copo termico 100ml": "16 PCT",
-                "Copinho de Café": "11 PCT",
-                "colher café": "4 PCT",
-                "canudo": "0,5 CX",
-                "bobina impressora": "1 CX",
-                "Bobina maquininha": "1 CX",
-                "esponja": "5 UNI",
-                "bombril": "0 PCT",
-                "saco lixo 100lt": "3 PCT",
-                "saco lixo 60l": "3 PCT",
-                "saco lixo 30lt": "0 PCT",
-                "F200 desengordurante": "1 GALÃO",
-                "bloco sanitário": "12 PCT",
-                "guardanapo sache": "1,5 CX",
-                "saco talher": "0 PCTS",
-                "papel toalha rolo": "2 PCTS",
-                "papel higiênico": "7 UNI",
-                "Papel Toalha Intercalado": "12 UNI",
-                "luvas nitrílica M": "1 PCT",
-                "luvas nitrílica GG": "1 PCT",
-                "papel alumínio": "0 PCT",
-                "Esfregão de Aço para chapa": "1 PCT",
-                "Álcool": "0 GALÃO",
-                "Palito de dente": "1 PCT",
-                "Touca descartável": "1 PCT",
-                "Sabonete Líquido": "0 GALÃO"
+                "detergente": "2",
+                "Desinfetante andiroba": "2",
+                "adocante": "1",
+                "Alvejante": "2",
+                "Detergente Desinfetante": "2",
+                "copos": "varia",
+                "colher café": "2",
+                "canudo": "2",
+                "bobinas": "varia",
+                "esponja": "6",
+                "bombril": "3",
+                "sacos lixo 100lt": "varia",
+                "sacos lixo 60l": "varia",
+                "sacos lixo 30lt": "varia",
+                "F200": "2uni",
+                "bloco sanitário": "6",
+                "guardanapo sache": "2cx",
+                "saco talher": "2saco",
+                "papel toalha rolo": "6uni",
+                "papel higiênico": "6uni",
+                "Papel Toalha Intercalado": "varia",
+                "luvas nitrílica M": "varia",
+                "luvas nitrílica GG": "varia",
+                "papel alumínio": "2uni",
+                "Esfregão chapa": "1tira",
+                "Álcool": "1",
+                "Palito de dente": "1",
+                "Touca descartável": "1",
+                "Sabonete Líquido": "varia"
             },
             "SALGADOS": {
-                "risole brócolis": "1,5 PCT",
-                "risole salsicha": "1 PCT",
-                "Risole calabresa": "2,5 PCT",
-                "mini churros doce de leite": "1,5 PCT",
-                "Folhado goiaba": "1 PCT",
-                "Enroladinho": "2 PCT",
-                "risole queijo/milho": "1 PCT",
-                "Coxinha panko": "0,5 PCT",
-                "trouxinha": "0,25 PCT"
+                "rissole brócolis": "varia",
+                "rissole salsicha": "varia",
+                "Risole calabresa": "varia",
+                "Risole queijo-milho": "varia",
+                "mini churros doce de leite": "varia",
+                "Folhado goiaba": "varia",
+                "Enroladinho": "varia",
+                "Coxinha panko": "varia",
+                "trouxinha": "varia"
             }
         };
 
+        let contagens = {};
         let precos = {};
 
         function inicializar() {
-            // Popula filtro de setores
+            // Popula setores
             const setorFilter = document.getElementById('setorFilter');
-            Object.keys(estoqueCompleto).forEach(setor => {
+            Object.keys(estoqueIdeal).forEach(setor => {
                 const option = document.createElement('option');
                 option.value = setor;
                 option.textContent = setor;
                 setorFilter.appendChild(option);
             });
 
-            // Carrega preços do Firebase
+            // Sincroniza contagens do Firebase
+            database.ref('estoque').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    contagens = snapshot.val();
+                } else {
+                    contagens = {};
+                }
+                renderizar();
+                atualizarInfos();
+            });
+
+            // Sincroniza preços do Firebase
             database.ref('precos').on('value', (snapshot) => {
                 if (snapshot.exists()) {
                     precos = snapshot.val();
@@ -419,11 +448,7 @@
                     precos = {};
                 }
                 renderizar();
-                atualizarInfos();
             });
-
-            document.getElementById('setorFilter').addEventListener('change', renderizar);
-            document.getElementById('apenasVazios').addEventListener('change', renderizar);
 
             renderizar();
             atualizarInfos();
@@ -432,34 +457,34 @@
         function renderizar() {
             const tabela = document.getElementById('tabela');
             const setorSelecionado = document.getElementById('setorFilter').value;
-            const apenasVazios = document.getElementById('apenasVazios').checked;
+            const apenasContados = document.getElementById('apenasContados').checked;
 
             tabela.innerHTML = '';
 
-            Object.keys(estoqueCompleto).forEach(setor => {
+            Object.keys(estoqueIdeal).forEach(setor => {
                 if (setorSelecionado && setorSelecionado !== setor) return;
 
-                const produtos = estoqueCompleto[setor];
-
+                const produtos = estoqueIdeal[setor];
                 Object.keys(produtos).forEach(produto => {
-                    const estoque = produtos[produto];
                     const chave = `${setor}|${produto}`;
-                    const estaVazio = estoque === '' || estoque === '0' || estoque === '0 PEÇAS' || estoque === '0 PCT' || estoque === '0 BLDS' || estoque === '0 DZ' || estoque === '0 GALÃO';
-                    
-                    if (apenasVazios && !estaVazio) return;
+                    const contagem = contagens[chave] || '';
+                    const preco = precos[chave] || '';
+                    const ideal = produtos[produto];
+
+                    if (apenasContados && !contagem) return;
 
                     const tr = document.createElement('tr');
-                    const classeEstoque = estaVazio ? 'estoque-vazio' : '';
-                    
+                    const classeContagem = contagem ? 'estoque-contado' : '';
+
                     tr.innerHTML = `
                         <td><span class="setor-badge">${setor}</span></td>
                         <td>${produto}</td>
-                        <td class="${classeEstoque}">${estoque || '⚠️ VAZIO'}</td>
+                        <td class="${classeContagem}">${contagem || '⏳'}</td>
+                        <td>${ideal}</td>
                         <td>
-                            <input type="text" class="preco-input" id="preco_${chave}"
-                                   placeholder="R$ 0,00"
-                                   value="${precos[chave] || ''}"
-                                   onchange="salvarPreco('${chave}')">
+                            <input type="text" class="preco-input" placeholder="0,00"
+                                   value="${preco}"
+                                   onchange="salvarPreco('${chave}', this.value)">
                         </td>
                     `;
                     tabela.appendChild(tr);
@@ -467,28 +492,30 @@
             });
         }
 
-        function salvarPreco(chave) {
-            const input = document.getElementById(`preco_${chave}`);
-            database.ref(`precos/${chave}`).set(input.value);
+        function salvarPreco(chave, valor) {
+            database.ref(`precos/${chave}`).set(valor);
+        }
+
+        function filtrar() {
+            renderizar();
         }
 
         function atualizarInfos() {
             let totalProdutos = 0;
-            let produtosVazios = 0;
+            let produtosContados = 0;
 
-            Object.keys(estoqueCompleto).forEach(setor => {
-                const produtos = estoqueCompleto[setor];
-                Object.keys(produtos).forEach(produto => {
+            Object.keys(estoqueIdeal).forEach(setor => {
+                Object.keys(estoqueIdeal[setor]).forEach(produto => {
                     totalProdutos++;
-                    const estoque = produtos[produto];
-                    if (estoque === '' || estoque === '0' || estoque === '0 PEÇAS' || estoque === '0 PCT' || estoque === '0 BLDS' || estoque === '0 DZ' || estoque === '0 GALÃO') {
-                        produtosVazios++;
+                    const chave = `${setor}|${produto}`;
+                    if (contagens[chave]) {
+                        produtosContados++;
                     }
                 });
             });
 
             document.getElementById('totalProdutos').textContent = totalProdutos;
-            document.getElementById('produtosVazios').textContent = produtosVazios;
+            document.getElementById('produtosContados').textContent = produtosContados;
             document.getElementById('ultimaAtualizacao').textContent = new Date().toLocaleTimeString('pt-BR');
         }
 
