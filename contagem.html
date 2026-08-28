@@ -3,962 +3,497 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contagem de Estoque</title>
+    <title>Contagem de Estoque - Canto Verde</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
         :root {
-            --text-primary: #1a1a1a;
-            --text-secondary: #666;
-            --text-muted: #999;
-            --surface-0: #f5f5f5;
-            --surface-1: #efefef;
-            --surface-2: #ffffff;
+            --primary: #3b82f6;
+            --success: #16a34a;
+            --bg: #f5f5f5;
+            --surface: #fff;
+            --text: #1a1a1a;
             --border: #e0e0e0;
-            --border-strong: #ccc;
-            --fill-accent: #3b82f6;
-            --on-accent: #ffffff;
-            --bg-accent: #dbeafe;
-            --text-accent: #1e40af;
-            --bg-warning: #fef3c7;
-            --text-warning: #92400e;
-            --bg-success: #dcfce7;
-            --text-success: #166534;
-            --bg-danger: #fee2e2;
-            --text-danger: #991b1b;
             --radius: 16px;
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
-                --text-primary: #f0f0f0;
-                --text-secondary: #b0b0b0;
-                --text-muted: #808080;
-                --surface-0: #1a1a1a;
-                --surface-1: #2a2a2a;
-                --surface-2: #3a3a3a;
+                --bg: #1a1a1a;
+                --surface: #2a2a2a;
+                --text: #f0f0f0;
                 --border: #404040;
-                --border-strong: #505050;
-                --fill-accent: #3b82f6;
-                --on-accent: #ffffff;
-                --bg-accent: #1e3a8a;
-                --text-accent: #93c5fd;
-                --bg-warning: #78350f;
-                --text-warning: #fcd34d;
-                --bg-success: #064e3b;
-                --text-success: #86efac;
-                --bg-danger: #7f1d1d;
-                --text-danger: #fca5a5;
             }
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: var(--surface-0);
-            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 1.5rem;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 2rem;
         }
 
         .header {
+            text-align: center;
             margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 0.5rem;
+        }
+
+        .info {
+            background: var(--surface);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
             text-align: center;
         }
 
-        .header h1 {
-            font-size: 24px;
-            font-weight: 500;
-            margin: 0 0 0.5rem 0;
-            color: var(--text-primary);
-        }
-
-        .header p {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin: 0;
-        }
-
-        .add-product-btn {
-            display: flex;
-            justify-content: center;
+        .setor {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             margin-bottom: 1.5rem;
-        }
-
-        .add-btn {
-            padding: 10px 20px;
-            background: var(--fill-accent);
-            color: var(--on-accent);
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-
-        .add-btn:hover {
-            opacity: 0.9;
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-        }
-
-        .modal {
-            background: var(--surface-2);
-            border-radius: 24px;
-            border: 0.5px solid var(--border);
-            padding: 1.5rem;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-        }
-
-        .modal h2 {
-            font-size: 18px;
-            font-weight: 500;
-            margin: 0 0 1rem 0;
-            color: var(--text-primary);
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 6px;
-            color: var(--text-primary);
-        }
-
-        input[type="text"],
-        select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 0.5px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 14px;
-            color: var(--text-primary);
-            background: var(--surface-1);
-            font-family: inherit;
-        }
-
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: var(--border-strong);
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 8px;
-            margin-top: 1.5rem;
-        }
-
-        .modal-buttons button {
-            flex: 1;
-            padding: 8px 16px;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .confirm-btn {
-            background: var(--fill-accent);
-            color: var(--on-accent);
-        }
-
-        .confirm-btn:hover {
-            opacity: 0.9;
-        }
-
-        .cancel-btn {
-            background: transparent;
-            border: 0.5px solid var(--border-strong);
-            color: var(--text-primary);
-        }
-
-        .cancel-btn:hover {
-            background: var(--surface-1);
-        }
-
-        .setor-section {
-            margin-bottom: 2rem;
+            overflow: hidden;
         }
 
         .setor-header {
-            background: var(--fill-accent);
-            color: var(--on-accent);
-            padding: 12px 16px;
-            border-radius: var(--radius);
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
             cursor: pointer;
+            font-weight: 600;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-weight: 500;
-            margin-bottom: 1rem;
-            user-select: none;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
         }
 
         .setor-header:hover {
-            opacity: 0.95;
+            background: #2563eb;
         }
 
-        .setor-icon {
-            font-size: 18px;
-            transition: transform 0.2s;
+        .setor-content {
+            padding: 1.5rem;
+            display: none;
         }
 
-        .setor-header.aberto .setor-icon {
-            transform: rotate(90deg);
+        .setor-content.open {
+            display: block;
         }
 
-        .setor-conteudo {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        .produto {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
         }
 
-        .setor-conteudo.aberto {
-            max-height: 5000px;
+        .produto:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
         }
 
-        .item-estoque {
-            background: var(--surface-2);
-            border: 0.5px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px;
-            transition: all 0.2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .item-estoque.salvo {
-            border: 0.5px solid var(--text-success);
-            background: var(--bg-success);
-        }
-
-        .item-estoque.novo {
-            border: 0.5px solid var(--text-accent);
-            background: var(--bg-accent);
-        }
-
-        .item-header {
-            display: grid;
-            grid-template-columns: 1fr 160px;
-            gap: 12px;
-            align-items: flex-start;
-            margin-bottom: 8px;
-        }
-
-        .item-nome-info {
-            flex: 1;
-        }
-
-        .item-nome {
+        .produto-nome {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
             font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-            margin: 0 0 4px 0;
         }
 
-        .item-estoque.salvo .item-nome {
-            color: var(--text-success);
-        }
-
-        .item-estoque.novo .item-nome {
-            color: var(--text-accent);
-        }
-
-        .item-info {
+        .estoque-ideal {
             font-size: 12px;
-            color: var(--text-secondary);
-            margin: 0;
+            color: #666;
+            margin-bottom: 0.5rem;
         }
 
-        .item-estoque.salvo .item-info {
-            color: var(--text-success);
-        }
-
-        .item-estoque.novo .item-info {
-            color: var(--text-accent);
-        }
-
-        .item-input-wrapper {
+        .input-group {
             display: flex;
-            gap: 8px;
-            align-items: flex-end;
+            gap: 0.5rem;
+            align-items: center;
         }
 
-        .item-input {
+        input[type="text"] {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
         }
 
-        .item-input label {
-            font-size: 11px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            font-weight: 500;
-        }
-
-        .item-input input {
-            padding: 6px 8px;
-            border: 0.5px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 12px;
-            color: var(--text-primary);
-            background: var(--surface-1);
-            font-weight: 500;
-            width: 70px;
-            text-align: center;
-        }
-
-        .item-input input:focus {
-            outline: none;
-            border-color: var(--border-strong);
-        }
-
-        .checkmark-badge {
-            background: var(--text-success);
-            color: white;
+        .checkmark {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            display: none;
+            background: #ddd;
+            display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            font-weight: bold;
-            flex-shrink: 0;
+            font-size: 18px;
+            transition: all 0.3s;
         }
 
-        .item-estoque.salvo .checkmark-badge {
-            display: flex;
+        .checkmark.active {
+            background: var(--success);
+            color: white;
         }
 
-        .item-footer {
-            display: flex;
-            gap: 8px;
-            padding-top: 8px;
-            border-top: 0.5px solid var(--border);
-        }
-
-        .item-footer-input {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .item-footer-input label {
-            font-size: 11px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            font-weight: 500;
-        }
-
-        .item-footer-input input {
-            padding: 8px 12px;
-            border: 0.5px solid var(--text-warning);
-            border-radius: var(--radius);
-            font-size: 13px;
-            color: var(--text-primary);
-            background: var(--bg-warning);
-        }
-
-        .item-footer-input input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .delete-btn {
-            background: var(--bg-danger);
-            color: var(--text-danger);
-            border: 0.5px solid var(--text-danger);
-            padding: 4px 8px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 12px;
-            align-self: flex-end;
-        }
-
-        .delete-btn:hover {
-            opacity: 0.8;
-        }
-
-        .footer {
-            position: sticky;
-            bottom: 0;
-            background: var(--surface-0);
-            padding: 1rem;
-            border-top: 0.5px solid var(--border);
-            display: flex;
-            gap: 8px;
-            margin: 2rem -1.5rem -1.5rem -1.5rem;
-        }
-
-        .save-btn {
-            flex: 1;
-            padding: 12px 16px;
-            background: var(--fill-accent);
-            color: var(--on-accent);
+        .btn-salvar {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
             border: none;
             border-radius: var(--radius);
+            font-weight: 600;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            margin-top: 2rem;
+            position: sticky;
+            bottom: 1.5rem;
+            font-size: 16px;
         }
 
-        .save-btn:hover {
-            opacity: 0.9;
+        .btn-salvar:hover {
+            background: #2563eb;
         }
 
-        .save-btn:active {
-            transform: scale(0.98);
+        .status {
+            font-size: 12px;
+            color: #666;
+            margin-top: 0.5rem;
         }
 
-        .error {
-            background: var(--bg-danger);
-            color: var(--text-danger);
+        .status.enviado {
+            color: var(--success);
+        }
+
+        .link-painel {
+            background: var(--primary);
+            color: white;
             padding: 12px;
             border-radius: var(--radius);
-            margin-bottom: 1rem;
-            font-size: 13px;
-            display: none;
-        }
-
-        .error.show {
-            display: block;
-        }
-
-        .success {
-            background: var(--bg-success);
-            color: var(--text-success);
-            padding: 12px;
-            border-radius: var(--radius);
-            margin-bottom: 1rem;
-            font-size: 13px;
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            right: 1rem;
-            max-width: 500px;
-            z-index: 1000;
-        }
-
-        .success.show {
-            display: block;
-        }
-
-        .badge-novo {
+            text-align: center;
+            margin-bottom: 2rem;
+            text-decoration: none;
             display: inline-block;
-            background: var(--bg-accent);
-            color: var(--text-accent);
-            padding: 2px 6px;
-            border-radius: var(--radius);
-            font-size: 11px;
-            font-weight: 500;
-            margin-left: 4px;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .link-painel:hover {
+            background: #2563eb;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Contagem de Estoque</h1>
-            <p>Preencha a quantidade atual e itens para comprar</p>
+            <h1>📊 Contagem de Estoque</h1>
+            <p style="color: #666;">Canto Verde - Registre as quantidades de cada produto</p>
         </div>
 
-        <div class="add-product-btn">
-            <button class="add-btn" onclick="abrirModal()">
-                <i class="fas fa-plus"></i>
-                Adicionar Novo Produto
-            </button>
-        </div>
+        <a href="painel.html" class="link-painel">👀 Ver Painel de Gerenciamento</a>
 
-        <div id="errorMsg" class="error"></div>
-        <div id="successMsg" class="success"></div>
-
-        <div id="modalOverlay" class="modal-overlay">
-            <div class="modal">
-                <h2>Adicionar Novo Produto</h2>
-                <div class="form-group">
-                    <label>Nome do Produto</label>
-                    <input type="text" id="novoProdutoNome" placeholder="Ex: Tomate, Alimento X">
-                </div>
-                <div class="form-group">
-                    <label>Setor</label>
-                    <select id="novoProdutoSetor">
-                        <option value="">Selecione um setor</option>
-                        <option value="CARNES">CARNES</option>
-                        <option value="CONGELADOS E RESFRIADOS">CONGELADOS E RESFRIADOS</option>
-                        <option value="BEBIDAS">BEBIDAS</option>
-                        <option value="Verduras">Verduras</option>
-                        <option value="SECOS">SECOS</option>
-                        <option value="Limpeza e Embalagens">Limpeza e Embalagens</option>
-                        <option value="SALGADOS">SALGADOS</option>
-                        <option value="OUTROS">Outros</option>
-                    </select>
-                </div>
-                <div class="modal-buttons">
-                    <button class="confirm-btn" onclick="adicionarNovoProduto()">Adicionar</button>
-                    <button class="cancel-btn" onclick="fecharModal()">Cancelar</button>
-                </div>
-            </div>
+        <div class="info">
+            <p id="status">✅ Sincronizando com servidor...</p>
         </div>
 
         <div id="setores"></div>
 
-        <div class="footer">
-            <button class="save-btn" onclick="salvarTodos()">
-                <i class="fas fa-check"></i>
-                Salvar Contagem Completa
-            </button>
-        </div>
+        <button class="btn-salvar" onclick="salvarTodos()">
+            💾 Salvar Contagem
+        </button>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script>
+
     <script>
-        let setoresConfig = {
-            'CARNES': [
-                { nome: 'peito frango', ideal: '60kg' },
-                { nome: 'coxão mole', ideal: '60kg' },
-                { nome: 'salsichão', ideal: '40kg' },
-                { nome: 'alcatra com maminha', ideal: '-' },
-                { nome: 'Maminha', ideal: '30kg' },
-                { nome: 'Filé Mignon', ideal: '20kg' },
-                { nome: 'Capa do filé', ideal: '20kg' },
-                { nome: 'Costela Porco/barbecue', ideal: '40kg' },
-                { nome: 'Picanha de Porco/maracuja', ideal: '-' },
-                { nome: 'Cupim', ideal: '-' }
-            ],
-            'CONGELADOS E RESFRIADOS': [
-                { nome: 'queijo coalho', ideal: '10uni' },
-                { nome: 'bacon cubos', ideal: '-' },
-                { nome: 'massa Tortei', ideal: '10uni' },
-                { nome: 'Massa ravioli Verde', ideal: '-' },
-                { nome: 'massa larga fettucine', ideal: '-' },
-                { nome: 'macarrão', ideal: '-' },
-                { nome: 'Massa gaelzer', ideal: '-' },
-                { nome: 'batata frita', ideal: '4cx' },
-                { nome: 'Dado de tapioca', ideal: '4cx' },
-                { nome: 'gorgonzola', ideal: '-' },
-                { nome: 'balde nata', ideal: '-' },
-                { nome: 'queijo mussarela', ideal: '-' },
-                { nome: 'manteiga', ideal: '-' },
-                { nome: 'geleia de pimenta/maçã', ideal: '-' },
-                { nome: 'Creme de Alho', ideal: '-' },
-                { nome: 'Molho de Pimenta', ideal: '-' },
-                { nome: 'molho barbecue', ideal: '-' },
-                { nome: 'molho maracuja', ideal: '-' }
-            ],
-            'BEBIDAS': [
-                { nome: 'coca lata normal 350ml', ideal: '20dz' },
-                { nome: 'coca lata 350ml zero', ideal: '20dz' },
-                { nome: 'schwepps citrus', ideal: '-' },
-                { nome: 'sprite', ideal: '-' },
-                { nome: 'tonica lata', ideal: '-' },
-                { nome: 'fruki guarana', ideal: '-' },
-                { nome: 'agua sem gás', ideal: '20dz' },
-                { nome: 'agua com gás', ideal: '20dz' },
-                { nome: 'suco laranja', ideal: '5dz' },
-                { nome: 'suco uva', ideal: '5dz' },
-                { nome: 'Cachaça Rota 48', ideal: '-' },
-                { nome: 'chopp - barril', ideal: '1 barril' },
-                { nome: 'chopp - meio barril', ideal: '-' },
-                { nome: 'aperol', ideal: '2' },
-                { nome: 'xarope limão ciciliano', ideal: '2' },
-                { nome: 'xarope frutas vermelha', ideal: '2' },
-                { nome: 'xarope maçã verde', ideal: '-' },
-                { nome: 'heineken long', ideal: '12' },
-                { nome: 'heineken long zero', ideal: '12' },
-                { nome: 'weber balsamo', ideal: '-' },
-                { nome: 'weber amburana', ideal: '-' },
-                { nome: 'Vodka', ideal: '-' },
-                { nome: 'weber acassafras', ideal: '-' },
-                { nome: 'weber gin', ideal: '-' },
-                { nome: 'weber rum', ideal: '-' },
-                { nome: 'Espumante moscatel', ideal: '-' },
-                { nome: 'Espumante moscatel Rosé', ideal: '-' },
-                { nome: 'Espumante Brut', ideal: '-' },
-                { nome: 'Refri Litro Almoço', ideal: '-' }
-            ],
-            'Verduras': [
-                { nome: 'batata branca', ideal: '1saco' },
-                { nome: 'mix', ideal: '1dz' },
-                { nome: 'tempero verde', ideal: '4 unidades' },
-                { nome: 'cebola branca', ideal: '1saco' },
-                { nome: 'alho', ideal: '-' },
-                { nome: 'limão', ideal: '6kg' },
-                { nome: 'morango', ideal: 'bdj' },
-                { nome: 'maracuja', ideal: '4pote' },
-                { nome: 'cenoura', ideal: '-' },
-                { nome: 'limão siciliano', ideal: '-' },
-                { nome: 'manjericão', ideal: '-' },
-                { nome: 'hortelã', ideal: '-' },
-                { nome: 'Tomate seco', ideal: '-' },
-                { nome: 'cebolete massa', ideal: '-' },
-                { nome: 'cebolete maionese', ideal: '-' }
-            ],
-            'SECOS': [
-                { nome: 'leite', ideal: '10uni' },
-                { nome: 'leite em pó', ideal: '-' },
-                { nome: 'sagu', ideal: '-' },
-                { nome: 'Queijo Ralado parmesão', ideal: '-' },
-                { nome: 'ovo pó integral', ideal: '2uni' },
-                { nome: 'molho branco pó', ideal: '-' },
-                { nome: 'óleo oliva', ideal: '-' },
-                { nome: 'lemon pepper', ideal: '2uni' },
-                { nome: 'Chimichuri', ideal: '-' },
-                { nome: 'Tempero para Frango', ideal: '-' },
-                { nome: 'café 500gr', ideal: '5uni' },
-                { nome: 'bisnaga cheddar', ideal: '-' },
-                { nome: 'cheddar fatiado', ideal: '-' },
-                { nome: 'bisnaga Requeijão c/amido', ideal: '-' },
-                { nome: 'sal fino', ideal: '12uni' },
-                { nome: 'nozes', ideal: '-' },
-                { nome: 'corante gema ovo', ideal: '2uni' },
-                { nome: 'Molho tomate', ideal: '-' },
-                { nome: 'farinha panko', ideal: '-' },
-                { nome: 'farinha temperada fritz frida', ideal: '-' },
-                { nome: 'Farinha de mandioca', ideal: '-' },
-                { nome: 'paprica defumada', ideal: '-' },
-                { nome: 'shoyo', ideal: '-' },
-                { nome: 'molho inglês', ideal: '-' },
-                { nome: 'Tempero Batata', ideal: '-' },
-                { nome: 'arroz', ideal: '5kg' },
-                { nome: 'feijão', ideal: '5kg' },
-                { nome: 'vinagre', ideal: '6uni' },
-                { nome: 'Vinagre de Vinho Tinto', ideal: '-' },
-                { nome: 'sal grosso', ideal: '12' },
-                { nome: 'amido milho', ideal: '6uni' },
-                { nome: 'óleo soja', ideal: '20un' },
-                { nome: 'óleo algodão', ideal: '1balde' },
-                { nome: 'açúcar', ideal: '10uni' },
-                { nome: 'amaciante carne', ideal: '2unid' },
-                { nome: 'farinha trigo', ideal: '6uni' },
-                { nome: 'Doce de leite fritz frida', ideal: '-' },
-                { nome: 'Orégano', ideal: '-' },
-                { nome: 'Creme de Leite', ideal: '-' },
-                { nome: 'leite condesado', ideal: '-' },
-                { nome: 'Pêssego', ideal: '-' },
-                { nome: 'figo', ideal: '-' },
-                { nome: 'Ovos', ideal: '-' },
-                { nome: 'suco maracuja', ideal: '-' },
-                { nome: 'suco morango', ideal: '-' }
-            ],
-            'Limpeza e Embalagens': [
-                { nome: 'detergente', ideal: '2' },
-                { nome: 'Desinfetante andiroba', ideal: '2' },
-                { nome: 'adocante', ideal: '1' },
-                { nome: 'Alvejante', ideal: '2' },
-                { nome: 'Detergente Desinfetante', ideal: '2' },
-                { nome: 'copo térmico 100ml', ideal: '-' },
-                { nome: 'Copinho de Café', ideal: '-' },
-                { nome: 'colher café', ideal: '2' },
-                { nome: 'canudo', ideal: '2' },
-                { nome: 'bobina impressora', ideal: '10' },
-                { nome: 'Bobina maquininha', ideal: '-' },
-                { nome: 'esponja', ideal: '6' },
-                { nome: 'bombril', ideal: '3' },
-                { nome: 'saco lixo 100lt', ideal: '2pct' },
-                { nome: 'saco lixo 60l', ideal: '2pct' },
-                { nome: 'saco lixo 30lt', ideal: '-' },
-                { nome: 'F200 desengordurante', ideal: '2uni' },
-                { nome: 'bloco sanitário', ideal: '6' },
-                { nome: 'guardanapo sache', ideal: '2cx' },
-                { nome: 'saco talher', ideal: '2saco' },
-                { nome: 'papel toalha rolo', ideal: '6uni' },
-                { nome: 'papel higiênico', ideal: '6uni' },
-                { nome: 'Papel Toalha Intercalado', ideal: '-' },
-                { nome: 'luva nitrílica M', ideal: '-' },
-                { nome: 'luvas nitrílica GG', ideal: '2uni' },
-                { nome: 'papel alumínio', ideal: '2uni' },
-                { nome: 'Esfregão de Aço para chapa', ideal: '1 tira' },
-                { nome: 'Álcool', ideal: '1' },
-                { nome: 'Palito de dente', ideal: '1' },
-                { nome: 'Touca descartável', ideal: '1' },
-                { nome: 'Sabonete Líquido', ideal: '-' }
-            ],
-            'SALGADOS': [
-                { nome: 'rissole brócolis', ideal: '-' },
-                { nome: 'rissole salsicha', ideal: '-' },
-                { nome: 'Rissole calabresa', ideal: '-' },
-                { nome: 'mini churros doce de leite', ideal: '-' },
-                { nome: 'Folhado goiaba', ideal: '-' },
-                { nome: 'Enroladinho', ideal: '-' },
-                { nome: 'rissole queijo/milho', ideal: '-' },
-                { nome: 'Coxinha panko', ideal: '-' },
-                { nome: 'trouxinha', ideal: '-' }
-            ]
+        // Firebase
+        const firebaseConfig = {
+            databaseURL: "https://canto-verde-estoque-default-rtdb.firebaseio.com"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database(app);
+
+        // ESTOQUE DO GOOGLE DRIVE
+        const estoqueDoGoogleDrive = {
+            "CARNES": {
+                "peito frango": "60kg",
+                "coxão mole": "60kg",
+                "salsichão": "40kg",
+                "alcatra com maminha": "varia",
+                "Maminha": "30kg",
+                "Filé Mignon": "20kg",
+                "Capa do filé": "20kg",
+                "Costela Porco/barbecue": "40kg",
+                "Picanha de Porco/maracuja": "varia",
+                "Cupim": "varia"
+            },
+            "CONGELADOS E RESFRIADOS": {
+                "queijo coalho": "10uni",
+                "bacon cubos": "varia",
+                "massa Tortei": "10uni",
+                "Massa ravioli Verde": "varia",
+                "massa larga fettucine": "varia",
+                "macarrão": "varia",
+                "Massa gaelzer": "varia",
+                "batata frita": "4cx",
+                "Dado de tapioca": "4cx",
+                "gorgonzola": "varia",
+                "balde nata": "varia",
+                "queijo mussarela": "varia",
+                "manteiga": "varia",
+                "geleia de pimenta/maçã": "varia",
+                "Creme de Alho": "varia",
+                "Molho de Pimenta": "varia",
+                "molho barbecue": "varia",
+                "molho maracuja": "varia"
+            },
+            "BEBIDAS": {
+                "coca lata normal 350ml": "20dz",
+                "coca lata 350ml zero": "20dz",
+                "schwepps citrus": "varia",
+                "sprite": "varia",
+                "tonica lata": "varia",
+                "fruki guarana": "varia",
+                "agua sem gás": "20dz",
+                "agua com gas": "20dz",
+                "suco laranja": "5dz",
+                "suco uva": "5dz",
+                "Cachaça Rota 48": "varia",
+                "chopp barril": "varia",
+                "chopp meio barril": "varia",
+                "aperol": "2",
+                "xarope limão ciciliano": "varia",
+                "xarope frutas vermelha": "varia",
+                "xarope maçã verde": "varia",
+                "heineken long": "12",
+                "heineken long zero": "12",
+                "Espumante moscatel": "varia",
+                "Espumante moscatel Rosé": "varia",
+                "Espumante Brut": "varia",
+                "Refri Litro Almoço": "varia"
+            },
+            "VERDURAS": {
+                "batata branca": "1saco",
+                "mix": "1dz",
+                "tempero verde": "4uni",
+                "cebola branca": "1saco",
+                "alho": "varia",
+                "limão": "6kg",
+                "morango": "varia",
+                "maracuja": "4pote",
+                "cenoura": "varia",
+                "limão siciliano": "varia",
+                "manjericão": "varia",
+                "hortelã": "varia",
+                "Tomate seco": "varia",
+                "cebolete massa": "varia",
+                "cebolete maionese": "varia"
+            },
+            "SECOS": {
+                "leite": "10uni",
+                "leite em pó": "varia",
+                "sagu": "varia",
+                "Queijo Ralado parmesão": "varia",
+                "ovo em pó integral": "2uni",
+                "molho branco pó": "varia",
+                "óleo oliva": "varia",
+                "lemon pepper": "2uni",
+                "Chimichuri": "varia",
+                "Tempero para Frango": "varia",
+                "café 500gr": "5uni",
+                "bisnaga cheddar": "varia",
+                "cheddar fatiado": "varia",
+                "bisnaga Requeijão c/amido": "varia",
+                "sal fino": "12uni",
+                "nozes": "varia",
+                "corante gema ovo": "2uni",
+                "Molho tomate": "varia",
+                "farinha panko": "varia",
+                "farinha temperada fritz frida": "varia",
+                "Farinha de mandioca": "varia",
+                "páprica defumada": "varia",
+                "shoyu": "varia",
+                "molho inglês": "varia",
+                "Tempero Batata": "varia",
+                "arroz": "5kg",
+                "feijão": "5kg",
+                "vinagre": "varia",
+                "sal grosso": "12",
+                "amido milho": "6uni",
+                "óleo soja": "20un",
+                "óleo algodão": "1balde",
+                "açúcar": "10uni",
+                "amaciante carne": "2unid",
+                "farinha trigo": "varia",
+                "Doce de leite fritz frida": "varia",
+                "Orégano": "varia",
+                "Creme de Leite": "varia",
+                "leite condensado": "varia",
+                "Pêssego": "varia",
+                "figo": "varia",
+                "Ovos": "varia",
+                "suco maracuja": "varia",
+                "suco morango": "varia"
+            },
+            "LIMPEZA E EMBALAGENS": {
+                "detergente": "2",
+                "Desinfetante andiroba": "2",
+                "adocante": "1",
+                "Alvejante": "2",
+                "Detergente Desinfetante": "2",
+                "copos": "varia",
+                "colher café": "2",
+                "canudo": "2",
+                "bobinas": "varia",
+                "esponja": "6",
+                "bombril": "3",
+                "sacos lixo 100lt": "varia",
+                "sacos lixo 60l": "varia",
+                "sacos lixo 30lt": "varia",
+                "F200": "2uni",
+                "bloco sanitário": "6",
+                "guardanapo sache": "2cx",
+                "saco talher": "2saco",
+                "papel toalha rolo": "6uni",
+                "papel higiênico": "6uni",
+                "Papel Toalha Intercalado": "varia",
+                "luvas nitrílica M": "varia",
+                "luvas nitrílica GG": "varia",
+                "papel alumínio": "2uni",
+                "Esfregão chapa": "1tira",
+                "Álcool": "1",
+                "Palito de dente": "1",
+                "Touca descartável": "1",
+                "Sabonete Líquido": "varia"
+            },
+            "SALGADOS": {
+                "rissole brócolis": "varia",
+                "rissole salsicha": "varia",
+                "Risole calabresa": "varia",
+                "Risole queijo-milho": "varia",
+                "mini churros doce de leite": "varia",
+                "Folhado goiaba": "varia",
+                "Enroladinho": "varia",
+                "Coxinha panko": "varia",
+                "trouxinha": "varia"
+            }
         };
 
         let dados = {};
-        let produtosNovos = {};
+
+        function inicializar() {
+            carregarDados();
+            renderizar();
+            document.getElementById('status').textContent = '✅ Sincronizando com Firebase';
+        }
 
         function carregarDados() {
-            const saved = localStorage.getItem('estoque_contagem');
-            if (saved) {
-                dados = JSON.parse(saved);
-            }
-            const novos = localStorage.getItem('estoque_produtos_novos');
-            if (novos) {
-                produtosNovos = JSON.parse(novos);
-            }
-        }
-
-        function abrirModal() {
-            document.getElementById('modalOverlay').classList.add('show');
-            document.getElementById('novoProdutoNome').focus();
-        }
-
-        function fecharModal() {
-            document.getElementById('modalOverlay').classList.remove('show');
-            document.getElementById('novoProdutoNome').value = '';
-            document.getElementById('novoProdutoSetor').value = '';
-        }
-
-        function adicionarNovoProduto() {
-            const nome = document.getElementById('novoProdutoNome').value.trim();
-            const setor = document.getElementById('novoProdutoSetor').value;
-
-            if (!nome) {
-                alert('Digite o nome do produto');
-                return;
-            }
-
-            if (!setor) {
-                alert('Selecione um setor');
-                return;
-            }
-
-            const id = Date.now();
-            
-            if (!setoresConfig[setor]) {
-                setoresConfig[setor] = [];
-            }
-
-            setoresConfig[setor].push({
-                nome: nome,
-                ideal: '-',
-                isNovo: true,
-                id: id
+            database.ref('estoque').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    dados = snapshot.val();
+                } else {
+                    dados = {};
+                }
+                renderizar();
             });
-
-            produtosNovos[nome] = {
-                setor: setor,
-                id: id,
-                dataCadastro: new Date().toLocaleString('pt-BR')
-            };
-
-            localStorage.setItem('estoque_produtos_novos', JSON.stringify(produtosNovos));
-
-            fecharModal();
-            renderizarSetores();
-
-            const successDiv = document.getElementById('successMsg');
-            successDiv.innerHTML = `✓ Produto "${nome}" adicionado ao setor ${setor}`;
-            successDiv.classList.add('show');
-            setTimeout(() => {
-                successDiv.classList.remove('show');
-            }, 3000);
         }
 
-        function deletarProdutoNovo(nome) {
-            if (confirm(`Deletar "${nome}"?`)) {
-                Object.keys(setoresConfig).forEach(setor => {
-                    setoresConfig[setor] = setoresConfig[setor].filter(p => p.nome !== nome);
-                });
-                delete produtosNovos[nome];
-                localStorage.setItem('estoque_produtos_novos', JSON.stringify(produtosNovos));
-                renderizarSetores();
-            }
-        }
+        function renderizar() {
+            const container = document.getElementById('setores');
+            container.innerHTML = '';
 
-        function verificarSalvo(itemDiv, nomeProduto) {
-            const inputQtd = itemDiv.querySelector(`input[id^="qtd_"]`);
-            if (inputQtd && inputQtd.value.trim() !== '') {
-                itemDiv.classList.add('salvo');
-            } else {
-                itemDiv.classList.remove('salvo');
-            }
-        }
+            Object.keys(estoqueDoGoogleDrive).forEach(setor => {
+                const setorDiv = document.createElement('div');
+                setorDiv.className = 'setor';
 
-        function renderizarSetores() {
-            const setoresDiv = document.getElementById('setores');
-            setoresDiv.innerHTML = '';
-
-            Object.keys(setoresConfig).forEach(setor => {
-                if (setoresConfig[setor].length === 0) return;
-
-                const setorSection = document.createElement('div');
-                setorSection.className = 'setor-section';
-                
-                const setorHeader = document.createElement('div');
-                setorHeader.className = 'setor-header aberto';
-                setorHeader.innerHTML = `
-                    ${setor}
-                    <i class="fas fa-chevron-right setor-icon"></i>
+                const header = document.createElement('div');
+                header.className = 'setor-header';
+                header.innerHTML = `
+                    <span>${setor}</span>
+                    <i class="fas fa-chevron-down"></i>
                 `;
-                
-                const setorConteudo = document.createElement('div');
-                setorConteudo.className = 'setor-conteudo aberto';
-                
-                setorHeader.onclick = () => toggleSetor(setorHeader, setorConteudo);
-                
-                setoresConfig[setor].forEach(item => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'item-estoque' + (item.isNovo ? ' novo' : '');
-                    
-                    // Verificar se já tem valor salvo
-                    if (dados[item.nome]) {
-                        itemDiv.classList.add('salvo');
-                    }
-                    
-                    let html = `
-                        <div class="item-header">
-                            <div class="item-nome-info">
-                                <p class="item-nome">${item.nome}${item.isNovo ? '<span class="badge-novo">Novo</span>' : ''}</p>
-                                <p class="item-info">Ideal: ${item.ideal}</p>
-                            </div>
-                            <div class="item-input-wrapper">
-                                <div class="item-input">
-                                    <label>QTD</label>
-                                    <input type="number" id="qtd_${item.nome}" placeholder="0" step="0.01" value="${dados[item.nome] || ''}">
-                                </div>
-                                <div class="checkmark-badge">✓</div>
+
+                header.onclick = () => {
+                    content.classList.toggle('open');
+                    header.querySelector('i').style.transform = content.classList.contains('open') ? 'rotate(180deg)' : '';
+                };
+
+                const content = document.createElement('div');
+                content.className = 'setor-content';
+
+                const produtos = estoqueDoGoogleDrive[setor];
+                Object.keys(produtos).forEach(produto => {
+                    const chave = `${setor}|${produto}`;
+                    const valor = dados[chave] || '';
+                    const ideal = produtos[produto];
+
+                    const produtoDiv = document.createElement('div');
+                    produtoDiv.className = 'produto';
+                    produtoDiv.innerHTML = `
+                        <div class="produto-nome">${produto}</div>
+                        <div class="estoque-ideal">Ideal: ${ideal}</div>
+                        <div class="input-group">
+                            <input type="text" 
+                                   id="input_${chave}" 
+                                   value="${valor}"
+                                   placeholder="Ex: 123,50"
+                                   oninput="atualizar('${chave}')">
+                            <div class="checkmark ${valor ? 'active' : ''}" id="check_${chave}">
+                                ${valor ? '✓' : ''}
                             </div>
                         </div>
                     `;
 
-                    if (item.isNovo) {
-                        html += `
-                            <div class="item-footer">
-                                <button class="delete-btn" onclick="deletarProdutoNovo('${item.nome.replace(/'/g, "\\'")}')">
-                                    <i class="fas fa-trash"></i> Deletar
-                                </button>
-                            </div>
-                        `;
-                    }
-
-                    itemDiv.innerHTML = html;
-                    
-                    // Adicionar event listeners para verificar quando digita
-                    const inputQtd = itemDiv.querySelector(`input[id^="qtd_"]`);
-                    
-                    function checkAndMark() {
-                        if (inputQtd.value.trim() !== '') {
-                            itemDiv.classList.add('salvo');
-                        } else {
-                            itemDiv.classList.remove('salvo');
-                        }
-                    }
-                    
-                    inputQtd.addEventListener('input', checkAndMark);
-                    inputQtd.addEventListener('change', checkAndMark);
-                    inputQtd.addEventListener('keyup', checkAndMark);
-                    
-                    setorConteudo.appendChild(itemDiv);
+                    content.appendChild(produtoDiv);
                 });
-                
-                setorSection.appendChild(setorHeader);
-                setorSection.appendChild(setorConteudo);
-                setoresDiv.appendChild(setorSection);
+
+                setorDiv.appendChild(header);
+                setorDiv.appendChild(content);
+                container.appendChild(setorDiv);
             });
         }
 
-        function toggleSetor(header, conteudo) {
-            header.classList.toggle('aberto');
-            conteudo.classList.toggle('aberto');
+        function atualizar(chave) {
+            const input = document.getElementById(`input_${chave}`);
+            const check = document.getElementById(`check_${chave}`);
+            const valor = input.value;
+
+            dados[chave] = valor;
+
+            if (valor) {
+                check.classList.add('active');
+                check.textContent = '✓';
+            } else {
+                check.classList.remove('active');
+                check.textContent = '';
+            }
+
+            // Salva no Firebase em tempo real
+            database.ref(`estoque/${chave}`).set(valor);
         }
 
         function salvarTodos() {
-            const errorDiv = document.getElementById('errorMsg');
-            const successDiv = document.getElementById('successMsg');
-            errorDiv.classList.remove('show');
-            successDiv.classList.remove('show');
-
-            let contagem = {};
-
-            Object.keys(setoresConfig).forEach(setor => {
-                setoresConfig[setor].forEach(item => {
-                    const inputQtd = document.getElementById(`qtd_${item.nome}`);
-                    
-                    if (inputQtd && inputQtd.value.trim() !== '') {
-                        contagem[item.nome] = parseFloat(inputQtd.value);
-                    }
-                });
-            });
-
-            if (Object.keys(contagem).length === 0) {
-                errorDiv.innerHTML = 'Preencha a quantidade de pelo menos um produto';
-                errorDiv.classList.add('show');
-                return;
-            }
-
-            localStorage.setItem('estoque_contagem', JSON.stringify(contagem));
-            localStorage.setItem('estoque_data', new Date().toLocaleString('pt-BR'));
-
-            dados = contagem;
-
-            successDiv.innerHTML = `✓ Contagem e compras salvas com sucesso em ${new Date().toLocaleTimeString('pt-BR')}`;
-            successDiv.classList.add('show');
-
-            // Marcar todos os itens com valor como salvos
-            document.querySelectorAll('.item-estoque').forEach(item => {
-                const inputQtd = item.querySelector('input[id^="qtd_"]');
-                if (inputQtd && inputQtd.value.trim() !== '') {
-                    item.classList.add('salvo');
-                }
-            });
-
-            setTimeout(() => {
-                successDiv.classList.remove('show');
-            }, 5000);
+            alert('✅ Contagem salva! Painel atualizado em tempo real!');
         }
 
-        carregarDados();
-        renderizarSetores();
+        inicializar();
     </script>
 </body>
 </html>
