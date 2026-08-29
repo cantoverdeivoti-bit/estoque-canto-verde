@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel de Gerenciamento - Canto Verde</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,72 +13,193 @@
         }
 
         :root {
-            --primary: #3b82f6;
-            --bg: #f5f5f5;
-            --surface: #fff;
-            --text: #1a1a1a;
-            --border: #e0e0e0;
-            --radius: 12px;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #1a1a1a;
-                --surface: #2a2a2a;
-                --text: #f0f0f0;
-                --border: #404040;
-            }
+            --primary: #1a472a;
+            --primary-light: #2d6a3f;
+            --accent: #d4a574;
+            --accent-light: #e8c9a0;
+            --success: #4ade80;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-dark: #0f1419;
+            --bg-light: #f8f6f3;
+            --text-dark: #1a1a1a;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 24px rgba(0,0,0,0.12);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
             padding: 2rem;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
         .header {
-            margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, #1a472a 0%, #2d6a3f 100%);
+            margin: -2rem -2rem 2.5rem -2rem;
+            padding: 2.5rem 2rem;
+            border-bottom: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border-bottom: 3px solid #d4a574;
         }
 
-        h1 {
-            font-size: 28px;
+        .header > div:nth-child(1) {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex: 1;
+            justify-content: flex-start;
+        }
+
+        .logo-large {
+            width: 150px;
+            height: auto;
+            flex-shrink: 0;
+            object-fit: contain;
+            display: block;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .header-left h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -1px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-left .subtitle {
+            color: #d4a574;
+            font-size: 13px;
+            font-weight: 500;
+            margin: 0;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .btn-adicionar-grande {
+            background: white;
+            color: #1a472a;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .btn-adicionar-grande:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            background: #f5f5f5;
+        }
+
+        .btn-adicionar-grande:active {
+            transform: translateY(0);
+            background: #e0e0e0;
+        }
+
+        .btn-editar-grande {
+            background: linear-gradient(135deg, #d4a574 0%, #e8c9a0 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 4px 12px rgba(212, 165, 116, 0.2);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+
+        .btn-editar-grande:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(212, 165, 116, 0.3);
+        }
+
+        .btn-editar-grande:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card.success {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.danger {
+            border-left-color: var(--danger);
+        }
+
+        .stat-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
             margin-bottom: 0.5rem;
         }
 
-        .info-bar {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
+        .stat-card.success .stat-value { color: var(--success); }
+        .stat-card.danger .stat-value { color: var(--danger); }
+        .stat-card.warning .stat-value { color: var(--warning); }
+        .stat-card .stat-value { color: var(--primary); }
 
-        .info-card {
-            background: var(--surface);
-            padding: 1rem;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            flex: 1;
-            min-width: 150px;
-        }
-
-        .info-value {
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .info-label {
+        .stat-label {
             font-size: 12px;
-            color: #666;
-            margin-top: 4px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 500;
         }
 
         .filters {
@@ -85,160 +207,871 @@
             gap: 1rem;
             margin-bottom: 2rem;
             flex-wrap: wrap;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
         }
 
-        select {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--surface);
-            color: var(--text);
-            cursor: pointer;
+        select, input[type="text"] {
+            padding: 10px 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--text-dark);
+            font-size: 13px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 71, 42, 0.1);
         }
 
         label {
             display: flex;
             align-items: center;
             gap: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
         }
 
         input[type="checkbox"] {
             width: 18px;
             height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .table-wrapper {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background: var(--surface);
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
         th {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             color: white;
-            padding: 12px;
+            padding: 1.2rem;
             text-align: left;
             font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         td {
-            padding: 12px;
+            padding: 1rem 1.2rem;
             border-bottom: 1px solid var(--border);
-        }
-
-        tr:hover {
-            background: rgba(59, 130, 246, 0.05);
-        }
-
-        .setor-badge {
-            background: var(--primary);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .contado {
-            background: #d1fae5;
-            padding: 4px 8px;
-            border-radius: 4px;
-            color: #065f46;
-            font-weight: 600;
-        }
-
-        .preco-input {
-            width: 120px;
-            padding: 6px 8px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            background: var(--bg);
-            color: var(--text);
             font-size: 13px;
         }
 
-        .link-contagem {
-            background: #3b82f6;
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .setor-badge {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             color: white;
-            padding: 10px 20px;
-            border-radius: var(--radius);
-            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
             font-weight: 600;
             display: inline-block;
+            letter-spacing: 0.3px;
+        }
+
+        .setor-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-start;
+        }
+
+        .setor-info-funcionario {
+            font-size: 10px;
+            color: #999;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            margin-top: 2px;
+        }
+
+        .estoque-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .estoque-preenchido {
+            background: linear-gradient(135deg, var(--success), #86efac);
+            color: #166534;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .estoque-vazio {
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .preco-input {
+            width: 90px;
+            padding: 8px 10px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: white;
+            color: var(--text-dark);
+            font-size: 12px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .preco-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(26, 71, 42, 0.1);
+        }
+
+        .data-preco {
+            font-size: 10px;
+            color: #999;
+            margin-top: 3px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-status {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-right: 6px;
+            font-family: 'Poppins', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .btn-comprado {
+            background: #f5f5f5;
+            color: #424242;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-comprado.ativo {
+            background: #4caf50;
+            color: white;
+            border: 2px solid #4caf50;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-falta {
+            background: #f5f5f5;
+            color: #424242;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-falta.ativo {
+            background: #f44336;
+            color: white;
+            border: 2px solid #f44336;
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-falta.status-contado {
+            background: #fff3cd;
+            color: #000000;
+            border: 2px solid #ffc107;
+        }
+
+        .btn-falta.status-contado:hover {
+            background: #ffe69c;
+            color: #000000;
+        }
+
+        .btn-falta.status-nao-contado {
+            background: #ffebee;
+            color: #000000;
+            border: 2px solid #000000;
+        }
+
+        .btn-falta.status-nao-contado:hover {
+            background: #ffcdd2;
+            color: #000000;
+        }
+
+        .btn-estoque {
+            background: #f5f5f5;
+            color: #424242;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-estoque.ativo {
+            background: #2196f3;
+            color: white;
+            border: 2px solid #2196f3;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        .btn-status:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .setor-info-row {
+            background: linear-gradient(135deg, #f9f9f9 0%, #f5f5f5 100%);
+            border-top: 3px solid #d4a574 !important;
+            border-bottom: 1px solid #e0e0e0 !important;
+        }
+
+        .setor-info-row td {
+            padding: 12px !important;
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        .empresa-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            color: var(--text-dark);
+            font-size: 12px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .empresa-input:focus {
+            outline: none;
+            border-color: #d4a574;
+            box-shadow: 0 4px 12px rgba(212, 165, 116, 0.2);
+        }
+
+        .btn-editar {
+            background: transparent;
+            color: #d4a574;
+            border: none;
+            padding: 4px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 10px;
+            transition: all 0.2s ease;
+            font-family: 'Poppins', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-editar:hover {
+            background: #f5f5f5;
+            color: #d4a574;
+        }
+
+        .btn-editar:active {
+            transform: scale(0.95);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            padding: 10px 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            font-size: 13px;
+            font-family: 'Poppins', sans-serif;
+            width: 220px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+        }
+
+        .btn-salvar {
+            background: linear-gradient(135deg, var(--success) 0%, #22c55e 100%);
+            color: white;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .btn-salvar:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .link-contagem {
+            display: inline-block;
             margin-bottom: 2rem;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
         }
 
         .link-contagem:hover {
-            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 450px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideInModal 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        @keyframes slideInModal {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .btn-fechar {
+            background: var(--bg-light);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-fechar:hover {
+            background: var(--border);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--border);
+        }
+
+        .btn-cancelar {
+            background: #f5f5f5;
+            color: #424242;
+            border: 2px solid #e0e0e0;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-cancelar:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-salvar-modal {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-salvar-modal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 12px;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 71, 42, 0.1);
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 2rem;
+        }
+
+        .btn-cancelar {
+            flex: 1;
+            padding: 10px;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancelar:hover {
+            background: var(--border);
+        }
+
+        .btn-adicionar-produto {
+            flex: 1;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-adicionar-produto:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: var(--shadow-lg);
+            animation: slideInToast 0.3s ease, slideOutToast 0.3s ease 2.7s;
+            z-index: 999;
+        }
+
+        @keyframes slideInToast {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideOutToast {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(20px); }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .header > div:nth-child(1) {
+                width: 100%;
+            }
+
+            .header button {
+                width: 100%;
+            }
+
+            .logo-large {
+                width: 100px;
+                height: auto;
+            }
+
+            .header-left h1 {
+                font-size: 20px;
+            }
         }
     </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📊 Painel de Gerenciamento - Canto Verde</h1>
-            <p style="color: #666;">Contagem em tempo real</p>
+            <div>
+                <div class="header-left">
+                    <h1>Painel de Gerenciamento</h1>
+                    <p class="subtitle">Canto Verde - Controle de Estoque</p>
+                </div>
+            </div>
+            <button class="btn-adicionar-grande" onclick="abrirModal()">+ Novo Produto</button>
+            <button class="btn-editar-grande" onclick="abrirModalBuscaEditar()">✏️ Editar Produto</button>
+            <button class="btn-editar-grande" onclick="abrirModalNovoSetor()" style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); margin-left: 12px;">🏷️ Novo Setor</button>
         </div>
 
-        <a href="contagem.html" class="link-contagem">➕ Ir para Contagem</a>
+        <a href="contagem.html" class="link-contagem">Ir para Contagem</a>
 
-        <div class="info-bar">
-            <div class="info-card">
-                <div class="info-value" id="totalProdutos">0</div>
-                <div class="info-label">Produtos Total</div>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalProdutos">0</div>
+                <div class="stat-label">Total de Produtos</div>
             </div>
-            <div class="info-card">
-                <div class="info-value" id="produtosContados">0</div>
-                <div class="info-label">Já Contados</div>
+            <div class="stat-card success">
+                <div class="stat-value" id="contados">0</div>
+                <div class="stat-label">Contagens Feitas</div>
             </div>
-            <div class="info-card">
-                <div class="info-value" id="percentual">0%</div>
-                <div class="info-label">Progresso</div>
+            <div class="stat-card success">
+                <div class="stat-value" id="comprados">0</div>
+                <div class="stat-label">Comprados</div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-value" id="faltam">0</div>
+                <div class="stat-label">Faltam Comprar</div>
             </div>
         </div>
 
         <div class="filters">
-            <select id="setorFilter" onchange="renderizar()">
-                <option value="">📦 Todos os Setores</option>
+            <select id="setorFilter" onchange="filtrar()">
+                <option value="">Todos os Setores</option>
             </select>
-            <label>
-                <input type="checkbox" id="apenasContados" onchange="renderizar()">
-                Apenas contados
-            </label>
+            <input type="text" id="searchBox" class="search-box" placeholder="Pesquisar produto..." onkeyup="filtrar()">
+            <label><input type="checkbox" id="apenasContados" onchange="filtrar()"> Apenas Contados</label>
+            <label><input type="checkbox" id="apenasComprados" onchange="filtrar()"> Apenas Comprados</label>
+            <label><input type="checkbox" id="apenasFaltam" onchange="filtrar()"> Apenas a Comprar</label>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 15%;">Setor</th>
-                    <th style="width: 30%;">Produto</th>
-                    <th style="width: 15%;">Contagem</th>
-                    <th style="width: 15%;">Ideal</th>
-                    <th style="width: 25%;">Preço (R$)</th>
-                </tr>
-            </thead>
-            <tbody id="tabela"></tbody>
-        </table>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 11%;">Setor</th>
+                        <th style="width: 24%;">Produto</th>
+                        <th style="width: 9%;">Estoque Atual</th>
+                        <th style="width: 9%;">Comprado</th>
+                        <th style="width: 9%;">Preço Ant.</th>
+                        <th style="width: 9%;">Preço Atual</th>
+                        <th style="width: 12%;">Empresa</th>
+                        <th style="width: 12%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela">
+                    <tr><td colspan="8" class="empty-message">Carregando produtos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <button class="btn-salvar" onclick="salvar()">✓ Salvar Dados</button>
+    </div>
+
+    <!-- MODAL EDITAR PRODUTO -->
+    <div class="modal" id="modalEditarProduto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Produto</h2>
+                <button class="btn-fechar" onclick="fecharModalEditar()">✕</button>
+            </div>
+
+            <div class="form-group">
+                <label>Nome do Produto *</label>
+                <input type="text" id="editNomeProduto" placeholder="Ex: Queijo Ralado">
+            </div>
+
+            <div class="form-group">
+                <label>Quantidade Ideal *</label>
+                <input type="number" id="editQuantidadeIdeal" placeholder="Ex: 10" min="0" step="0.01">
+            </div>
+
+            <div class="form-group">
+                <label>Unidade de Medida *</label>
+                <select id="editUnidadeMedida">
+                    <option value="un">Unidade (un)</option>
+                    <option value="kg">Quilograma (kg)</option>
+                    <option value="l">Litro (l)</option>
+                    <option value="pacote">Pacote</option>
+                    <option value="caixa">Caixa</option>
+                    <option value="dz">Dúzia (dz)</option>
+                    <option value="g">Grama (g)</option>
+                    <option value="ml">Mililitro (ml)</option>
+                </select>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-cancelar" onclick="fecharModalEditar()">Cancelar</button>
+                <button class="btn-salvar-modal" onclick="salvarEdicaoProduto()">✓ Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL BUSCAR E EDITAR PRODUTO -->
+    <div class="modal" id="modalBuscaEditar">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Produto</h2>
+                <button class="btn-fechar" onclick="fecharModalBuscaEditar()">✕</button>
+            </div>
+
+            <div class="form-group">
+                <label>Procurar Produto *</label>
+                <input type="text" id="buscaProdutoEditar" placeholder="Digite o nome do produto..." onkeyup="buscarProdutosParaEditar()">
+            </div>
+
+            <div id="listaProdutosEditar" style="max-height: 300px; overflow-y: auto;">
+                <div class="empty-message" style="text-align: center; padding: 20px; color: #999;">Procure um produto para editar</div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-cancelar" onclick="fecharModalBuscaEditar()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NOVO SETOR -->
+    <div class="modal" id="modalNovoSetor">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Novo Setor</h2>
+                <button class="btn-fechar" onclick="fecharModalNovoSetor()">✕</button>
+            </div>
+
+            <div class="form-group">
+                <label>Nome do Setor *</label>
+                <input type="text" id="nomeNovoSetor" placeholder="Ex: CONGELADOS E RESFRIADOS" autofocus>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-cancelar" onclick="fecharModalNovoSetor()">Cancelar</button>
+                <button class="btn-salvar-modal" onclick="criarNovoSetor()">✓ Criar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ADICIONAR PRODUTO -->
+    <div class="modal" id="modalAdicionarProduto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Novo Produto</h2>
+                <button class="btn-fechar" onclick="fecharModal()">✕</button>
+            </div>
+
+            <div class="form-group">
+                <label>Nome do Produto *</label>
+                <input type="text" id="nomeProduto" placeholder="Ex: Queijo Ralado">
+            </div>
+
+            <div class="form-group">
+                <label>Setor *</label>
+                <select id="setorProduto">
+                    <option value="">Selecionar setor...</option>
+                    <option value="CARNES">CARNES</option>
+                    <option value="CONGELADOS E RESFRIADOS">CONGELADOS E RESFRIADOS</option>
+                    <option value="BEBIDAS">BEBIDAS</option>
+                    <option value="VERDURAS">VERDURAS</option>
+                    <option value="SECOS">SECOS</option>
+                    <option value="LIMPEZA E EMBALAGENS">LIMPEZA E EMBALAGENS</option>
+                    <option value="SALGADOS">SALGADOS</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Quantidade Ideal</label>
+                <input type="text" id="qtdProduto" placeholder="Ex: 10, 5kg, 2 cx">
+            </div>
+
+            <div class="form-group">
+                <label>Unidade de Medida</label>
+                <select id="unidadeProduto">
+                    <option value="un">Unidade (un)</option>
+                    <option value="kg">Quilograma (kg)</option>
+                    <option value="l">Litro (l)</option>
+                    <option value="pacote">Pacote</option>
+                    <option value="caixa">Caixa</option>
+                    <option value="dz">Dúzia (dz)</option>
+                    <option value="g">Grama (g)</option>
+                    <option value="ml">Mililitro (ml)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Preço</label>
+                <input type="text" id="precoProduto" placeholder="Ex: 25.50">
+            </div>
+
+            <div class="form-buttons">
+                <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-adicionar-produto" onclick="adicionarProdutoFinal()">Adicionar</button>
+            </div>
+        </div>
     </div>
 
     <script>
+        let db, contagemRef;
+        let firebaseReady = false;
+
+        // Inicializar Firebase de forma assíncrona (não bloqueia UI)
+        function inicializarFirebase() {
+            if (typeof firebase === 'undefined') {
+                setTimeout(inicializarFirebase, 100);
+                return;
+            }
+
+            // ⚠️ SUBSTITUA COM SUAS CREDENCIAIS DO FIREBASE (mesma config do contagem.html) ⚠️
+            const firebaseConfig = {
+                apiKey: "AIzaSyBw5yOpE2SCR_PrsfVO2NGLcDQoY9MtAv4",
+                authDomain: "checklist-canto-verde.firebaseapp.com",
+                projectId: "checklist-canto-verde",
+                storageBucket: "checklist-canto-verde.firebasestorage.app",
+                messagingSenderId: "600866431493",
+                appId: "1:600866431493:web:5c53120c546adff53e326c"
+            };
+
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                contagemRef = db.collection('contagens');
+                firebaseReady = true;
+                console.log('✅ Firebase inicializado com sucesso!');
+                
+                // Sincronizar dados de contagem do Firestore em tempo real
+                contagemRef.onSnapshot(snapshot => {
+                    snapshot.forEach(doc => {
+                        const chave = doc.id;
+                        const valor = doc.data().valor;
+                        contagem[chave] = valor;
+                    });
+                    renderizar();
+                    atualizarEstatisticas();
+                }, error => {
+                    console.error('❌ Erro ao sincronizar Firestore:', error);
+                });
+            } catch (error) {
+                console.error('❌ Erro ao inicializar Firebase:', error);
+                console.log('⚠️ Firebase não está configurado. Usando localStorage apenas.');
+            }
+        }
+
         const estoque = {
-            "CARNES": {"peito frango": "60kg", "coxão mole": "60kg", "salsichão": "40kg", "alcatra com maminha": "varia", "Maminha": "30kg", "Filé Mignon": "20kg", "Capa do filé": "20kg", "Costela Porco/barbecue": "40kg", "Picanha de Porco/maracuja": "varia", "Cupim": "varia"},
-            "CONGELADOS E RESFRIADOS": {"queijo coalho": "10uni", "bacon cubos": "varia", "massa Tortei": "10uni", "Massa ravioli Verde": "varia", "massa larga fettucine": "varia", "macarrão": "varia", "Massa gaelzer": "varia", "batata frita": "4cx", "Dado de tapioca": "4cx", "gorgonzola": "varia", "balde nata": "varia", "queijo mussarela": "varia", "manteiga": "varia", "geleia de pimenta/maçã": "varia", "Creme de Alho": "varia", "Molho de Pimenta": "varia", "molho barbecue": "varia", "molho maracuja": "varia"},
-            "BEBIDAS": {"coca lata normal 350ml": "20dz", "coca lata 350ml zero": "20dz", "schwepps citrus": "varia", "sprite": "varia", "tonica lata": "varia", "fruki guarana": "varia", "agua sem gás": "20dz", "agua com gas": "20dz", "suco laranja": "5dz", "suco uva": "5dz", "Cachaça Rota 48": "varia", "chopp barril": "varia", "chopp meio barril": "varia", "aperol": "2", "xarope limão ciciliano": "varia", "xarope frutas vermelha": "varia", "xarope maçã verde": "varia", "heineken long": "12", "heineken long zero": "12", "Espumante moscatel": "varia", "Espumante moscatel Rosé": "varia", "Espumante Brut": "varia", "Refri Litro Almoço": "varia"},
-            "VERDURAS": {"batata branca": "1saco", "mix": "1dz", "tempero verde": "4uni", "cebola branca": "1saco", "alho": "varia", "limão": "6kg", "morango": "varia", "maracuja": "4pote", "cenoura": "varia", "limão siciliano": "varia", "manjericão": "varia", "hortelã": "varia", "Tomate seco": "varia", "cebolete massa": "varia", "cebolete maionese": "varia"},
-            "SECOS": {"leite": "10uni", "leite em pó": "varia", "sagu": "varia", "Queijo Ralado parmesão": "varia", "ovo em pó integral": "2uni", "molho branco pó": "varia", "óleo oliva": "varia", "lemon pepper": "2uni", "Chimichuri": "varia", "Tempero para Frango": "varia", "café 500gr": "5uni", "bisnaga cheddar": "varia", "cheddar fatiado": "varia", "bisnaga Requeijão c/amido": "varia", "sal fino": "12uni", "nozes": "varia", "corante gema ovo": "2uni", "Molho tomate": "varia", "farinha panko": "varia", "farinha temperada fritz frida": "varia", "Farinha de mandioca": "varia", "páprica defumada": "varia", "shoyu": "varia", "molho inglês": "varia", "Tempero Batata": "varia", "arroz": "5kg", "feijão": "5kg", "vinagre": "varia", "sal grosso": "12", "amido milho": "6uni", "óleo soja": "20un", "óleo algodão": "1balde", "açúcar": "10uni", "amaciante carne": "2unid", "farinha trigo": "varia", "Doce de leite fritz frida": "varia", "Orégano": "varia", "Creme de Leite": "varia", "leite condensado": "varia", "Pêssego": "varia", "figo": "varia", "Ovos": "varia", "suco maracuja": "varia", "suco morango": "varia"},
-            "LIMPEZA E EMBALAGENS": {"detergente": "2", "Desinfetante andiroba": "2", "adocante": "1", "Alvejante": "2", "Detergente Desinfetante": "2", "copos": "varia", "colher café": "2", "canudo": "2", "bobinas": "varia", "esponja": "6", "bombril": "3", "sacos lixo 100lt": "varia", "sacos lixo 60l": "varia", "sacos lixo 30lt": "varia", "F200": "2uni", "bloco sanitário": "6", "guardanapo sache": "2cx", "saco talher": "2saco", "papel toalha rolo": "6uni", "papel higiênico": "6uni", "Papel Toalha Intercalado": "varia", "luvas nitrílica M": "varia", "luvas nitrílica GG": "varia", "papel alumínio": "2uni", "Esfregão chapa": "1tira", "Álcool": "1", "Palito de dente": "1", "Touca descartável": "1", "Sabonete Líquido": "varia"},
-            "SALGADOS": {"rissole brócolis": "varia", "rissole salsicha": "varia", "Risole calabresa": "varia", "Risole queijo-milho": "varia", "mini churros doce de leite": "varia", "Folhado goiaba": "varia", "Enroladinho": "varia", "Coxinha panko": "varia", "trouxinha": "varia"}
+            "CARNES": {"peito frango": "60kg","coxão mole": "60kg","salsichão": "40kg","alcatra com maminha": "varia","Maminha": "30kg","Filé Mignon": "20kg","Capa do filé": "20kg","Costela Porco/barbecue": "40kg","Picanha de Porco/maracuja": "varia","Cupim": "varia"},
+            "CONGELADOS E RESFRIADOS": {"queijo coalho": "10uni","bacon cubos": "varia","massa Tortei": "10uni","Massa ravioli Verde": "varia","massa larga fettucine": "varia","macarrão": "varia","Massa gaelzer": "varia","batata frita": "4cx","Dado de tapioca": "4cx","gorgonzola": "varia","balde nata": "varia","queijo mussarela": "varia","manteiga": "varia","geleia de pimenta/maçã": "varia","Creme de Alho": "varia","Molho de Pimenta": "varia","molho barbecue": "varia","molho maracuja": "varia"},
+            "BEBIDAS": {"coca lata normal 350ml": "20dz","coca lata 350ml zero": "20dz","schwepps citrus": "varia","sprite": "varia","tonica lata": "varia","fruki guarana": "varia","agua sem gás": "20dz","agua com gas": "20dz","suco laranja": "5dz","suco uva": "5dz","Cachaça Rota 48": "varia","chopp barril": "varia","chopp meio barril": "varia","aperol": "2","xarope limão ciciliano": "varia","xarope frutas vermelha": "varia","xarope maçã verde": "varia","heineken long": "12","heineken long zero": "12","Espumante moscatel": "varia","Espumante moscatel Rosé": "varia","Espumante Brut": "varia","Refri Litro Almoço": "varia"},
+            "VERDURAS": {"batata branca": "1saco","mix": "1dz","tempero verde": "4uni","cebola branca": "1saco","alho": "varia","limão": "6kg","morango": "varia","maracuja": "4pote","cenoura": "varia","limão siciliano": "varia","manjericão": "varia","hortelã": "varia","Tomate seco": "varia","cebolete massa": "varia","cebolete maionese": "varia"},
+            "SECOS": {"leite": "10uni","leite em pó": "varia","sagu": "varia","Queijo Ralado parmesão": "varia","ovo em pó integral": "2uni","molho branco pó": "varia","óleo oliva": "varia","lemon pepper": "2uni","Chimichuri": "varia","Tempero para Frango": "varia","café 500gr": "5uni","bisnaga cheddar": "varia","cheddar fatiado": "varia","bisnaga Requeijão c/amido": "varia","sal fino": "12uni","nozes": "varia","corante gema ovo": "2uni","Molho tomate": "varia","farinha panko": "varia","farinha temperada fritz frida": "varia","Farinha de mandioca": "varia","páprica defumada": "varia","shoyu": "varia","molho inglês": "varia","Tempero Batata": "varia","arroz": "5kg","feijão": "5kg","vinagre": "varia","sal grosso": "12","amido milho": "6uni","óleo soja": "20un","óleo algodão": "1balde","açúcar": "10uni","amaciante carne": "2unid","farinha trigo": "varia","Doce de leite fritz frida": "varia","Orégano": "varia","Creme de Leite": "varia","leite condensado": "varia","Pêssego": "varia","figo": "varia","Ovos": "varia","suco maracuja": "varia","suco morango": "varia"},
+            "LIMPEZA E EMBALAGENS": {"detergente": "2","Desinfetante andiroba": "2","adocante": "1","Alvejante": "2","Detergente Desinfetante": "2","copos": "varia","colher café": "2","canudo": "2","bobinas": "varia","esponja": "6","bombril": "3","sacos lixo 100lt": "varia","sacos lixo 60l": "varia","sacos lixo 30lt": "varia","F200": "2uni","bloco sanitário": "6","guardanapo sache": "2cx","saco talher": "2saco","papel toalha rolo": "6uni","papel higiênico": "6uni","Papel Toalha Intercalado": "varia","luvas nitrílica M": "varia","luvas nitrílica GG": "varia","papel alumínio": "2uni","Esfregão chapa": "1tira","Álcool": "1","Palito de dente": "1","Touca descartável": "1","Sabonete Líquido": "varia"},
+            "SALGADOS": {"rissole brócolis": "varia","rissole salsicha": "varia","Risole calabresa": "varia","Risole queijo-milho": "varia","mini churros doce de leite": "varia","Folhado goiaba": "varia","Enroladinho": "varia","Coxinha panko": "varia","trouxinha": "varia"}
         };
 
-        let dados = JSON.parse(localStorage.getItem('estoque_contagem') || '{}');
-        let precos = JSON.parse(localStorage.getItem('estoque_precos') || '{}');
+        let painel = JSON.parse(localStorage.getItem('painel_estoque') || '{}');
+        let contagem = JSON.parse(localStorage.getItem('contagem_estoque') || '{}');
+        let produtosNovos = JSON.parse(localStorage.getItem('produtos_novos') || '{}');
 
         function inicializar() {
+            carregarSetoresCustomizados();
+            carregarProdutosNovos();
             const setorFilter = document.getElementById('setorFilter');
             Object.keys(estoque).forEach(setor => {
                 const option = document.createElement('option');
@@ -246,75 +1079,397 @@
                 option.textContent = setor;
                 setorFilter.appendChild(option);
             });
-
             renderizar();
-            atualizarInfos();
-
-            // Ouve mudanças no localStorage
+            atualizarEstatisticas();
             window.addEventListener('storage', () => {
-                dados = JSON.parse(localStorage.getItem('estoque_contagem') || '{}');
+                contagem = JSON.parse(localStorage.getItem('contagem_estoque') || '{}');
+                produtosNovos = JSON.parse(localStorage.getItem('produtos_novos') || '{}');
+                carregarSetoresCustomizados();
+                carregarProdutosNovos();
                 renderizar();
-                atualizarInfos();
+                atualizarEstatisticas();
+            });
+        }
+
+        function carregarSetoresCustomizados() {
+            const setoresCustomizados = JSON.parse(localStorage.getItem('setores_customizados') || '[]');
+            setoresCustomizados.forEach(setor => {
+                if (!estoque[setor]) {
+                    estoque[setor] = {};
+                }
+            });
+        }
+
+        function carregarProdutosNovos() {
+            Object.keys(produtosNovos).forEach(setor => {
+                if (!estoque[setor]) estoque[setor] = {};
+                Object.assign(estoque[setor], produtosNovos[setor]);
             });
         }
 
         function renderizar() {
             const tabela = document.getElementById('tabela');
-            const setorSelecionado = document.getElementById('setorFilter').value;
+            const setor = document.getElementById('setorFilter').value;
+            const busca = document.getElementById('searchBox').value.toLowerCase();
             const apenasContados = document.getElementById('apenasContados').checked;
+            const comprados = document.getElementById('apenasComprados').checked;
+            const faltam = document.getElementById('apenasFaltam').checked;
 
             tabela.innerHTML = '';
+            let linhas = 0;
 
-            Object.keys(estoque).forEach(setor => {
-                if (setorSelecionado && setorSelecionado !== setor) return;
-
-                Object.keys(estoque[setor]).forEach(produto => {
-                    const chave = `${setor}|${produto}`;
-                    const contagem = dados[chave] || '';
-                    const preco = precos[chave] || '';
-                    const ideal = estoque[setor][produto];
-
-                    if (apenasContados && !contagem) return;
-
+            Object.keys(estoque).forEach(s => {
+                if (setor && setor !== s) return;
+                
+                Object.keys(estoque[s]).forEach(produto => {
+                    if (busca && !produto.toLowerCase().includes(busca)) return;
+                    const chave = `${s}|${produto}`;
+                    const painel_item = painel[chave] || { status: '', precoAnterior: '', precoAtual: '', empresa: '' };
+                    const estoqueAtual = contagem[chave] || '';
+                    if (apenasContados && !estoqueAtual) return;
+                    if (comprados && painel_item.status !== 'comprado') return;
+                    if (faltam && painel_item.status !== 'falta') return;
+                    linhas++;
                     const tr = document.createElement('tr');
+                    const estoqueHTML = estoqueAtual ? `<span class="estoque-preenchido">${estoqueAtual}</span>` : `<span class="estoque-vazio">-</span>`;
+                    
+                    // Obter dados de quem fez a contagem do setor
+                    const nomeFuncionarioSetor = localStorage.getItem(`setor_${s}_nome`) || '';
+                    const dataSetorContagem = localStorage.getItem(`setor_${s}_data`) || '';
+                    const dataSetorFormatada = dataSetorContagem ? new Date(dataSetorContagem).toLocaleDateString('pt-BR') : '';
+                    
                     tr.innerHTML = `
-                        <td><span class="setor-badge">${setor}</span></td>
-                        <td>${produto}</td>
-                        <td>${contagem ? `<span class="contado">${contagem}</span>` : '⏳'}</td>
-                        <td>${ideal}</td>
                         <td>
-                            <input type="text" class="preco-input" placeholder="0,00" value="${preco}"
-                                   onchange="salvarPreco('${chave}', this.value)">
+                            <div class="setor-container">
+                                <span class="setor-badge">${s}</span>
+                            </div>
+                        </td>
+                        <td>${produto}</td>
+                        <td>
+                            <div class="estoque-container">
+                                ${estoqueHTML}
+                                ${nomeFuncionarioSetor ? `<div class="setor-info-funcionario">${nomeFuncionarioSetor} - ${dataSetorFormatada}</div>` : ''}
+                            </div>
+                        </td>
+                        <td><input type="text" class="preco-input" placeholder="Qtd..." value="${painel_item.quantidadeComprada || ''}" onchange="salvarCampo('${chave}', 'quantidadeComprada', this.value)"></td>
+                        <td>
+                            <input type="text" class="preco-input" placeholder="R$ 0,00" value="${painel_item.precoAnterior || ''}" readonly>
+                            <div class="data-preco">${painel_item.dataPrecoAnterior || '-'}</div>
+                        </td>
+                        <td>
+                            <input type="text" class="preco-input" placeholder="R$ 0,00" value="${painel_item.precoAtual || ''}" onchange="atualizarPreco('${chave}', this.value); this.value = formatarReal(this.value);" oninput="this.value = formatarReal(this.value)">
+                            <div class="data-preco">${painel_item.dataPrecoAtual || '-'}</div>
+                        </td>
+                        <td><input type="text" class="empresa-input" placeholder="Digite a empresa" value="${painel_item.empresa || ''}" onchange="salvarCampo('${chave}', 'empresa', this.value)"></td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn-status btn-comprado ${painel_item.status === 'comprado' ? 'ativo' : ''}" onclick="marcarStatus('${chave}', 'comprado')">✓ Comprado</button>
+                                <button class="btn-status btn-falta ${painel_item.status === 'falta' ? 'ativo' : ''} ${painel_item.status === 'estoque' ? '' : (painel_item.status !== 'comprado' ? (estoqueAtual ? 'status-contado' : 'status-nao-contado') : '')}" onclick="marcarStatus('${chave}', 'falta')">✕ Comprar</button>
+                                <button class="btn-status btn-estoque ${painel_item.status === 'estoque' ? 'ativo' : ''}" onclick="marcarStatus('${chave}', 'estoque')">⊙ Estoque</button>
+                            </div>
                         </td>
                     `;
                     tabela.appendChild(tr);
                 });
             });
+            if (linhas === 0) tabela.innerHTML = '<tr><td colspan="8" class="empty-message">Nenhum produto encontrado</td></tr>';
         }
 
-        function salvarPreco(chave, valor) {
-            precos[chave] = valor;
-            localStorage.setItem('estoque_precos', JSON.stringify(precos));
+        function formatarReal(valor) {
+            // Remove tudo que não é número ou vírgula
+            let numeros = valor.replace(/\D/g, '');
+            
+            // Se vazio, retorna vazio
+            if (!numeros) return '';
+            
+            // Completa com zeros à esquerda se necessário
+            numeros = numeros.padStart(3, '0');
+            
+            // Divide em reais e centavos
+            let reais = numeros.slice(0, -2);
+            let centavos = numeros.slice(-2);
+            
+            // Formata os reais com pontos de milhar
+            reais = parseInt(reais).toLocaleString('pt-BR');
+            
+            return `R$ ${reais},${centavos}`;
         }
 
-        function atualizarInfos() {
-            let total = 0;
-            let contados = 0;
+        function obterDataAtual() {
+            const hoje = new Date();
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            const ano = hoje.getFullYear();
+            return `${dia}/${mes}/${ano}`;
+        }
+
+        function atualizarPreco(chave, novoPreco) {
+            if (!painel[chave]) painel[chave] = { status: '', precoAnterior: '', precoAtual: '', empresa: '', dataPrecoAnterior: '', dataPrecoAtual: '', quantidadeComprada: '' };
+            
+            const precoFormatado = formatarReal(novoPreco);
+            
+            // Se preço atual já existe, move para anterior
+            if (painel[chave].precoAtual) {
+                painel[chave].precoAnterior = painel[chave].precoAtual;
+                painel[chave].dataPrecoAnterior = painel[chave].dataPrecoAtual || obterDataAtual();
+            }
+            
+            // Atualiza preço atual com a data de hoje
+            painel[chave].precoAtual = precoFormatado;
+            painel[chave].dataPrecoAtual = obterDataAtual();
+            
+            localStorage.setItem('painel_estoque', JSON.stringify(painel));
+            renderizar();
+        }
+
+        function salvarCampo(chave, campo, valor) {
+            if (!painel[chave]) painel[chave] = { status: '', precoAnterior: '', precoAtual: '', empresa: '', dataPrecoAnterior: '', dataPrecoAtual: '', quantidadeComprada: '' };
+            painel[chave][campo] = valor;
+            localStorage.setItem('painel_estoque', JSON.stringify(painel));
+        }
+
+        function marcarStatus(chave, status) {
+            if (!painel[chave]) painel[chave] = { precoAnterior: '', precoAtual: '', empresa: '', dataPrecoAnterior: '', dataPrecoAtual: '', quantidadeComprada: '' };
+            painel[chave].status = painel[chave].status === status ? '' : status;
+            localStorage.setItem('painel_estoque', JSON.stringify(painel));
+            renderizar();
+            atualizarEstatisticas();
+        }
+
+        function filtrar() { renderizar(); }
+
+        function salvar() {
+            localStorage.setItem('painel_estoque', JSON.stringify(painel));
+            mostrarToast('✓ Dados salvos com sucesso!');
+        }
+
+        function atualizarEstatisticas() {
+            let total = 0, contados = 0, comprados = 0, faltam = 0;
+            Object.keys(estoque).forEach(s => {
+                Object.keys(estoque[s]).forEach(p => {
+                    total++;
+                    const chave = `${s}|${p}`;
+                    if (contagem[chave]) contados++;
+                    if (painel[chave]?.status === 'comprado') comprados++;
+                    if (painel[chave]?.status === 'falta') faltam++;
+                });
+            });
+            document.getElementById('totalProdutos').textContent = total;
+            document.getElementById('contados').textContent = contados;
+            document.getElementById('comprados').textContent = comprados;
+            document.getElementById('faltam').textContent = faltam;
+        }
+
+        function abrirModal() {
+            document.getElementById('modalAdicionarProduto').classList.add('open');
+            document.getElementById('nomeProduto').focus();
+        }
+
+        function fecharModal() {
+            document.getElementById('modalAdicionarProduto').classList.remove('open');
+            document.getElementById('nomeProduto').value = '';
+            document.getElementById('setorProduto').value = '';
+            document.getElementById('qtdProduto').value = '';
+            document.getElementById('unidadeProduto').value = 'un';
+            document.getElementById('precoProduto').value = '';
+        }
+
+        let chaveProdutoEmEdicao = null;
+
+        function abrirModalEditar(chave, setor, produto) {
+            chaveProdutoEmEdicao = chave;
+            const estoque_item = estoque[setor]?.[produto] || '';
+            const painel_item = painel[chave] || { unidade: 'un' };
+            
+            document.getElementById('editNomeProduto').value = produto;
+            document.getElementById('editQuantidadeIdeal').value = estoque_item;
+            document.getElementById('editUnidadeMedida').value = painel_item.unidade || 'un';
+            document.getElementById('modalEditarProduto').classList.add('open');
+            document.getElementById('editNomeProduto').focus();
+        }
+
+        function fecharModalEditar() {
+            document.getElementById('modalEditarProduto').classList.remove('open');
+            chaveProdutoEmEdicao = null;
+        }
+
+        function abrirModalBuscaEditar() {
+            document.getElementById('modalBuscaEditar').classList.add('open');
+            document.getElementById('buscaProdutoEditar').value = '';
+            document.getElementById('listaProdutosEditar').innerHTML = '<div class="empty-message" style="text-align: center; padding: 20px; color: #999;">Procure um produto para editar</div>';
+            document.getElementById('buscaProdutoEditar').focus();
+        }
+
+        function fecharModalBuscaEditar() {
+            document.getElementById('modalBuscaEditar').classList.remove('open');
+        }
+
+        function abrirModalNovoSetor() {
+            document.getElementById('modalNovoSetor').classList.add('open');
+            document.getElementById('nomeNovoSetor').value = '';
+            document.getElementById('nomeNovoSetor').focus();
+        }
+
+        function fecharModalNovoSetor() {
+            document.getElementById('modalNovoSetor').classList.remove('open');
+        }
+
+        function criarNovoSetor() {
+            const nomeSetor = document.getElementById('nomeNovoSetor').value.trim().toUpperCase();
+
+            if (!nomeSetor) {
+                alert('Digite o nome do setor!');
+                return;
+            }
+
+            if (estoque[nomeSetor]) {
+                alert('Este setor já existe!');
+                return;
+            }
+
+            // Cria o novo setor
+            estoque[nomeSetor] = {};
+            
+            // Salva em localStorage
+            const setoresCustomizados = JSON.parse(localStorage.getItem('setores_customizados') || '[]');
+            if (!setoresCustomizados.includes(nomeSetor)) {
+                setoresCustomizados.push(nomeSetor);
+                localStorage.setItem('setores_customizados', JSON.stringify(setoresCustomizados));
+            }
+
+            // Atualiza o filtro de setores
+            const setorFilter = document.getElementById('setorFilter');
+            const novaOpcao = document.createElement('option');
+            novaOpcao.value = nomeSetor;
+            novaOpcao.textContent = nomeSetor;
+            setorFilter.appendChild(novaOpcao);
+
+            fecharModalNovoSetor();
+            renderizar();
+            mostrarToast(`Setor "${nomeSetor}" criado com sucesso!`);
+            window.dispatchEvent(new Event('storage'));
+        }
+
+        function buscarProdutosParaEditar() {
+            const busca = document.getElementById('buscaProdutoEditar').value.toLowerCase().trim();
+            const lista = document.getElementById('listaProdutosEditar');
+
+            if (!busca) {
+                lista.innerHTML = '<div class="empty-message" style="text-align: center; padding: 20px; color: #999;">Procure um produto para editar</div>';
+                return;
+            }
+
+            let html = '';
+            let encontrados = 0;
 
             Object.keys(estoque).forEach(setor => {
                 Object.keys(estoque[setor]).forEach(produto => {
-                    total++;
-                    const chave = `${setor}|${produto}`;
-                    if (dados[chave]) contados++;
+                    if (produto.toLowerCase().includes(busca)) {
+                        encontrados++;
+                        const chave = `${setor}|${produto}`;
+                        html += `
+                            <div style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; hover-background: #f5f5f5;" onmouseover="this.style.backgroundColor='#f9f9f9'" onmouseout="this.style.backgroundColor='transparent'" onclick="selecionarProdutoParaEditar('${chave}', '${setor}', '${produto}')">
+                                <strong>${produto}</strong>
+                                <div style="font-size: 12px; color: #999; margin-top: 4px;">Setor: ${setor}</div>
+                            </div>
+                        `;
+                    }
                 });
             });
 
-            document.getElementById('totalProdutos').textContent = total;
-            document.getElementById('produtosContados').textContent = contados;
-            document.getElementById('percentual').textContent = Math.round((contados / total) * 100) + '%';
+            if (encontrados === 0) {
+                lista.innerHTML = '<div class="empty-message" style="text-align: center; padding: 20px; color: #999;">Nenhum produto encontrado</div>';
+            } else {
+                lista.innerHTML = html;
+            }
+        }
+
+        function selecionarProdutoParaEditar(chave, setor, produto) {
+            fecharModalBuscaEditar();
+            abrirModalEditar(chave, setor, produto);
+        }
+
+        function salvarEdicaoProduto() {
+            if (!chaveProdutoEmEdicao) return;
+            
+            const [setor, produtoAntigo] = chaveProdutoEmEdicao.split('|');
+            const novoNome = document.getElementById('editNomeProduto').value.trim();
+            const novaQtd = document.getElementById('editQuantidadeIdeal').value.trim();
+            const unidade = document.getElementById('editUnidadeMedida').value;
+            
+            if (!novoNome || !novaQtd) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+            
+            // Se mudou nome, renomear
+            if (novoNome !== produtoAntigo) {
+                estoque[setor][novoNome] = novaQtd;
+                delete estoque[setor][produtoAntigo];
+                
+                const novaChave = `${setor}|${novoNome}`;
+                painel[novaChave] = painel[chaveProdutoEmEdicao] || {};
+                delete painel[chaveProdutoEmEdicao];
+                chaveProdutoEmEdicao = novaChave;
+            } else {
+                estoque[setor][novoNome] = novaQtd;
+            }
+            
+            // Salvar unidade
+            if (!painel[chaveProdutoEmEdicao]) painel[chaveProdutoEmEdicao] = {};
+            painel[chaveProdutoEmEdicao].unidade = unidade;
+            
+            localStorage.setItem('estoque', JSON.stringify(estoque));
+            localStorage.setItem('painel_estoque', JSON.stringify(painel));
+            
+            fecharModalEditar();
+            renderizar();
+            atualizarEstatisticas();
+        }
+
+        function adicionarProdutoFinal() {
+            const nome = document.getElementById('nomeProduto').value.trim();
+            const setor = document.getElementById('setorProduto').value.trim();
+            const qtd = document.getElementById('qtdProduto').value.trim();
+            const unidade = document.getElementById('unidadeProduto').value;
+            const preco = document.getElementById('precoProduto').value.trim();
+            if (!nome || !setor) { alert('Preencha Nome e Setor!'); return; }
+            if (!produtosNovos[setor]) produtosNovos[setor] = {};
+            produtosNovos[setor][nome] = qtd || 'varia';
+            estoque[setor][nome] = qtd || 'varia';
+            
+            const chave = `${setor}|${nome}`;
+            if (!painel[chave]) painel[chave] = { status: '', unidade: unidade, dataPrecoAnterior: '', dataPrecoAtual: '', quantidadeComprada: '' };
+            else painel[chave].unidade = unidade;
+            
+            if (preco) {
+                painel[chave].precoAtual = formatarReal(preco);
+                painel[chave].dataPrecoAtual = obterDataAtual();
+            }
+            
+            localStorage.setItem('painel_estoque', JSON.stringify(painel));
+            localStorage.setItem('produtos_novos', JSON.stringify(produtosNovos));
+            fecharModal();
+            renderizar();
+            atualizarEstatisticas();
+            mostrarToast(`Produto "${nome}" adicionado!`);
+            window.dispatchEvent(new Event('storage'));
+        }
+
+        function mostrarToast(mensagem) {
+            const existente = document.querySelector('.toast');
+            if (existente) existente.remove();
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = mensagem;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
 
         inicializar();
+
+        // Inicializar Firebase em background
+        window.addEventListener('load', inicializarFirebase);
     </script>
 </body>
 </html>

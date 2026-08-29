@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Contagem de Estoque - Canto Verde</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a472a;
+            --primary-light: #2d6a3f;
+            --accent: #d4a574;
+            --accent-light: #e8c9a0;
+            --success: #4ade80;
+            --danger: #ef4444;
+            --bg-dark: #0f1419;
+            --bg-light: #f8f6f3;
+            --text-dark: #1a1a1a;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 24px rgba(0,0,0,0.12);
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            padding: 0;
+            margin: 0;
+        }
+
+        .safe-area {
+            padding: 1rem;
+            padding-top: max(1rem, env(safe-area-inset-top));
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a472a 0%, #2d6a3f 100%);
+            color: white;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            margin: -1rem -1rem 2rem -1rem;
+            padding-top: max(2rem, calc(2rem + env(safe-area-inset-top)));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border-bottom: 3px solid #d4a574;
+        }
+
+        .header-logo-center {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .logo {
+            width: 150px;
+            height: auto;
+            flex-shrink: 0;
+            object-fit: contain;
+            display: block;
+        }
+
+        .header-center {
+            text-align: center;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -1px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 13px;
+            opacity: 1;
+            font-weight: 500;
+            color: #d4a574;
+            margin: 0;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .btn-adicionar {
+            background: white;
+            color: #1a472a;
+            border: none;
+            padding: 14px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 22px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+        }
+
+        .btn-adicionar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            background: #f5f5f5;
+        }
+
+        .btn-adicionar:active {
+            background: #e0e0e0;
+            transform: translateY(0);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.08) 0%, rgba(212, 165, 116, 0.04) 100%);
+            border-left: 4px solid #d4a574;
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            font-size: 13px;
+            color: #1a472a;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            letter-spacing: 0.3px;
+        }
+
+        .setor {
+            background: white;
+            border-radius: 14px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .setor:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+
+        .setor:active {
+            transform: translateY(0);
+        }
+
+        .setor-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 1.2rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        .setor-header:active {
+            opacity: 0.9;
+        }
+
+        .setor-icon {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .setor-icon.open {
+            transform: rotate(180deg);
+        }
+
+        .setor-content {
+            padding: 0;
+            display: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .setor-content.open {
+            display: block;
+            max-height: 2000px;
+        }
+
+        .produto {
+            padding: 1.2rem;
+            border-bottom: 1px solid var(--border);
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .produto:last-child {
+            border-bottom: none;
+        }
+
+        .produto.confirmado {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.05) 0%, rgba(212, 165, 116, 0.03) 100%);
+            border-left: 3px solid var(--success);
+        }
+
+        .produto-nome {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+        }
+
+        .produto-ideal {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 500;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        input[type="text"], input[type="number"] {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            color: var(--text-dark);
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #d4a574;
+            box-shadow: 0 4px 12px rgba(212, 165, 116, 0.2);
+        }
+
+        input[type="number"] {
+            text-align: center;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .btn-confirmar {
+            padding: 12px 20px;
+            background: white;
+            color: #1a472a;
+            border: 2px solid #1a472a;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Poppins', sans-serif;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .btn-confirmar:hover {
+            background: #f5f5f5;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .btn-confirmar:active {
+            background: #1a472a;
+            color: white;
+            transform: translateY(0);
+        }
+
+        .btn-confirmar.confirmado {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .btn-confirmar.confirmado:active {
+            background: #22c55e;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: linear-gradient(135deg, var(--success), #86efac);
+            color: #166534;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            letter-spacing: 0.3px;
+        }
+
+        .contador {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .footer-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 2rem;
+            margin-bottom: 80px;
+        }
+
+        .btn-link {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-link:active {
+            transform: scale(0.98);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-salvar {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .btn-salvar:active {
+            transform: scale(0.98);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease, slideDown 0.3s ease 2.7s;
+            z-index: 999;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 1; transform: translateX(-50%) translateY(0); }
+            to { opacity: 0; transform: translateX(-50%) translateY(20px); }
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            align-items: flex-end;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            padding: 2rem 1.5rem;
+            border-radius: 20px 20px 0 0;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUpModal 0.3s ease;
+        }
+
+        @keyframes slideUpModal {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .btn-fechar {
+            background: var(--bg-light);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+        }
+
+        .btn-fechar:active {
+            background: var(--border);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 13px;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 71, 42, 0.1);
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 2rem;
+        }
+
+        .btn-cancelar {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancelar:active {
+            background: var(--border);
+        }
+
+        .btn-adicionar-produto {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .btn-adicionar-produto:active {
+            transform: scale(0.98);
+            box-shadow: var(--shadow-lg);
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+
+            .logo {
+                width: 100px;
+                height: auto;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .btn-adicionar {
+                padding: 8px 10px;
+                font-size: 18px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 2rem;
+            }
+            
+            .header {
+                margin: 0 0 2rem 0;
+                padding: 2rem;
+            }
+
+            .modal-content {
+                width: 90%;
+                max-width: 450px;
+                border-radius: 12px;
+                margin: auto;
+            }
+        }
+    </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+</head>
+<body>
+    <!-- MODAL IDENTIFICAÇÃO DO FUNCIONÁRIO -->
+    <div class="modal" id="modalIdentificacao" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000;">
+        <div style="background: white; padding: 30px; border-radius: 12px; max-width: 400px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+            <h2 style="color: #1a472a; margin-bottom: 20px; font-family: 'Playfair Display', serif; font-size: 24px;">Identificação</h2>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1a1a1a;">Nome Completo *</label>
+                <input type="text" id="nomeFuncionario" placeholder="Digite seu nome" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: 'Poppins', sans-serif;" autofocus>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1a1a1a;">Data *</label>
+                <input type="date" id="dataContagem" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: 'Poppins', sans-serif;">
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+                <button onclick="fecharModalIdentificacao()" style="flex: 1; padding: 14px; background: #f5f5f5; color: #424242; border: 2px solid #e0e0e0; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.3s ease;">
+                    Cancelar
+                </button>
+                <button onclick="iniciarContagem()" style="flex: 1; padding: 14px; background: linear-gradient(135deg, #1a472a, #2d6a3f); color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.3s ease;">
+                    ✓ Iniciar
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="safe-area">
+        <div class="header">
+            <div class="header-logo-center">
+                <div class="header-center">
+                    <h1>Contagem de Estoque</h1>
+                    <p class="subtitle">CELULAR 02</p>
+                </div>
+            </div>
+            <button class="btn-adicionar" onclick="abrirModal()">+</button>
+        </div>
+
+        <div class="info-box">
+            Digite a quantidade e clique em OK para salvar automaticamente
+        </div>
+
+        <div id="setores"></div>
+
+        <div class="footer-buttons">
+            <a href="painel.html" class="btn-link">Ver Painel</a>
+            <button class="btn-salvar" onclick="salvarTudo()">Finalizar</button>
+        </div>
+    </div>
+
+    <div class="contador">
+        <span id="contagemTotal">0</span>
+    </div>
+
+    <!-- MODAL ADICIONAR PRODUTO -->
+    <div class="modal" id="modalAdicionarProduto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Novo Produto</h2>
+                <button class="btn-fechar" onclick="fecharModal()">✕</button>
+            </div>
+
+            <div class="form-group">
+                <label>Nome do Produto *</label>
+                <input type="text" id="nomeProduto" placeholder="Ex: Queijo Ralado">
+            </div>
+
+            <div class="form-group">
+                <label>Setor *</label>
+                <select id="setorProduto">
+                    <option value="">Selecionar setor...</option>
+                    <option value="CARNES">CARNES</option>
+                    <option value="CONGELADOS E RESFRIADOS">CONGELADOS E RESFRIADOS</option>
+                    <option value="BEBIDAS">BEBIDAS</option>
+                    <option value="VERDURAS">VERDURAS</option>
+                    <option value="SECOS">SECOS</option>
+                    <option value="LIMPEZA E EMBALAGENS">LIMPEZA E EMBALAGENS</option>
+                    <option value="SALGADOS">SALGADOS</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Quantidade Inicial</label>
+                <input type="text" id="qtdProduto" placeholder="Ex: 10, 5kg, 2 cx">
+            </div>
+
+            <div class="form-buttons">
+                <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-adicionar-produto" onclick="adicionarProdutoFinal()">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let db, contagemRef, setoresRef;
+        let firebaseReady = false;
+
+        // Inicializar Firebase de forma assíncrona (não bloqueia UI)
+        function inicializarFirebase() {
+            if (typeof firebase === 'undefined') {
+                setTimeout(inicializarFirebase, 100);
+                return;
+            }
+
+            // ⚠️ SUBSTITUA COM SUAS CREDENCIAIS DO FIREBASE ⚠️
+            const firebaseConfig = {
+                apiKey: "AIzaSyBw5yOpE2SCR_PrsfVO2NGLcDQoY9MtAv4",
+                authDomain: "checklist-canto-verde.firebaseapp.com",
+                projectId: "checklist-canto-verde",
+                storageBucket: "checklist-canto-verde.firebasestorage.app",
+                messagingSenderId: "600866431493",
+                appId: "1:600866431493:web:5c53120c546adff53e326c"
+            };
+
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                contagemRef = db.collection('contagens');
+                setoresRef = db.collection('setores');
+                firebaseReady = true;
+                console.log('✅ Firebase inicializado com sucesso!');
+                
+                // Sincronizar com Firestore em tempo real (agora que está pronto)
+                if (contagemRef) {
+                    contagemRef.onSnapshot(snapshot => {
+                        snapshot.forEach(doc => {
+                            dados[doc.id] = doc.data().valor;
+                        });
+                        renderizar();
+                        atualizarContador();
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Erro ao inicializar Firebase:', error);
+                console.log('⚠️ Firebase não está configurado. Usando localStorage apenas.');
+            }
+        }
+
+        const estoque = {
+            "CARNES": {"peito frango": "60kg","coxão mole": "60kg","salsichão": "40kg","alcatra com maminha": "varia","Maminha": "30kg","Filé Mignon": "20kg","Capa do filé": "20kg","Costela Porco/barbecue": "40kg","Picanha de Porco/maracuja": "varia","Cupim": "varia"},
+            "CONGELADOS E RESFRIADOS": {"queijo coalho": "10uni","bacon cubos": "varia","massa Tortei": "10uni","Massa ravioli Verde": "varia","massa larga fettucine": "varia","macarrão": "varia","Massa gaelzer": "varia","batata frita": "4cx","Dado de tapioca": "4cx","gorgonzola": "varia","balde nata": "varia","queijo mussarela": "varia","manteiga": "varia","geleia de pimenta/maçã": "varia","Creme de Alho": "varia","Molho de Pimenta": "varia","molho barbecue": "varia","molho maracuja": "varia"},
+            "BEBIDAS": {"coca lata normal 350ml": "20dz","coca lata 350ml zero": "20dz","schwepps citrus": "varia","sprite": "varia","tonica lata": "varia","fruki guarana": "varia","agua sem gás": "20dz","agua com gas": "20dz","suco laranja": "5dz","suco uva": "5dz","Cachaça Rota 48": "varia","chopp barril": "varia","chopp meio barril": "varia","aperol": "2","xarope limão ciciliano": "varia","xarope frutas vermelha": "varia","xarope maçã verde": "varia","heineken long": "12","heineken long zero": "12","Espumante moscatel": "varia","Espumante moscatel Rosé": "varia","Espumante Brut": "varia","Refri Litro Almoço": "varia"},
+            "VERDURAS": {"batata branca": "1saco","mix": "1dz","tempero verde": "4uni","cebola branca": "1saco","alho": "varia","limão": "6kg","morango": "varia","maracuja": "4pote","cenoura": "varia","limão siciliano": "varia","manjericão": "varia","hortelã": "varia","Tomate seco": "varia","cebolete massa": "varia","cebolete maionese": "varia"},
+            "SECOS": {"leite": "10uni","leite em pó": "varia","sagu": "varia","Queijo Ralado parmesão": "varia","ovo em pó integral": "2uni","molho branco pó": "varia","óleo oliva": "varia","lemon pepper": "2uni","Chimichuri": "varia","Tempero para Frango": "varia","café 500gr": "5uni","bisnaga cheddar": "varia","cheddar fatiado": "varia","bisnaga Requeijão c/amido": "varia","sal fino": "12uni","nozes": "varia","corante gema ovo": "2uni","Molho tomate": "varia","farinha panko": "varia","farinha temperada fritz frida": "varia","Farinha de mandioca": "varia","páprica defumada": "varia","shoyu": "varia","molho inglês": "varia","Tempero Batata": "varia","arroz": "5kg","feijão": "5kg","vinagre": "varia","sal grosso": "12","amido milho": "6uni","óleo soja": "20un","óleo algodão": "1balde","açúcar": "10uni","amaciante carne": "2unid","farinha trigo": "varia","Doce de leite fritz frida": "varia","Orégano": "varia","Creme de Leite": "varia","leite condensado": "varia","Pêssego": "varia","figo": "varia","Ovos": "varia","suco maracuja": "varia","suco morango": "varia"},
+            "LIMPEZA E EMBALAGENS": {"detergente": "2","Desinfetante andiroba": "2","adocante": "1","Alvejante": "2","Detergente Desinfetante": "2","copos": "varia","colher café": "2","canudo": "2","bobinas": "varia","esponja": "6","bombril": "3","sacos lixo 100lt": "varia","sacos lixo 60l": "varia","sacos lixo 30lt": "varia","F200": "2uni","bloco sanitário": "6","guardanapo sache": "2cx","saco talher": "2saco","papel toalha rolo": "6uni","papel higiênico": "6uni","Papel Toalha Intercalado": "varia","luvas nitrílica M": "varia","luvas nitrílica GG": "varia","papel alumínio": "2uni","Esfregão chapa": "1tira","Álcool": "1","Palito de dente": "1","Touca descartável": "1","Sabonete Líquido": "varia"},
+            "SALGADOS": {"rissole brócolis": "varia","rissole salsicha": "varia","Risole calabresa": "varia","Risole queijo-milho": "varia","mini churros doce de leite": "varia","Folhado goiaba": "varia","Enroladinho": "varia","Coxinha panko": "varia","trouxinha": "varia"}
+        };
+
+        let dados = JSON.parse(localStorage.getItem('contagem_estoque') || '{}');
+        let produtosNovos = JSON.parse(localStorage.getItem('produtos_novos') || '{}');
+        let nomeFuncionarioGlobal = '';
+        let dataContagemGlobal = '';
+        let setorAtualAberto = '';
+
+        function obterDataHoje() {
+            const hoje = new Date();
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            const ano = hoje.getFullYear();
+            return `${ano}-${mes}-${dia}`;
+        }
+
+        function inicializar() {
+            carregarSetoresCustomizados();
+            carregarProdutosNovos();
+            renderizar();
+            atualizarContador();
+            
+            // Sincronizar com Firestore em tempo real (se Firebase estiver pronto)
+            if (contagemRef) {
+                contagemRef.onSnapshot(snapshot => {
+                    snapshot.forEach(doc => {
+                        dados[doc.id] = doc.data().valor;
+                    });
+                    renderizar();
+                    atualizarContador();
+                });
+            }
+        }
+
+        function carregarSetoresCustomizados() {
+            const setoresCustomizados = JSON.parse(localStorage.getItem('setores_customizados') || '[]');
+            setoresCustomizados.forEach(setor => {
+                if (!estoque[setor]) {
+                    estoque[setor] = {};
+                }
+            });
+        }
+
+        function carregarProdutosNovos() {
+            Object.keys(produtosNovos).forEach(setor => {
+                if (!estoque[setor]) estoque[setor] = {};
+                Object.assign(estoque[setor], produtosNovos[setor]);
+            });
+        }
+
+        function renderizar() {
+            const container = document.getElementById('setores');
+            container.innerHTML = '';
+
+            Object.keys(estoque).forEach(setor => {
+                const setorDiv = document.createElement('div');
+                setorDiv.className = 'setor';
+
+                const header = document.createElement('div');
+                header.className = 'setor-header';
+                const icon = document.createElement('span');
+                icon.className = 'setor-icon';
+                icon.textContent = '▼';
+                header.innerHTML = `
+                    <div style="flex: 1;">
+                        <div>${setor}</div>
+                        <div style="font-size: 11px; color: #999; margin-top: 4px; font-weight: 400;">
+                            ${localStorage.getItem(`setor_${setor}_nome`) || ''} - ${localStorage.getItem(`setor_${setor}_data`) ? new Date(localStorage.getItem(`setor_${setor}_data`)).toLocaleDateString('pt-BR') : ''}
+                        </div>
+                    </div>
+                `;
+                header.appendChild(icon);
+
+                const content = document.createElement('div');
+                content.className = 'setor-content';
+
+                header.onclick = () => {
+                    const jaPrencheuSetor = localStorage.getItem(`setor_${setor}_nome`);
+                    
+                    if (!jaPrencheuSetor) {
+                        setorAtualAberto = setor;
+                        document.getElementById('modalIdentificacao').style.display = 'flex';
+                        document.getElementById('nomeFuncionario').value = '';
+                        document.getElementById('dataContagem').value = obterDataHoje();
+                        document.getElementById('nomeFuncionario').focus();
+                    } else {
+                        content.classList.toggle('open');
+                        icon.classList.toggle('open');
+                    }
+                };
+
+                Object.keys(estoque[setor]).forEach(produto => {
+                    const chave = `${setor}|${produto}`;
+                    const valor = dados[chave] || '';
+
+                    const produtoDiv = document.createElement('div');
+                    produtoDiv.className = `produto ${valor ? 'confirmado' : ''}`;
+                    produtoDiv.id = `prod_${chave}`;
+
+                    produtoDiv.innerHTML = `
+                        <div class="produto-nome">${produto}</div>
+                        <div class="produto-ideal">Ideal: ${estoque[setor][produto]}</div>
+                        <div class="input-container">
+                            <input type="text" id="input_${chave}" placeholder="Qtd..." value="${valor}" onkeypress="if(event.key==='Enter') confirmarItem('${chave}')">
+                            <button class="btn-confirmar ${valor ? 'confirmado' : ''}" onclick="confirmarItem('${chave}')">${valor ? '✓' : 'OK'}</button>
+                        </div>
+                        ${valor ? '<div class="status-badge">✓ Confirmado</div>' : ''}
+                    `;
+
+                    content.appendChild(produtoDiv);
+                });
+
+                setorDiv.appendChild(header);
+                setorDiv.appendChild(content);
+                container.appendChild(setorDiv);
+            });
+        }
+
+        function confirmarItem(chave) {
+            const input = document.getElementById(`input_${chave}`);
+            const valor = input.value.trim();
+            if (!valor) { input.focus(); return; }
+            
+            dados[chave] = valor;
+            
+            // Salvar em localStorage (fallback se Firebase não estiver pronto)
+            localStorage.setItem('contagem_estoque', JSON.stringify(dados));
+            
+            // Salvar em Firestore (se estiver inicializado)
+            if (contagemRef) {
+                contagemRef.doc(chave).set({
+                    valor: valor,
+                    timestamp: new Date()
+                }, { merge: true });
+            }
+            
+            renderizar();
+            atualizarContador();
+            mostrarToast('✓ Salvo com sucesso!');
+        }
+
+        function atualizarContador() {
+            document.getElementById('contagemTotal').textContent = Object.keys(dados).length;
+        }
+
+        function mostrarToast(mensagem) {
+            const existente = document.querySelector('.toast');
+            if (existente) existente.remove();
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = mensagem;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function salvarTudo() {
+            localStorage.setItem('contagem_estoque', JSON.stringify(dados));
+            mostrarToast('✓ Contagem finalizada!');
+        }
+
+        function abrirModal() {
+            atualizarSetoresNoSelect();
+            document.getElementById('modalAdicionarProduto').classList.add('open');
+            document.getElementById('nomeProduto').focus();
+        }
+
+        function atualizarSetoresNoSelect() {
+            const selectSetor = document.getElementById('setorProduto');
+            selectSetor.innerHTML = '<option value="">Selecionar setor...</option>';
+
+            Object.keys(estoque).forEach(setor => {
+                const option = document.createElement('option');
+                option.value = setor;
+                option.textContent = setor;
+                selectSetor.appendChild(option);
+            });
+        }
+
+        function fecharModal() {
+            document.getElementById('modalAdicionarProduto').classList.remove('open');
+            document.getElementById('nomeProduto').value = '';
+            document.getElementById('setorProduto').value = '';
+            document.getElementById('qtdProduto').value = '';
+        }
+
+        function iniciarContagem() {
+            const nome = document.getElementById('nomeFuncionario').value.trim();
+            const data = document.getElementById('dataContagem').value;
+
+            if (!nome || !data) {
+                alert('Preencha nome e data!');
+                return;
+            }
+
+            // Salva os dados para este setor específico
+            localStorage.setItem(`setor_${setorAtualAberto}_nome`, nome);
+            localStorage.setItem(`setor_${setorAtualAberto}_data`, data);
+
+            // Sincronizar com Firestore (se estiver pronto)
+            if (firebaseReady && contagemRef) {
+                contagemRef.doc(`setor_${setorAtualAberto}`).set({
+                    nome: nome,
+                    data: data,
+                    timestamp: new Date()
+                }, { merge: true });
+            }
+
+            // Fecha o modal
+            document.getElementById('modalIdentificacao').style.display = 'none';
+
+            // Renderiza novamente para exibir nome/data no setor
+            renderizar();
+
+            // Dispara evento de storage para sincronizar com painel (localStorage)
+            window.dispatchEvent(new Event('storage'));
+
+            // Abre o setor
+            setTimeout(() => {
+                const setorElements = document.querySelectorAll('.setor-header');
+                setorElements.forEach(el => {
+                    if (el.textContent.includes(setorAtualAberto)) {
+                        el.click();
+                    }
+                });
+            }, 100);
+        }
+
+        function fecharModalIdentificacao() {
+            document.getElementById('modalIdentificacao').style.display = 'none';
+        }
+
+        function adicionarProdutoFinal() {
+            const nome = document.getElementById('nomeProduto').value.trim();
+            const setor = document.getElementById('setorProduto').value.trim();
+            const qtd = document.getElementById('qtdProduto').value.trim();
+            if (!nome || !setor) { alert('Preencha Nome e Setor!'); return; }
+            if (!produtosNovos[setor]) produtosNovos[setor] = {};
+            produtosNovos[setor][nome] = qtd || 'varia';
+            estoque[setor][nome] = qtd || 'varia';
+            localStorage.setItem('produtos_novos', JSON.stringify(produtosNovos));
+            fecharModal();
+            renderizar();
+            mostrarToast(`Produto "${nome}" adicionado!`);
+            window.dispatchEvent(new Event('storage'));
+        }
+
+        // Inicializar imediatamente (mostra setores)
+        inicializar();
+
+        // Inicializar Firebase em background
+        window.addEventListener('load', inicializarFirebase);
+
+        // Sincronizar com mudanças no localStorage (novo setor criado no painel)
+        window.addEventListener('storage', () => {
+            carregarSetoresCustomizados();
+            renderizar();
+            atualizarContador();
+        });
+    </script>
+</body>
+</html>
