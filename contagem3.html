@@ -318,6 +318,28 @@
             background: #22c55e;
         }
 
+        .btn-mudar-setor {
+            padding: 6px 10px;
+            background: #d4a574 !important;
+            color: white !important;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 10px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .btn-mudar-setor:hover {
+            background: #c89461 !important;
+        }
+
+        .btn-mudar-setor:active {
+            transform: scale(0.95);
+        }
+
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -862,7 +884,10 @@
                     produtoDiv.id = `prod_${chave}`;
 
                     produtoDiv.innerHTML = `
-                        <div class="produto-nome">${produto}</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px;">
+                            <div class="produto-nome">${produto}</div>
+                            <button class="btn-mudar-setor" onclick="abrirSeletorMudarSetor('${setor}', '${produto}')">MUDAR</button>
+                        </div>
                         <div class="produto-ideal">Ideal: ${estoque[setor][produto]}</div>
                         <div class="input-container">
                             <input type="text" id="input_${chave}" placeholder="Qtd..." value="${valor}" onkeypress="if(event.key==='Enter') confirmarItem('${chave}')">
@@ -901,6 +926,66 @@
             renderizar();
             atualizarContador();
             mostrarToast('✓ Salvo com sucesso!');
+        }
+
+        function abrirSeletorMudarSetor(setorAtual, produto) {
+            const setores = Object.keys(estoque);
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 2000;';
+            
+            let opcoesHTML = '<div style="padding: 15px; max-height: 400px; overflow-y: auto;">';
+            
+            setores.forEach(setor => {
+                const isAtual = setor === setorAtual;
+                const estilo = isAtual ? 'opacity: 0.5; cursor: not-allowed;' : 'cursor: pointer;';
+                const desabilitado = isAtual ? 'disabled' : '';
+                
+                opcoesHTML += `<button onclick="mudarProdutoSetor('${setorAtual}', '${produto}', '${setor}')" style="width: 100%; padding: 12px; margin: 5px 0; background: #f0f0f0; border: none; border-radius: 6px; ${estilo} font-weight: 600; text-align: left; font-size: 13px; color: #1a472a;" ${desabilitado}>📍 ${setor}</button>`;
+            });
+            
+            opcoesHTML += '</div>';
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 20px; border-radius: 12px; max-width: 320px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                    <h3 style="color: #1a472a; margin-bottom: 15px; font-size: 16px;">Mover "${produto}"</h3>
+                    <p style="color: #999; font-size: 12px; margin-bottom: 15px;">De: <strong>${setorAtual}</strong></p>
+                    ${opcoesHTML}
+                    <button onclick="this.parentElement.parentElement.remove()" style="width: 100%; padding: 12px; margin-top: 10px; background: #e0e0e0; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">Cancelar</button>
+                </div>
+            `;
+            
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            };
+            
+            document.body.appendChild(modal);
+        }
+
+        function mudarProdutoSetor(setorAtual, produto, novoSetor) {
+            if (setorAtual === novoSetor) return;
+            
+            // Fechar modal
+            document.querySelectorAll('[style*="rgba(0,0,0,0.6)"]').forEach(el => el.remove());
+            
+            // Pegar valor ideal do produto
+            const valorIdeal = estoque[setorAtual][produto];
+            
+            // Adicionar no novo setor
+            estoque[novoSetor][produto] = valorIdeal;
+            
+            // Remover do setor anterior
+            delete estoque[setorAtual][produto];
+            
+            // Atualizar localStorage
+            localStorage.setItem('estoque', JSON.stringify(estoque));
+            
+            // Re-renderizar
+            renderizar();
+            
+            // Toast de confirmação
+            mostrarToast(`✓ "${produto}" movido para ${novoSetor}!`);
         }
 
         function atualizarContador() {
