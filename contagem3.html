@@ -628,6 +628,7 @@
                 <div class="header-center">
                     <h1>Contagem de Estoque</h1>
                     <p class="subtitle">CELULAR 03</p>
+                    <p class="subtitle">Sistema de Gestão</p>
                 </div>
             </div>
             <button class="btn-adicionar" onclick="abrirModal()">+</button>
@@ -758,6 +759,20 @@
         }
 
         function inicializar() {
+            // Inicializar setores customizados se não existirem
+            const setoresCustomizados = JSON.parse(localStorage.getItem('setores_customizados') || '[]');
+            const setoresAdicionar = ['CASA DE MADEIRA', 'ESTOQUE CHA', 'FRUTAS E LEGUMES'];
+            
+            setoresAdicionar.forEach(setor => {
+                if (!setoresCustomizados.includes(setor)) {
+                    setoresCustomizados.push(setor);
+                }
+            });
+            
+            if (setoresCustomizados.length > 0) {
+                localStorage.setItem('setores_customizados', JSON.stringify(setoresCustomizados));
+            }
+            
             carregarSetoresCustomizados();
             carregarProdutosNovos();
             renderizar();
