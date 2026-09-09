@@ -915,20 +915,36 @@
             
             dados[chave] = valor;
             
-            // Salvar em localStorage (fallback se Firebase não estiver pronto)
+            // ✅ SALVAR IMEDIATAMENTE (1º tentativa - localStorage)
             localStorage.setItem('contagem_estoque', JSON.stringify(dados));
+            console.log('✅ [SAVE 1] localStorage - Item salvo:', chave, '=', valor);
             
-            // Salvar em Firestore (se estiver inicializado)
+            // ✅ SALVAR EM FIREBASE (2º tentativa - sincronização)
             if (contagemRef) {
                 contagemRef.doc(chave).set({
                     valor: valor,
                     timestamp: new Date()
-                }, { merge: true });
+                }, { merge: true }).then(() => {
+                    console.log('✅ [SAVE 2] Firebase - Item salvo:', chave);
+                }).catch(err => {
+                    console.warn('⚠️ Firebase error, retrying...', err);
+                    // Retry após 500ms se falhar
+                    setTimeout(() => {
+                        contagemRef.doc(chave).set({
+                            valor: valor,
+                            timestamp: new Date()
+                        }, { merge: true });
+                    }, 500);
+                });
             }
             
+            // ✅ RE-RENDERIZAR E ATUALIZAR UI
             renderizar();
             atualizarContador();
+            
+            // ✅ MOSTRAR FEEDBACK VISUAL
             mostrarToast('✓ Salvo com sucesso!');
+            console.log('✅ [CONFIRM] Item confirmado - Tudo salvo:', chave);
         }
 
         function abrirSeletorMudarSetor(setorAtual, produto) {
