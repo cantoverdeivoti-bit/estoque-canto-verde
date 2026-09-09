@@ -1096,8 +1096,17 @@
             window.dispatchEvent(new Event('storage'));
         }
 
-        // Inicializar imediatamente (mostra setores)
-        inicializar();
+        // ESPERAR DOM ESTAR PRONTO ANTES DE INICIALIZAR
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                console.log('✅ DOM pronto - inicializando...');
+                inicializar();
+            });
+        } else {
+            // DOM já está pronto
+            console.log('✅ DOM já pronto - inicializando...');
+            inicializar();
+        }
 
         // Inicializar Firebase em background
         window.addEventListener('load', inicializarFirebase);
