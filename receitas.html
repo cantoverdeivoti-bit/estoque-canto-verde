@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receitas - Canto Verde</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f6f3;
+            padding: 20px;
+            color: #1a472a;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a472a 0%, #2d6a3f 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 20px;
+            border: 2px solid #1a472a;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .filter-select {
+            padding: 12px 20px;
+            border: 2px solid #1a472a;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            min-width: 150px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            background: #d4a574;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: #c89461;
+        }
+        
+        button.primario {
+            background: #1a472a;
+        }
+        
+        button.primario:hover {
+            background: #2d6a3f;
+        }
+        
+        .receitas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .receita-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .receita-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .receita-header {
+            background: linear-gradient(135deg, #d4a574 0%, #e8c9a0 100%);
+            padding: 20px;
+            color: white;
+        }
+        
+        .receita-titulo {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .receita-categoria {
+            display: inline-block;
+            background: rgba(255,255,255,0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .receita-body {
+            padding: 20px;
+        }
+        
+        .receita-info {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .info-item {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #1a472a;
+        }
+        
+        .receita-ingredientes {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #333;
+            max-height: 100px;
+            overflow: hidden;
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        
+        .modal.aberto {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-content h2 {
+            color: #1a472a;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .modal-content h3 {
+            color: #1a472a;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .modal-content ul, .modal-content ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+            line-height: 2;
+        }
+        
+        .modal-content li {
+            margin-bottom: 8px;
+            font-size: 15px;
+            color: #333;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .modal-buttons button {
+            flex: 1;
+        }
+        
+        .vazio {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .vazio-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .receitas-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍳 Receitas</h1>
+            <p>Canto Verde - Cozinha</p>
+        </div>
+        
+        <div class="controls">
+            <input type="text" class="search-box" id="busca" placeholder="🔍 Buscar receita...">
+            <select class="filter-select" id="filtro">
+                <option value="">Todas as categorias</option>
+                <option value="Entrada">Entrada</option>
+                <option value="Prato Principal">Prato Principal</option>
+                <option value="Acompanhamento">Acompanhamento</option>
+                <option value="Sobremesa">Sobremesa</option>
+                <option value="Bebida">Bebida</option>
+            </select>
+            <button class="primario" onclick="abrirNovaReceita()">➕ Nova Receita</button>
+        </div>
+        
+        <div class="receitas-grid" id="receitas"></div>
+        
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <div id="detalhes"></div>
+                <div class="modal-buttons">
+                    <button onclick="fecharModal()">Voltar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let receitas = [
+            {
+                id: 1,
+                titulo: "Risoto de Cogumelos",
+                categoria: "Prato Principal",
+                tempo: "45 min",
+                porcoes: "4 pessoas",
+                ingredientes: "2 xícaras arroz arbóreo, 500ml vinho branco, 1L caldo vegetais, 300g cogumelos, 1 cebola, 100g queijo parmesão, manteiga, sal e pimenta",
+                modo: "1. Aquecça o caldo. 2. Refogue cebola na manteiga. 3. Adicione arroz, mexa bem. 4. Vá adicionando caldo gradualmente. 5. Adicione cogumelos. 6. Cozinhe 20-25 min até ficar cremoso. 7. Finalize com queijo e manteiga. 8. Sirva quente."
+            },
+            {
+                id: 2,
+                titulo: "Carne à Churrasco",
+                categoria: "Prato Principal",
+                tempo: "30 min",
+                porcoes: "6 pessoas",
+                ingredientes: "1,5kg picanha, alho, sal grosso, limão, azeite, cebola roxa",
+                modo: "1. Tempere a carne com sal. 2. Grelhe em fogo alto. 3. Deixe 4-5 min de cada lado. 4. Finalize com limão e alho. 5. Deixe descansar 5 min. 6. Sirva quente com cebola roxa."
+            },
+            {
+                id: 3,
+                titulo: "Salada Verde Fresca",
+                categoria: "Acompanhamento",
+                tempo: "10 min",
+                porcoes: "4 pessoas",
+                ingredientes: "200g alface, 100g rúcula, 50g espinafre, 1 tomate, 1/2 cebola roxa, azeite, vinagre balsâmico, sal",
+                modo: "1. Lave e seque as folhas. 2. Corte tomate em cubos. 3. Fatie cebola. 4. Misture tudo em saladeira. 5. Tempere com azeite, vinagre e sal. 6. Mexa delicadamente e sirva."
+            },
+            {
+                id: 4,
+                titulo: "Pavê de Maracujá",
+                categoria: "Sobremesa",
+                tempo: "15 min + gelar",
+                porcoes: "8 pessoas",
+                ingredientes: "400g biscoito de polvilho, 1L leite condensado, 2 caixas de leite integral, 200ml suco maracujá, 100g açúcar, calda de maracujá",
+                modo: "1. Aqueça leite condensado com leite. 2. Bata e esfrie. 3. Molhe biscoitos no suco. 4. Alterne camadas de biscoito e creme. 5. Cubra com calda de maracujá. 6. Gelar por 4 horas. 7. Sirva bem gelado."
+            },
+            {
+                id: 5,
+                titulo: "Suco Natural de Morango",
+                categoria: "Bebida",
+                tempo: "5 min",
+                porcoes: "2 copos",
+                ingredientes: "400g morango fresco, 200ml água gelada, 2 colheres mel ou açúcar, gelo, limão a gosto",
+                modo: "1. Lave e corte morangos. 2. Coloque no liquidificador. 3. Adicione água e gelo. 4. Adicione mel/açúcar. 5. Bata bem. 6. Peneira se preferir. 7. Sirva imediatamente com gelo."
+            }
+        ];
+        
+        function renderizar(lista = receitas) {
+            const container = document.getElementById('receitas');
+            
+            if (lista.length === 0) {
+                container.innerHTML = '<div class="vazio" style="grid-column: 1/-1;"><div class="vazio-icon">📭</div><p>Nenhuma receita encontrada</p></div>';
+                return;
+            }
+            
+            container.innerHTML = lista.map(r => `
+                <div class="receita-card" onclick="abrirReceita(${r.id})">
+                    <div class="receita-header">
+                        <div class="receita-titulo">${r.titulo}</div>
+                        <div class="receita-categoria">${r.categoria}</div>
+                    </div>
+                    <div class="receita-body">
+                        <div class="receita-info">
+                            <div class="info-item"><span class="info-label">⏱️</span> ${r.tempo}</div>
+                            <div class="info-item"><span class="info-label">👥</span> ${r.porcoes}</div>
+                        </div>
+                        <div class="receita-ingredientes">
+                            <strong>Ingredientes:</strong><br>
+                            ${r.ingredientes.substring(0, 100)}...
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function abrirReceita(id) {
+            const receita = receitas.find(r => r.id === id);
+            if (!receita) return;
+            
+            document.getElementById('detalhes').innerHTML = `
+                <h2>${receita.titulo}</h2>
+                <div class="receita-info" style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid #eee;">
+                    <div class="info-item">📂 <span class="info-label">${receita.categoria}</span></div>
+                    <div class="info-item">⏱️ <span class="info-label">${receita.tempo}</span></div>
+                    <div class="info-item">👥 <span class="info-label">${receita.porcoes}</span></div>
+                </div>
+                
+                <h3>🥘 Ingredientes</h3>
+                <ul>
+                    ${receita.ingredientes.split(',').map(i => `<li>${i.trim()}</li>`).join('')}
+                </ul>
+                
+                <h3>👨‍🍳 Modo de Preparo</h3>
+                <ol>
+                    ${receita.modo.split('.').filter(m => m.trim()).map(m => `<li>${m.trim()}</li>`).join('')}
+                </ol>
+            `;
+            
+            document.getElementById('modal').classList.add('aberto');
+        }
+        
+        function fecharModal() {
+            document.getElementById('modal').classList.remove('aberto');
+        }
+        
+        function abrirNovaReceita() {
+            alert('Funcionalidade de adicionar receita em desenvolvimento!');
+        }
+        
+        function buscar() {
+            const termo = document.getElementById('busca').value.toLowerCase();
+            const categoria = document.getElementById('filtro').value;
+            
+            let resultado = receitas.filter(r => 
+                r.titulo.toLowerCase().includes(termo)
+            );
+            
+            if (categoria) {
+                resultado = resultado.filter(r => r.categoria === categoria);
+            }
+            
+            renderizar(resultado);
+        }
+        
+        document.getElementById('busca').addEventListener('input', buscar);
+        document.getElementById('filtro').addEventListener('change', buscar);
+        
+        // Fechar modal ao clicar fora
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modal')) {
+                fecharModal();
+            }
+        });
+        
+        // Inicializar
+        renderizar();
+    </script>
+</body>
+</html>
