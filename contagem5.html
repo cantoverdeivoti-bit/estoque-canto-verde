@@ -842,13 +842,7 @@
         };
         
         // Receitas integradas
-        const receitas = [
-            {id: 1, titulo: "Risoto de Cogumelos", categoria: "Prato Principal", tempo: "45 min", porcoes: "4 pessoas", ingredientes: "2 xícaras arroz arbóreo, 500ml vinho branco, 1L caldo vegetais, 300g cogumelos, 1 cebola, 100g queijo parmesão, manteiga, sal e pimenta", modo: "1. Aquecça o caldo. 2. Refogue cebola na manteiga. 3. Adicione arroz, mexa bem. 4. Vá adicionando caldo gradualmente. 5. Adicione cogumelos. 6. Cozinhe 20-25 min até ficar cremoso. 7. Finalize com queijo e manteiga. 8. Sirva quente."},
-            {id: 2, titulo: "Carne à Churrasco", categoria: "Prato Principal", tempo: "30 min", porcoes: "6 pessoas", ingredientes: "1,5kg picanha, alho, sal grosso, limão, azeite, cebola roxa", modo: "1. Tempere a carne com sal. 2. Grelhe em fogo alto. 3. Deixe 4-5 min de cada lado. 4. Finalize com limão e alho. 5. Deixe descansar 5 min. 6. Sirva quente com cebola roxa."},
-            {id: 3, titulo: "Salada Verde Fresca", categoria: "Acompanhamento", tempo: "10 min", porcoes: "4 pessoas", ingredientes: "200g alface, 100g rúcula, 50g espinafre, 1 tomate, 1/2 cebola roxa, azeite, vinagre balsâmico, sal", modo: "1. Lave e seque as folhas. 2. Corte tomate em cubos. 3. Fatie cebola. 4. Misture tudo em saladeira. 5. Tempere com azeite, vinagre e sal. 6. Mexa delicadamente e sirva."},
-            {id: 4, titulo: "Pavê de Maracujá", categoria: "Sobremesa", tempo: "15 min + gelar", porcoes: "8 pessoas", ingredientes: "400g biscoito de polvilho, 1L leite condensado, 2 caixas de leite integral, 200ml suco maracujá, 100g açúcar, calda de maracujá", modo: "1. Aqueça leite condensado com leite. 2. Bata e esfrie. 3. Molhe biscoitos no suco. 4. Alterne camadas de biscoito e creme. 5. Cubra com calda de maracujá. 6. Gelar por 4 horas. 7. Sirva bem gelado."},
-            {id: 5, titulo: "Suco Natural de Morango", categoria: "Bebida", tempo: "5 min", porcoes: "2 copos", ingredientes: "400g morango fresco, 200ml água gelada, 2 colheres mel ou açúcar, gelo, limão a gosto", modo: "1. Lave e corte morangos. 2. Coloque no liquidificador. 3. Adicione água e gelo. 4. Adicione mel/açúcar. 5. Bata bem. 6. Peneira se preferir. 7. Sirva imediatamente com gelo."}
-        ];
+        const receitas = [];
 
         // 🍳 CARREGAR RECEITAS CUSTOMIZADAS DO PAINEL
         const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
