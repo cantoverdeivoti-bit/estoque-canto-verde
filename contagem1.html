@@ -737,6 +737,7 @@
         <div id="debug-receitas" style="display: none; background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 15px; margin: 20px 0; color: #333; font-size: 12px;">
             <strong>🔍 DEBUG:</strong>
             <div id="debug-msg"></div>
+            <button onclick="forcarCarregarReceitas()" style="margin-top: 10px; padding: 8px 16px; background: #ffc107; color: #333; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">🔄 Recarregar Receitas</button>
         </div>
         <div id="receitas-container" style="display: none;"></div>
 
@@ -884,12 +885,13 @@
                 localStorage.setItem('setores_customizados', JSON.stringify(setoresCustomizados));
             }
             
-            // 🍳 FORÇAR CARREGAMENTO DE RECEITAS
+            // 🍳 FORÇAR CARREGAMENTO DE RECEITAS AO INICIALIZAR
+            console.log('🔄 Inicializando página...');
             const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
             receitas.length = 0;
             receitas.push(...receitasCustomizadas);
             
-            console.log('🔄 Receitas carregadas ao inicializar:', receitas.length);
+            console.log('📊 Receitas carregadas na inicialização:', receitas.length);
             if (receitasCustomizadas.length > 0) {
                 console.log('📋 Lista:', receitasCustomizadas);
             }
@@ -1040,6 +1042,45 @@
         }
         
         // 🍳 FUNÇÃO PARA ALTERNAR RECEITAS
+        function forcarCarregarReceitas() {
+            console.log('🔥 FORÇANDO CARREGAMENTO DE RECEITAS!');
+            
+            // Limpar tudo
+            receitas.length = 0;
+            
+            // Carregar do localStorage
+            const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            console.log('📊 Receitas encontradas:', receitasCustomizadas.length);
+            console.log('📋 Conteúdo:', receitasCustomizadas);
+            
+            // Adicionar ao array
+            receitas.push(...receitasCustomizadas);
+            
+            console.log('✅ Array agora tem:', receitas.length);
+            
+            // Renderizar
+            renderizarReceitas();
+            
+            // Mostrar/esconder container
+            const receitasContainer = document.getElementById('receitas-container');
+            const debugContainer = document.getElementById('debug-receitas');
+            
+            receitasContainer.style.display = 'block';
+            debugContainer.style.display = 'block';
+            
+            // Atualizar debug
+            const debugMsg = document.getElementById('debug-msg');
+            debugMsg.innerHTML = `
+                <p>✅ Carregadas: <strong>${receitas.length}</strong> receita${receitas.length !== 1 ? 's' : ''}</p>
+                ${receitas.length > 0 ? receitas.map(r => `<p>📌 ${r.titulo}</p>`).join('') : '<p>❌ Nenhuma receita no localStorage!</p>'}
+            `;
+            
+            // Scroll para receitas
+            setTimeout(() => {
+                receitasContainer.scrollIntoView({ behavior: 'smooth' });
+            }, 200);
+        }
+        
         function toggleReceitas() {
             const receitasContainer = document.getElementById('receitas-container');
             const debugContainer = document.getElementById('debug-receitas');
@@ -1050,37 +1091,8 @@
             // Fechar estoque se estiver aberto
             setoresContainer.style.display = 'none';
             
-            // 🍳 SEMPRE RECARREGAR RECEITAS DO LOCALSTORAGE QUANDO CLICAR
-            console.log('📡 Recarregando receitas do localStorage...');
-            const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
-            console.log('📊 Receitas encontradas:', receitasCustomizadas.length);
-            console.log('📋 Detalhes:', receitasCustomizadas);
-            
-            // Mostrar debug visual
-            const debugMsg = document.getElementById('debug-msg');
-            debugMsg.innerHTML = `
-                <p>📊 Receitas no localStorage: <strong>${receitasCustomizadas.length}</strong></p>
-                <p>📋 Dados: ${JSON.stringify(receitasCustomizadas).substring(0, 100)}...</p>
-            `;
-            debugContainer.style.display = 'block';
-            
-            receitas.length = 0;
-            receitas.push(...receitasCustomizadas);
-            
-            console.log('✅ Array de receitas atualizado:', receitas.length);
-            
-            // Renderizar receitas
-            renderizarReceitas();
-            
-            // Alternar visibilidade
-            if (receitasContainer.style.display === 'none') {
-                receitasContainer.style.display = 'block';
-                console.log('✅ Receitas visíveis');
-            } else {
-                receitasContainer.style.display = 'none';
-                debugContainer.style.display = 'none';
-                console.log('❌ Receitas ocultas');
-            }
+            // CARREGAR RECEITAS DO LOCALSTORAGE
+            forcarCarregarReceitas();
         }
         
         // 🍳 FUNÇÃO PARA RENDERIZAR RECEITAS COM DEBUG VISUAL
@@ -1638,7 +1650,7 @@
             atualizarContador();
         });
 
-        // 🍳 POLLING SUPER AGRESSIVO (A CADA 500MS ENQUANTO SEÇÃO ESTÁ VISÍVEL)
+        // 🍳 POLLING SUPER MEGA AGRESSIVO (A CADA 300MS!)
         setInterval(() => {
             const receitasContainer = document.getElementById('receitas-container');
             
@@ -1648,15 +1660,15 @@
                 const receitasAtuais = JSON.stringify(receitas);
                 const receitasNovas = JSON.stringify(receitasCustomizadas);
                 
-                if (receitasNovas !== receitasAtuais) {
-                    console.log('🔥 MUDANÇA DETECTADA! Sincronizando...');
+                if (receitasNovas !== receitasAtuais && receitasCustomizadas.length > 0) {
+                    console.log('🔥 MUDANÇA DETECTADA! Sincronizando ' + receitasCustomizadas.length + ' receitas...');
                     receitas.length = 0;
                     receitas.push(...receitasCustomizadas);
                     renderizarReceitas();
-                    console.log('✅ Sincronizado com sucesso!');
+                    console.log('✅ Sincronizado!');
                 }
             }
-        }, 500);
+        }, 300);
         
         // 🍳 LISTENER PARA QUANDO ABA FICA VISÍVEL (SINCRONIZAR IMEDIATAMENTE)
         document.addEventListener('visibilitychange', () => {
