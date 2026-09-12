@@ -1032,20 +1032,6 @@
             
             // Se receitas está vazio, popular primeiro
             if (receitasContainer.innerHTML === '') {
-                const nomeSalvo = localStorage.getItem('setor_🍳 RECEITAS_nome');
-                
-                if (!nomeSalvo) {
-                    // Se não tem nome, pedir identificação primeiro
-                    setorAtualAberto = '🍳 RECEITAS';
-                    document.getElementById('modalIdentificacao').style.display = 'flex';
-                    document.getElementById('nomeFuncionario').value = '';
-                    document.getElementById('dataContagem').value = obterDataHoje();
-                    document.getElementById('nomeFuncionario').focus();
-                    setoresContainer.style.display = 'none';
-                    return;
-                }
-                
-                // Popular receitas
                 renderizarReceitas();
             }
             
@@ -1060,12 +1046,10 @@
         // 🍳 FUNÇÃO PARA RENDERIZAR RECEITAS NO CONTAINER
         function renderizarReceitas() {
             const container = document.getElementById('receitas-container');
-            const nomeCozinheira = localStorage.getItem('setor_🍳 RECEITAS_nome') || 'Cozinheira';
             
             let html = `
                 <div style="background: white; border-radius: 12px; padding: 20px; margin: 20px 0; border-top: 4px solid #d4a574;">
-                    <h2 style="color: #1a472a; margin: 0 0 10px 0;">🍳 Receitas</h2>
-                    <p style="color: #999; margin: 0 0 20px 0; font-size: 13px;">Operador: <strong>${nomeCozinheira}</strong></p>
+                    <h2 style="color: #1a472a; margin: 0 0 20px 0;">🍳 Receitas</h2>
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
             `;
