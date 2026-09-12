@@ -772,8 +772,18 @@
             "VERDURAS": {"batata branca": "1saco","mix": "1dz","tempero verde": "4uni","cebola branca": "1saco","alho": "varia","limão": "6kg","morango": "varia","maracuja": "4pote","cenoura": "varia","limão siciliano": "varia","manjericão": "varia","hortelã": "varia","Tomate seco": "varia","cebolete massa": "varia","cebolete maionese": "varia"},
             "SECOS": {"leite": "10uni","leite em pó": "varia","sagu": "varia","Queijo Ralado parmesão": "varia","ovo em pó integral": "2uni","molho branco pó": "varia","óleo oliva": "varia","lemon pepper": "2uni","Chimichuri": "varia","Tempero para Frango": "varia","café 500gr": "5uni","bisnaga cheddar": "varia","cheddar fatiado": "varia","bisnaga Requeijão c/amido": "varia","sal fino": "12uni","nozes": "varia","corante gema ovo": "2uni","Molho tomate": "varia","farinha panko": "varia","farinha temperada fritz frida": "varia","Farinha de mandioca": "varia","páprica defumada": "varia","shoyu": "varia","molho inglês": "varia","Tempero Batata": "varia","arroz": "5kg","feijão": "5kg","vinagre": "varia","sal grosso": "12","amido milho": "6uni","óleo soja": "20un","óleo algodão": "1balde","açúcar": "10uni","amaciante carne": "2unid","farinha trigo": "varia","Doce de leite fritz frida": "varia","Orégano": "varia","Creme de Leite": "varia","leite condensado": "varia","Pêssego": "varia","figo": "varia","Ovos": "varia","suco maracuja": "varia","suco morango": "varia"},
             "LIMPEZA E EMBALAGENS": {"detergente": "2","Desinfetante andiroba": "2","adocante": "1","Alvejante": "2","Detergente Desinfetante": "2","copos": "varia","colher café": "2","canudo": "2","bobinas": "varia","esponja": "6","bombril": "3","sacos lixo 100lt": "varia","sacos lixo 60l": "varia","sacos lixo 30lt": "varia","F200": "2uni","bloco sanitário": "6","guardanapo sache": "2cx","saco talher": "2saco","papel toalha rolo": "6uni","papel higiênico": "6uni","Papel Toalha Intercalado": "varia","luvas nitrílica M": "varia","luvas nitrílica GG": "varia","papel alumínio": "2uni","Esfregão chapa": "1tira","Álcool": "1","Palito de dente": "1","Touca descartável": "1","Sabonete Líquido": "varia"},
-            "SALGADOS": {"rissole brócolis": "varia","rissole salsicha": "varia","Risole calabresa": "varia","Risole queijo-milho": "varia","mini churros doce de leite": "varia","Folhado goiaba": "varia","Enroladinho": "varia","Coxinha panko": "varia","trouxinha": "varia"}
+            "SALGADOS": {"rissole brócolis": "varia","rissole salsicha": "varia","Risole calabresa": "varia","Risole queijo-milho": "varia","mini churros doce de leite": "varia","Folhado goiaba": "varia","Enroladinho": "varia","Coxinha panko": "varia","trouxinha": "varia"},
+            "🍳 RECEITAS": {}
         };
+        
+        // Receitas integradas
+        const receitas = [
+            {id: 1, titulo: "Risoto de Cogumelos", categoria: "Prato Principal", tempo: "45 min", porcoes: "4 pessoas", ingredientes: "2 xícaras arroz arbóreo, 500ml vinho branco, 1L caldo vegetais, 300g cogumelos, 1 cebola, 100g queijo parmesão, manteiga, sal e pimenta", modo: "1. Aquecça o caldo. 2. Refogue cebola na manteiga. 3. Adicione arroz, mexa bem. 4. Vá adicionando caldo gradualmente. 5. Adicione cogumelos. 6. Cozinhe 20-25 min até ficar cremoso. 7. Finalize com queijo e manteiga. 8. Sirva quente."},
+            {id: 2, titulo: "Carne à Churrasco", categoria: "Prato Principal", tempo: "30 min", porcoes: "6 pessoas", ingredientes: "1,5kg picanha, alho, sal grosso, limão, azeite, cebola roxa", modo: "1. Tempere a carne com sal. 2. Grelhe em fogo alto. 3. Deixe 4-5 min de cada lado. 4. Finalize com limão e alho. 5. Deixe descansar 5 min. 6. Sirva quente com cebola roxa."},
+            {id: 3, titulo: "Salada Verde Fresca", categoria: "Acompanhamento", tempo: "10 min", porcoes: "4 pessoas", ingredientes: "200g alface, 100g rúcula, 50g espinafre, 1 tomate, 1/2 cebola roxa, azeite, vinagre balsâmico, sal", modo: "1. Lave e seque as folhas. 2. Corte tomate em cubos. 3. Fatie cebola. 4. Misture tudo em saladeira. 5. Tempere com azeite, vinagre e sal. 6. Mexa delicadamente e sirva."},
+            {id: 4, titulo: "Pavê de Maracujá", categoria: "Sobremesa", tempo: "15 min + gelar", porcoes: "8 pessoas", ingredientes: "400g biscoito de polvilho, 1L leite condensado, 2 caixas de leite integral, 200ml suco maracujá, 100g açúcar, calda de maracujá", modo: "1. Aqueça leite condensado com leite. 2. Bata e esfrie. 3. Molhe biscoitos no suco. 4. Alterne camadas de biscoito e creme. 5. Cubra com calda de maracujá. 6. Gelar por 4 horas. 7. Sirva bem gelado."},
+            {id: 5, titulo: "Suco Natural de Morango", categoria: "Bebida", tempo: "5 min", porcoes: "2 copos", ingredientes: "400g morango fresco, 200ml água gelada, 2 colheres mel ou açúcar, gelo, limão a gosto", modo: "1. Lave e corte morangos. 2. Coloque no liquidificador. 3. Adicione água e gelo. 4. Adicione mel/açúcar. 5. Bata bem. 6. Peneira se preferir. 7. Sirva imediatamente com gelo."}
+        ];
 
         let dados = JSON.parse(localStorage.getItem('contagem_estoque') || '{}');
         let produtosNovos = JSON.parse(localStorage.getItem('produtos_novos') || '{}');
@@ -863,49 +873,156 @@
                 const content = document.createElement('div');
                 content.className = 'setor-content';
 
-                header.onclick = () => {
-                    const jaPrencheuSetor = localStorage.getItem(`setor_${setor}_nome`);
+                // 🍳 LÓGICA ESPECIAL PARA RECEITAS
+                if (setor === '🍳 RECEITAS') {
+                    header.onclick = () => {
+                        const jaPrencheuSetor = localStorage.getItem(`setor_${setor}_nome`);
+                        
+                        if (!jaPrencheuSetor) {
+                            setorAtualAberto = setor;
+                            document.getElementById('modalIdentificacao').style.display = 'flex';
+                            document.getElementById('nomeFuncionario').value = '';
+                            document.getElementById('dataContagem').value = obterDataHoje();
+                            document.getElementById('nomeFuncionario').focus();
+                        } else {
+                            // Abrir modal de receitas
+                            abrirModalReceitas();
+                        }
+                    };
                     
-                    if (!jaPrencheuSetor) {
-                        setorAtualAberto = setor;
-                        document.getElementById('modalIdentificacao').style.display = 'flex';
-                        document.getElementById('nomeFuncionario').value = '';
-                        document.getElementById('dataContagem').value = obterDataHoje();
-                        document.getElementById('nomeFuncionario').focus();
-                    } else {
-                        content.classList.toggle('open');
-                        icon.classList.toggle('open');
-                    }
-                };
+                    // Mostrar aviso
+                    const receitasInfo = document.createElement('div');
+                    receitasInfo.style.cssText = 'padding: 20px; text-align: center; color: #999; font-size: 14px;';
+                    receitasInfo.innerHTML = '<p>👇 Clique acima para ver as receitas!</p>';
+                    content.appendChild(receitasInfo);
+                } else {
+                    // LÓGICA NORMAL PARA OUTROS SETORES
+                    header.onclick = () => {
+                        const jaPrencheuSetor = localStorage.getItem(`setor_${setor}_nome`);
+                        
+                        if (!jaPrencheuSetor) {
+                            setorAtualAberto = setor;
+                            document.getElementById('modalIdentificacao').style.display = 'flex';
+                            document.getElementById('nomeFuncionario').value = '';
+                            document.getElementById('dataContagem').value = obterDataHoje();
+                            document.getElementById('nomeFuncionario').focus();
+                        } else {
+                            content.classList.toggle('open');
+                            icon.classList.toggle('open');
+                        }
+                    };
 
-                Object.keys(estoque[setor]).forEach(produto => {
-                    const chave = `${setor}|${produto}`;
-                    const valor = dados[chave] || '';
+                    Object.keys(estoque[setor]).forEach(produto => {
+                        const chave = `${setor}|${produto}`;
+                        const valor = dados[chave] || '';
 
-                    const produtoDiv = document.createElement('div');
-                    produtoDiv.className = `produto ${valor ? 'confirmado' : ''}`;
-                    produtoDiv.id = `prod_${chave}`;
+                        const produtoDiv = document.createElement('div');
+                        produtoDiv.className = `produto ${valor ? 'confirmado' : ''}`;
+                        produtoDiv.id = `prod_${chave}`;
 
-                    produtoDiv.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px;">
-                            <div class="produto-nome">${produto}</div>
-                            <button class="btn-mudar-setor" onclick="abrirSeletorMudarSetor('${setor}', '${produto}')">MUDAR</button>
-                        </div>
-                        <div class="produto-ideal">Ideal: ${estoque[setor][produto]}</div>
-                        <div class="input-container">
-                            <input type="text" id="input_${chave}" placeholder="Qtd..." value="${valor}" onkeypress="if(event.key==='Enter') confirmarItem('${chave}')">
-                            <button class="btn-confirmar ${valor ? 'confirmado' : ''}" onclick="confirmarItem('${chave}')">${valor ? '✓' : 'OK'}</button>
-                        </div>
-                        ${valor ? '<div class="status-badge">✓ Confirmado</div>' : ''}
-                    `;
+                        produtoDiv.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px;">
+                                <div class="produto-nome">${produto}</div>
+                                <button class="btn-mudar-setor" onclick="abrirSeletorMudarSetor('${setor}', '${produto}')">MUDAR</button>
+                            </div>
+                            <div class="produto-ideal">Ideal: ${estoque[setor][produto]}</div>
+                            <div class="input-container">
+                                <input type="text" id="input_${chave}" placeholder="Qtd..." value="${valor}" onkeypress="if(event.key==='Enter') confirmarItem('${chave}')">
+                                <button class="btn-confirmar ${valor ? 'confirmado' : ''}" onclick="confirmarItem('${chave}')">${valor ? '✓' : 'OK'}</button>
+                            </div>
+                            ${valor ? '<div class="status-badge">✓ Confirmado</div>' : ''}
+                        `;
 
-                    content.appendChild(produtoDiv);
-                });
+                        content.appendChild(produtoDiv);
+                    });
+                }
 
                 setorDiv.appendChild(header);
                 setorDiv.appendChild(content);
                 container.appendChild(setorDiv);
             });
+        }
+        
+        // 🍳 FUNÇÃO PARA ABRIR MODAL DE RECEITAS
+        function abrirModalReceitas() {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px;';
+            
+            const nomeCozinheira = localStorage.getItem('setor_🍳 RECEITAS_nome') || 'Cozinheira';
+            
+            let receitasHTML = `
+                <div style="background: white; border-radius: 12px; padding: 30px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto;">
+                    <h1 style="color: #1a472a; margin-bottom: 10px;">🍳 Receitas</h1>
+                    <p style="color: #999; margin-bottom: 30px;">Operador: <strong>${nomeCozinheira}</strong></p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            `;
+            
+            receitas.forEach(r => {
+                receitasHTML += `
+                    <div onclick="abrirReceitaDetalhes(${r.id})" style="background: linear-gradient(135deg, #d4a574 0%, #e8c9a0 100%); padding: 20px; border-radius: 8px; cursor: pointer; color: white; transition: all 0.3s ease;"  onmouseover="this.style.transform='translateY(-5px)';" onmouseout="this.style.transform='translateY(0)';">
+                        <h3 style="margin: 0; font-size: 16px; margin-bottom: 8px;">${r.titulo}</h3>
+                        <p style="margin: 0; font-size: 12px; opacity: 0.9;">${r.categoria}</p>
+                        <p style="margin: 8px 0 0 0; font-size: 11px; opacity: 0.8;">⏱️ ${r.tempo} | 👥 ${r.porcoes}</p>
+                    </div>
+                `;
+            });
+            
+            receitasHTML += `
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" style="width: 100%; margin-top: 20px; padding: 12px; background: #1a472a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">Fechar</button>
+                </div>
+            `;
+            
+            modal.innerHTML = receitasHTML;
+            document.body.appendChild(modal);
+            
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.remove();
+            };
+        }
+        
+        // 🍳 FUNÇÃO PARA ABRIR RECEITA DETALHADA
+        function abrirReceitaDetalhes(id) {
+            const receita = receitas.find(r => r.id === id);
+            if (!receita) return;
+            
+            // Fechar modal anterior
+            document.querySelectorAll('[style*="rgba(0,0,0,0.7)"]').forEach(el => el.remove());
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2001; padding: 20px;';
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 12px; padding: 40px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto;">
+                    <h2 style="color: #1a472a; margin-bottom: 20px;">${receita.titulo}</h2>
+                    <div style="padding-bottom: 20px; border-bottom: 2px solid #eee; margin-bottom: 20px;">
+                        <span style="background: #d4a574; color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: 600;">${receita.categoria}</span>
+                        <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                            <strong>⏱️ ${receita.tempo}</strong> | <strong>👥 ${receita.porcoes}</strong>
+                        </div>
+                    </div>
+                    
+                    <h3 style="color: #1a472a; margin-top: 20px; margin-bottom: 15px;">🥘 Ingredientes</h3>
+                    <ul style="margin-left: 20px; margin-bottom: 20px; line-height: 1.8;">
+                        ${receita.ingredientes.split(',').map(i => `<li>${i.trim()}</li>`).join('')}
+                    </ul>
+                    
+                    <h3 style="color: #1a472a; margin-top: 20px; margin-bottom: 15px;">👨‍🍳 Modo de Preparo</h3>
+                    <ol style="margin-left: 20px; line-height: 1.8;">
+                        ${receita.modo.split('.').filter(m => m.trim()).map(m => `<li>${m.trim()}</li>`).join('')}
+                    </ol>
+                    
+                    <button onclick="abrirModalReceitas()" style="width: 100%; margin-top: 20px; padding: 12px; background: #1a472a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Voltar às Receitas</button>
+                    <button onclick="this.parentElement.parentElement.remove(); this.parentElement.remove();" style="width: 100%; margin-top: 10px; padding: 12px; background: #999; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Fechar</button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.remove();
+            };
         }
 
         function confirmarItem(chave) {
