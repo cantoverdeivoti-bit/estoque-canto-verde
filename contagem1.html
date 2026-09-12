@@ -880,6 +880,16 @@
                 localStorage.setItem('setores_customizados', JSON.stringify(setoresCustomizados));
             }
             
+            // 🍳 FORÇAR CARREGAMENTO DE RECEITAS
+            const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            receitas.length = 0;
+            receitas.push(...receitasCustomizadas);
+            
+            console.log('🔄 Receitas carregadas ao inicializar:', receitas.length);
+            if (receitasCustomizadas.length > 0) {
+                console.log('📋 Lista:', receitasCustomizadas);
+            }
+            
             carregarSetoresCustomizados();
             carregarProdutosNovos();
             renderizar();
@@ -1033,12 +1043,17 @@
             // Fechar estoque se estiver aberto
             setoresContainer.style.display = 'none';
             
-            // Se receitas está vazio, popular primeiro
-            if (receitasContainer.innerHTML === '') {
-                renderizarReceitas();
-            }
+            // 🍳 SEMPRE RECARREGAR RECEITAS DO LOCALSTORAGE QUANDO CLICAR
+            const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            receitas.length = 0;
+            receitas.push(...receitasCustomizadas);
             
-            // Alternar receitas
+            console.log('📡 Recarregando receitas ao clicar:', receitas.length);
+            
+            // Renderizar receitas
+            renderizarReceitas();
+            
+            // Alternar visibilidade
             if (receitasContainer.style.display === 'none') {
                 receitasContainer.style.display = 'block';
             } else {
@@ -1593,7 +1608,7 @@
             atualizarContador();
         });
 
-        // 🍳 SINCRONIZAÇÃO PERIÓDICA DE RECEITAS (A CADA 2 SEGUNDOS)
+        // 🍳 SINCRONIZAÇÃO PERIÓDICA DE RECEITAS (A CADA 1 SEGUNDO)
         let ultimasReceitas = JSON.stringify(receitas);
         setInterval(() => {
             const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
@@ -1605,14 +1620,38 @@
                 receitas.push(...receitasCustomizadas);
                 ultimasReceitas = novasReceitas;
                 
+                console.log('✅ Receitas sincronizadas:', receitas.length);
+                console.log('📋 Receitas:', receitas);
+                
                 // Re-renderizar se visível
                 const receitasContainer = document.getElementById('receitas-container');
                 if (receitasContainer && receitasContainer.style.display !== 'none' && receitasContainer.innerHTML !== '') {
                     renderizarReceitas();
-                    console.log('✅ Receitas sincronizadas em tempo real!');
+                    console.log('🔄 Receitas re-renderizadas em tempo real!');
                 }
             }
-        }, 2000);
+        }, 1000);
+        
+        // 🍳 LISTENER PARA QUANDO ABA FICA VISÍVEL (SINCRONIZAR IMEDIATAMENTE)
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                console.log('👁️ Aba ficou visível! Sincronizando receitas...');
+                
+                const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+                receitas.length = 0;
+                receitas.push(...receitasCustomizadas);
+                ultimasReceitas = JSON.stringify(receitasCustomizadas);
+                
+                console.log('✅ Receitas sincronizadas:', receitas.length);
+                
+                // Re-renderizar se visível
+                const receitasContainer = document.getElementById('receitas-container');
+                if (receitasContainer && receitasContainer.style.display !== 'none' && receitasContainer.innerHTML !== '') {
+                    renderizarReceitas();
+                    console.log('🔄 Receitas re-renderizadas após mudar de aba!');
+                }
+            }
+        });
     </script>
 </body>
 </html>
