@@ -847,6 +847,9 @@
         // 🍳 CARREGAR RECEITAS CUSTOMIZADAS DO PAINEL
         const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
         receitas.push(...receitasCustomizadas);
+        
+        console.log('📋 Receitas Carregadas:', receitas);
+        console.log('📊 Total de receitas:', receitas.length);
 
         let dados = JSON.parse(localStorage.getItem('contagem_estoque') || '{}');
         let produtosNovos = JSON.parse(localStorage.getItem('produtos_novos') || '{}');
@@ -1046,6 +1049,19 @@
         // 🍳 FUNÇÃO PARA RENDERIZAR RECEITAS NO CONTAINER
         function renderizarReceitas() {
             const container = document.getElementById('receitas-container');
+            
+            console.log('🍳 Renderizando receitas. Total:', receitas.length);
+            console.log('📋 Receitas array:', receitas);
+            
+            if (receitas.length === 0) {
+                container.innerHTML = `
+                    <div style="background: white; border-radius: 12px; padding: 30px; margin: 20px 0; border-top: 4px solid #d4a574; text-align: center;">
+                        <p style="color: #999; font-size: 14px;">Nenhuma receita criada ainda.</p>
+                        <p style="color: #999; font-size: 12px;">Crie no painel para aparecer aqui.</p>
+                    </div>
+                `;
+                return;
+            }
             
             let html = `
                 <div style="background: white; border-radius: 12px; padding: 20px; margin: 20px 0; border-top: 4px solid #d4a574;">
