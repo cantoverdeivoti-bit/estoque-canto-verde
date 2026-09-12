@@ -1619,7 +1619,7 @@
                     </label>
                     
                     <div style="display: flex; gap: 10px;">
-                        <button onclick="salvarReceitaEditada(); this.parentElement.parentElement.parentElement.remove(); renderizarListaReceitas();" style="flex: 1; padding: 12px; background: #1a472a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">✓ Salvar Edição</button>
+                        <button onclick="salvarReceitaEditada()" style="flex: 1; padding: 12px; background: #1a472a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">✓ Salvar Edição</button>
                         <button onclick="this.parentElement.parentElement.parentElement.remove();" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">Cancelar</button>
                     </div>
                 </div>
@@ -1630,6 +1630,8 @@
 
         // 🍳 SALVAR RECEITA EDITADA
         function salvarReceitaEditada() {
+            console.log('✏️ Iniciando edição de receita...');
+            
             const id = parseInt(document.getElementById('receitaIdEditar').value);
             const titulo = document.getElementById('receitaTituloEdit').value.trim();
             const categoria = document.getElementById('receitaCategoriaEdit').value;
@@ -1642,13 +1644,18 @@
             const dicas = document.getElementById('receitaDicasEdit').value.trim();
             const codigo = document.getElementById('receitaCodigoEdit').value.trim();
             
+            console.log('📝 ID:', id, 'Título:', titulo);
+            
             if (!titulo || !tempo || !porcoes || !ingredientes || !modo) {
+                console.log('❌ ERRO: Campos obrigatórios não preenchidos!');
                 alert('Por favor, preencha os campos obrigatórios!');
                 return;
             }
             
             let receitasArmazenadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
             const index = receitasArmazenadas.findIndex(r => r.id === id);
+            
+            console.log('🔍 Receita encontrada no índice:', index);
             
             if (index !== -1) {
                 receitasArmazenadas[index] = {
@@ -1665,9 +1672,29 @@
                     dicas
                 };
                 
-                localStorage.setItem('receitas_customizadas', JSON.stringify(receitasArmazenadas));
+                console.log('✅ Receita editada:', receitasArmazenadas[index]);
+                
+                try {
+                    localStorage.setItem('receitas_customizadas', JSON.stringify(receitasArmazenadas));
+                    console.log('💾 Salvo em localStorage com sucesso!');
+                } catch (erro) {
+                    console.error('❌ ERRO ao salvar em localStorage:', erro);
+                    alert('Erro ao salvar edição! ' + erro.message);
+                    return;
+                }
+                
                 mostrarToast('✓ Receita editada com sucesso!');
                 window.dispatchEvent(new Event('receitas-atualizadas'));
+                
+                // Fechar modal
+                setTimeout(() => {
+                    const modal = document.querySelector('[style*="z-index: 2000"]');
+                    if (modal) modal.remove();
+                    renderizarListaReceitas();
+                }, 100);
+            } else {
+                console.error('❌ ERRO: Receita não encontrada!');
+                alert('Receita não encontrada!');
             }
         }
 
@@ -1758,7 +1785,7 @@
                     </label>
                     
                     <div style="display: flex; gap: 10px;">
-                        <button onclick="salvarNovaReceita(); this.parentElement.parentElement.parentElement.remove();" style="flex: 1; padding: 12px; background: #1a472a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">✓ Salvar Ficha Técnica</button>
+                        <button onclick="salvarNovaReceita()" style="flex: 1; padding: 12px; background: #1a472a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">✓ Salvar Ficha Técnica</button>
                         <button onclick="this.parentElement.parentElement.parentElement.remove();" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">Cancelar</button>
                     </div>
                 </div>
@@ -1769,6 +1796,8 @@
         
         // 🍳 FUNCTION PARA SALVAR NOVA RECEITA
         function salvarNovaReceita() {
+            console.log('🍳 Iniciando salvamento de receita...');
+            
             const titulo = document.getElementById('receitaTitulo').value.trim();
             const categoria = document.getElementById('receitaCategoria').value;
             const tempo = document.getElementById('receitaTempo').value.trim();
@@ -1780,13 +1809,17 @@
             const dicas = document.getElementById('receitaDicas').value.trim();
             const codigo = document.getElementById('receitaCodigo').value.trim();
             
+            console.log('📝 Dados lidos:', {titulo, categoria, tempo, porcoes});
+            
             if (!titulo || !tempo || !porcoes || !ingredientes || !modo) {
+                console.log('❌ ERRO: Campos obrigatórios não preenchidos!');
                 alert('Por favor, preencha os campos obrigatórios: Nome, Tempo, Porções, Ingredientes e Modo!');
                 return;
             }
             
             // Carregar receitas existentes
             let receitasArmazenadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            console.log('📊 Receitas antes:', receitasArmazenadas.length);
             
             // Gerar ID novo
             const novoId = Math.max(0, ...receitasArmazenadas.map(r => r.id || 0)) + 1;
@@ -1807,17 +1840,36 @@
                 criadoEm: new Date().toLocaleDateString('pt-BR')
             };
             
+            console.log('✅ Nova receita criada:', novaReceita);
+            
             // Adicionar à lista
             receitasArmazenadas.push(novaReceita);
             
             // Salvar em localStorage
-            localStorage.setItem('receitas_customizadas', JSON.stringify(receitasArmazenadas));
+            try {
+                localStorage.setItem('receitas_customizadas', JSON.stringify(receitasArmazenadas));
+                console.log('💾 Salvo em localStorage com sucesso!');
+                console.log('📊 Total de receitas agora:', receitasArmazenadas.length);
+                console.log('📋 Todas as receitas:', receitasArmazenadas);
+            } catch (erro) {
+                console.error('❌ ERRO ao salvar em localStorage:', erro);
+                alert('Erro ao salvar receita! ' + erro.message);
+                return;
+            }
             
             // Mostrar mensagem
             mostrarToast('✓ Ficha Técnica salva com sucesso!');
             
             // Disparar evento para sincronizar com contagem
+            console.log('📡 Disparando evento de atualização...');
             window.dispatchEvent(new Event('receitas-atualizadas'));
+            
+            // Fechar modal
+            setTimeout(() => {
+                const modal = document.querySelector('[style*="z-index: 2000"]');
+                if (modal) modal.remove();
+                renderizarListaReceitas();
+            }, 100);
         }
 
         inicializar();
