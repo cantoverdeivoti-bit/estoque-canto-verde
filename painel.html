@@ -813,7 +813,7 @@
             <button class="btn-adicionar-grande" onclick="abrirModal()">+ Novo Produto</button>
             <button class="btn-editar-grande" onclick="abrirModalBuscaEditar()">✏️ Editar Produto</button>
             <button class="btn-editar-grande" onclick="abrirModalNovoSetor()" style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); margin-left: 12px;">🏷️ Novo Setor</button>
-            <button class="btn-editar-grande" onclick="abrirModalNovaReceita()" style="background: linear-gradient(135deg, #d4a574 0%, #e8c9a0 100%); margin-left: 12px; color: white;">🍳 Receitas</button>
+            <button class="btn-editar-grande" onclick="toggleGerenciamentoReceitas()" style="background: linear-gradient(135deg, #d4a574 0%, #e8c9a0 100%); margin-left: 12px; color: white;">🍳 Receitas</button>
         </div>
 
         <a href="contagem.html" class="link-contagem">Ir para Contagem</a>
@@ -836,6 +836,8 @@
                 <div class="stat-label">Faltam Comprar</div>
             </div>
         </div>
+
+        <div id="gerenciamento-receitas" style="display: none; background: white; border-radius: 12px; padding: 20px; margin: 20px 0;"></div>
 
         <div class="filters">
             <select id="setorFilter" onchange="filtrar()">
@@ -1465,6 +1467,271 @@
             toast.textContent = mensagem;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
+        }
+
+        // 🍳 TOGGLE GERENCIAMENTO DE RECEITAS
+        function toggleGerenciamentoReceitas() {
+            const container = document.getElementById('gerenciamento-receitas');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                renderizarListaReceitas();
+                container.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        // 🍳 RENDERIZAR LISTA DE TODAS AS RECEITAS
+        function renderizarListaReceitas() {
+            const container = document.getElementById('gerenciamento-receitas');
+            const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            
+            // Array com as 5 receitas originais + customizadas
+            const todasAsReceitas = [
+                {
+                    id: 1,
+                    titulo: "Risoto de Cogumelos",
+                    codigo: "REC-ORIG-001",
+                    categoria: "Prato Principal",
+                    tempo: "45 min",
+                    porcoes: "4 pessoas",
+                    original: true
+                },
+                {
+                    id: 2,
+                    titulo: "Carne à Churrasco",
+                    codigo: "REC-ORIG-002",
+                    categoria: "Prato Principal",
+                    tempo: "30 min",
+                    porcoes: "6 pessoas",
+                    original: true
+                },
+                {
+                    id: 3,
+                    titulo: "Salada Verde Fresca",
+                    codigo: "REC-ORIG-003",
+                    categoria: "Acompanhamento",
+                    tempo: "10 min",
+                    porcoes: "4 pessoas",
+                    original: true
+                },
+                {
+                    id: 4,
+                    titulo: "Pavê de Maracujá",
+                    codigo: "REC-ORIG-004",
+                    categoria: "Sobremesa",
+                    tempo: "15 min + gelar",
+                    porcoes: "8 pessoas",
+                    original: true
+                },
+                {
+                    id: 5,
+                    titulo: "Suco Natural de Morango",
+                    codigo: "REC-ORIG-005",
+                    categoria: "Bebida",
+                    tempo: "5 min",
+                    porcoes: "2 copos",
+                    original: true
+                },
+                ...receitasCustomizadas
+            ];
+            
+            let html = `
+                <h2 style="color: #1a472a; margin-bottom: 20px; border-bottom: 3px solid #d4a574; padding-bottom: 10px;">
+                    🍳 Gerenciamento de Receitas
+                </h2>
+                <p style="color: #666; margin-bottom: 20px;">Total: <strong>${todasAsReceitas.length} receitas</strong> (${receitasCustomizadas.length} personalizadas)</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-bottom: 30px;">
+            `;
+            
+            todasAsReceitas.forEach(r => {
+                const badge = r.original ? '<span style="background: #999; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; margin-left: 8px;">ORIGINAL</span>' : '<span style="background: #4ade80; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; margin-left: 8px;">CUSTOMIZADA</span>';
+                
+                html += `
+                    <div style="background: linear-gradient(135deg, #f8f6f3 0%, #f0ebe3 100%); border: 2px solid #d4a574; border-radius: 8px; padding: 15px; transition: all 0.3s ease;" onmouseover="this.style.boxShadow='0 4px 12px rgba(212,165,116,0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)';">
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <h3 style="color: #1a472a; margin: 0; font-size: 14px; flex: 1;">${r.titulo}</h3>
+                            ${badge}
+                        </div>
+                        
+                        <div style="font-size: 11px; color: #666; margin-bottom: 10px;">
+                            <div><strong>Código:</strong> ${r.codigo}</div>
+                            <div><strong>Categoria:</strong> ${r.categoria}</div>
+                            <div><strong>Tempo:</strong> ${r.tempo} | <strong>Porções:</strong> ${r.porcoes}</div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 8px;">
+                            ${!r.original ? `
+                                <button onclick="abrirModalEditarReceita(${r.id})" style="flex: 1; padding: 8px; background: #1a472a; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">✏️ Editar</button>
+                                <button onclick="deletarReceita(${r.id})" style="flex: 1; padding: 8px; background: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">🗑️ Deletar</button>
+                            ` : `
+                                <span style="flex: 1; padding: 8px; background: #f0f0f0; color: #666; text-align: center; border-radius: 6px; font-size: 12px;">Receita Original</span>
+                            `}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                </div>
+                
+                <button onclick="abrirModalNovaReceita()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #d4a574 0%, #e8c9a0 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; margin-bottom: 15px;">+ Adicionar Nova Receita</button>
+                
+                <button onclick="document.getElementById('gerenciamento-receitas').style.display='none';" style="width: 100%; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">Fechar</button>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // 🍳 ABRIR MODAL PARA EDITAR RECEITA
+        function abrirModalEditarReceita(id) {
+            const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            const receita = receitasCustomizadas.find(r => r.id === id);
+            
+            if (!receita) {
+                alert('Receita não encontrada!');
+                return;
+            }
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px;';
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 12px; padding: 30px; max-width: 700px; width: 100%; max-height: 95vh; overflow-y: auto;">
+                    <h2 style="color: #1a472a; margin-bottom: 30px; text-align: center; font-size: 24px;">✏️ Editar Ficha Técnica</h2>
+                    
+                    <input type="hidden" id="receitaIdEditar" value="${id}">
+                    
+                    <div style="border-top: 3px solid #d4a574; border-bottom: 3px solid #d4a574; padding: 20px 0; margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 15px;">
+                            <strong style="color: #1a472a; font-size: 14px;">Nome da Receita / Prato:</strong>
+                            <input type="text" id="receitaTituloEdit" value="${receita.titulo}" style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #1a472a; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                        </label>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <label>
+                                <strong style="color: #1a472a; font-size: 14px;">Código/Referência:</strong>
+                                <input type="text" id="receitaCodigoEdit" value="${receita.codigo}" style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #1a472a; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                            </label>
+                            
+                            <label>
+                                <strong style="color: #1a472a; font-size: 14px;">Categoria:</strong>
+                                <select id="receitaCategoriaEdit" style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #1a472a; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                                    <option ${receita.categoria === 'Entrada' ? 'selected' : ''}>Entrada</option>
+                                    <option ${receita.categoria === 'Prato Principal' ? 'selected' : ''}>Prato Principal</option>
+                                    <option ${receita.categoria === 'Acompanhamento' ? 'selected' : ''}>Acompanhamento</option>
+                                    <option ${receita.categoria === 'Sobremesa' ? 'selected' : ''}>Sobremesa</option>
+                                    <option ${receita.categoria === 'Bebida' ? 'selected' : ''}>Bebida</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f8f6f3; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <h4 style="color: #1a472a; margin: 0 0 15px 0; font-size: 13px;">⏱️ TEMPOS E RENDIMENTO</h4>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                            <label style="font-size: 13px;">
+                                <strong style="color: #1a472a;">Tempo de Preparo:</strong>
+                                <input type="text" id="receitaTempoEdit" value="${receita.tempo}" style="width: 100%; padding: 8px; margin-top: 3px; border: 2px solid #1a472a; border-radius: 6px; font-size: 12px; box-sizing: border-box;">
+                            </label>
+                            <label style="font-size: 13px;">
+                                <strong style="color: #1a472a;">Tempo de Cozimento:</strong>
+                                <input type="text" id="receitaTempoCozimentoEdit" value="${receita.tempoCozimento || ''}" style="width: 100%; padding: 8px; margin-top: 3px; border: 2px solid #1a472a; border-radius: 6px; font-size: 12px; box-sizing: border-box;">
+                            </label>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <label style="font-size: 13px;">
+                                <strong style="color: #1a472a;">Rendimento/Porções:</strong>
+                                <input type="text" id="receitaPorcoesEdit" value="${receita.porcoes}" style="width: 100%; padding: 8px; margin-top: 3px; border: 2px solid #1a472a; border-radius: 6px; font-size: 12px; box-sizing: border-box;">
+                            </label>
+                            <label style="font-size: 13px;">
+                                <strong style="color: #1a472a;">Temperatura Serviço:</strong>
+                                <input type="text" id="receitaTemperaturaEdit" value="${receita.temperatura || ''}" style="width: 100%; padding: 8px; margin-top: 3px; border: 2px solid #1a472a; border-radius: 6px; font-size: 12px; box-sizing: border-box;">
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <h4 style="color: #1a472a; margin: 20px 0 12px 0; font-size: 13px;">🥘 INGREDIENTES</h4>
+                    <textarea id="receitaIngredientesEdit" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 2px solid #1a472a; border-radius: 6px; font-size: 13px; box-sizing: border-box; min-height: 100px; font-family: 'Courier New', monospace;">${receita.ingredientes}</textarea>
+                    
+                    <h4 style="color: #1a472a; margin: 20px 0 12px 0; font-size: 13px;">👨‍🍳 MODO DE PREPARO</h4>
+                    <textarea id="receitaModoEdit" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 2px solid #1a472a; border-radius: 6px; font-size: 13px; box-sizing: border-box; min-height: 100px; font-family: 'Courier New', monospace;">${receita.modo}</textarea>
+                    
+                    <label style="display: block; margin-bottom: 20px;">
+                        <strong style="color: #1a472a; font-size: 13px;">💡 Dicas / Observações:</strong>
+                        <textarea id="receitaDicasEdit" style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #d4a574; border-radius: 6px; font-size: 13px; box-sizing: border-box; min-height: 60px;">${receita.dicas || ''}</textarea>
+                    </label>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="salvarReceitaEditada(); this.parentElement.parentElement.parentElement.remove(); renderizarListaReceitas();" style="flex: 1; padding: 12px; background: #1a472a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">✓ Salvar Edição</button>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove();" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">Cancelar</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // 🍳 SALVAR RECEITA EDITADA
+        function salvarReceitaEditada() {
+            const id = parseInt(document.getElementById('receitaIdEditar').value);
+            const titulo = document.getElementById('receitaTituloEdit').value.trim();
+            const categoria = document.getElementById('receitaCategoriaEdit').value;
+            const tempo = document.getElementById('receitaTempoEdit').value.trim();
+            const tempoCozimento = document.getElementById('receitaTempoCozimentoEdit').value.trim();
+            const porcoes = document.getElementById('receitaPorcoesEdit').value.trim();
+            const temperatura = document.getElementById('receitaTemperaturaEdit').value.trim();
+            const ingredientes = document.getElementById('receitaIngredientesEdit').value.trim();
+            const modo = document.getElementById('receitaModoEdit').value.trim();
+            const dicas = document.getElementById('receitaDicasEdit').value.trim();
+            const codigo = document.getElementById('receitaCodigoEdit').value.trim();
+            
+            if (!titulo || !tempo || !porcoes || !ingredientes || !modo) {
+                alert('Por favor, preencha os campos obrigatórios!');
+                return;
+            }
+            
+            let receitasArmazenadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            const index = receitasArmazenadas.findIndex(r => r.id === id);
+            
+            if (index !== -1) {
+                receitasArmazenadas[index] = {
+                    ...receitasArmazenadas[index],
+                    titulo,
+                    codigo,
+                    categoria,
+                    tempo,
+                    tempoCozimento,
+                    porcoes,
+                    temperatura,
+                    ingredientes,
+                    modo,
+                    dicas
+                };
+                
+                localStorage.setItem('receitas_customizadas', JSON.stringify(receitasArmazenadas));
+                mostrarToast('✓ Receita editada com sucesso!');
+                window.dispatchEvent(new Event('receitas-atualizadas'));
+            }
+        }
+
+        // 🍳 DELETAR RECEITA
+        function deletarReceita(id) {
+            if (!confirm('Tem certeza que quer deletar esta receita?')) {
+                return;
+            }
+            
+            let receitasArmazenadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            receitasArmazenadas = receitasArmazenadas.filter(r => r.id !== id);
+            
+            localStorage.setItem('receitas_customizadas', JSON.stringify(receitasArmazenadas));
+            mostrarToast('✓ Receita deletada com sucesso!');
+            window.dispatchEvent(new Event('receitas-atualizadas'));
+            renderizarListaReceitas();
         }
 
         // 🍳 FUNCTION PARA ABRIR MODAL FICHA TÉCNICA
