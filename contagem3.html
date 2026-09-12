@@ -133,6 +133,37 @@
             transform: translateY(0);
         }
 
+        .btn-receitas {
+            background: #d4a574;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+            margin-right: 10px;
+        }
+
+        .btn-receitas:hover {
+            background: #c89461;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 165, 116, 0.4);
+        }
+
+        .btn-receitas:active {
+            background: #b87d4e;
+            transform: translateY(0);
+        }
+
         .info-box {
             background: linear-gradient(135deg, rgba(212, 165, 116, 0.08) 0%, rgba(212, 165, 116, 0.04) 100%);
             border-left: 4px solid #d4a574;
@@ -662,6 +693,7 @@
                     <p class="subtitle">Sistema de Gestão</p>
                 </div>
             </div>
+            <button class="btn-receitas" onclick="abrirModalReceitasRapido()">🍳 Receitas</button>
             <button class="btn-adicionar" onclick="abrirModal()">+</button>
         </div>
 
@@ -943,7 +975,24 @@
             });
         }
         
-        // 🍳 FUNÇÃO PARA ABRIR MODAL DE RECEITAS
+        // 🍳 FUNÇÃO PARA ABRIR RECEITAS RÁPIDO DO HEADER
+        function abrirModalReceitasRapido() {
+            const nomeSalvo = localStorage.getItem('setor_🍳 RECEITAS_nome');
+            
+            if (!nomeSalvo) {
+                // Se não tem nome, pedir identificação primeiro
+                setorAtualAberto = '🍳 RECEITAS';
+                document.getElementById('modalIdentificacao').style.display = 'flex';
+                document.getElementById('nomeFuncionario').value = '';
+                document.getElementById('dataContagem').value = obterDataHoje();
+                document.getElementById('nomeFuncionario').focus();
+            } else {
+                // Se já tem nome, abrir receitas direto
+                abrirModalReceitas();
+            }
+        }
+        
+        // 🍳 FUNÇÃO PARA ABRIR MODAL RECEITAS
         function abrirModalReceitas() {
             const modal = document.createElement('div');
             modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px;';
