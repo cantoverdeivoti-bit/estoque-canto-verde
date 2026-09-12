@@ -1097,28 +1097,70 @@
             
             const container = document.getElementById('receitas-container');
             
+            // Função auxiliar para renderizar campos opcionais
+            const tempoExtra = receita.tempoCozimento ? `<strong>🔥 ${receita.tempoCozimento}</strong> | ` : '';
+            const temp = receita.temperatura ? `<strong>🌡️ ${receita.temperatura}</strong> | ` : '';
+            const codigo = receita.codigo ? `<div style="font-size: 11px; color: #999; margin-top: 8px;">Código: ${receita.codigo}</div>` : '';
+            
             let html = `
                 <div style="background: white; border-radius: 12px; padding: 20px; margin: 20px 0; border-top: 4px solid #1a472a;">
                     <button onclick="renderizarReceitas(); document.getElementById('receitas-container').scrollIntoView({behavior: 'smooth'});" style="background: #1a472a; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-bottom: 20px; font-weight: 600;">← Voltar às Receitas</button>
                     
-                    <h2 style="color: #1a472a; margin: 20px 0 15px 0;">${receita.titulo}</h2>
+                    <h2 style="color: #1a472a; margin: 20px 0 10px 0;">${receita.titulo}</h2>
+                    ${codigo}
+                    
                     <div style="padding: 15px; background: #f8f6f3; border-radius: 8px; margin-bottom: 20px;">
                         <span style="background: #d4a574; color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">${receita.categoria}</span>
-                        <div style="margin-top: 10px; font-size: 13px; color: #666;">
-                            <strong>⏱️ ${receita.tempo}</strong> | <strong>👥 ${receita.porcoes}</strong>
+                        <div style="margin-top: 10px; font-size: 13px; color: #666; line-height: 1.6;">
+                            <strong>⏱️ ${receita.tempo}</strong> ${tempoExtra}| <strong>👥 ${receita.porcoes}</strong> ${temp}
                         </div>
-                    </div>
+            `;
+            
+            // Se for receita customizada, mostrar data de criação
+            if (receita.criadoEm) {
+                html += `<div style="margin-top: 8px; font-size: 11px; color: #999;">📅 Criada em: ${receita.criadoEm}</div>`;
+            }
+            
+            html += `</div>
                     
                     <h3 style="color: #1a472a; margin: 20px 0 12px 0;">🥘 Ingredientes</h3>
-                    <ul style="margin: 0 0 20px 20px; line-height: 1.8; color: #333; font-size: 14px;">
-                        ${receita.ingredientes.split(',').map(i => `<li>${i.trim()}</li>`).join('')}
+            `;
+            
+            // Processar ingredientes (suporta tanto vírgula quanto quebra de linha)
+            const ingredientesArray = receita.ingredientes
+                .split(/,|\n/)
+                .map(i => i.trim())
+                .filter(i => i.length > 0);
+            
+            html += `<ul style="margin: 0 0 20px 20px; line-height: 1.8; color: #333; font-size: 14px;">
+                        ${ingredientesArray.map(i => `<li>${i}</li>`).join('')}
                     </ul>
                     
                     <h3 style="color: #1a472a; margin: 20px 0 12px 0;">👨‍🍳 Modo de Preparo</h3>
-                    <ol style="margin: 0 0 20px 20px; line-height: 1.8; color: #333; font-size: 14px;">
-                        ${receita.modo.split('.').filter(m => m.trim()).map(m => `<li>${m.trim()}</li>`).join('')}
+            `;
+            
+            // Processar modo de preparo (suporta tanto ponto quanto quebra de linha)
+            const modoArray = receita.modo
+                .split(/\.|\n/)
+                .map(m => m.trim())
+                .filter(m => m.length > 0);
+            
+            html += `<ol style="margin: 0 0 20px 20px; line-height: 1.8; color: #333; font-size: 14px;">
+                        ${modoArray.map(m => `<li>${m}</li>`).join('')}
                     </ol>
-                    
+            `;
+            
+            // Adicionar dicas se existirem
+            if (receita.dicas && receita.dicas.trim().length > 0) {
+                html += `
+                    <div style="background: #fffaed; border-left: 4px solid #d4a574; padding: 12px; margin-bottom: 20px; border-radius: 6px;">
+                        <h4 style="color: #1a472a; margin: 0 0 8px 0; font-size: 12px;">💡 Dicas / Observações</h4>
+                        <p style="margin: 0; color: #555; font-size: 13px; line-height: 1.6;">${receita.dicas}</p>
+                    </div>
+                `;
+            }
+            
+            html += `
                     <button onclick="renderizarReceitas(); document.getElementById('receitas-container').scrollIntoView({behavior: 'smooth'});" style="background: #1a472a; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">Voltar às Receitas</button>
                 </div>
             `;

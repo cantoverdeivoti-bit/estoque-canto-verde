@@ -1467,54 +1467,79 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // 🍳 FUNCTION PARA ABRIR MODAL NOVA RECEITA
+        // 🍳 FUNCTION PARA ABRIR MODAL FICHA TÉCNICA
         function abrirModalNovaReceita() {
             const modal = document.createElement('div');
             modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px;';
             
             modal.innerHTML = `
-                <div style="background: white; border-radius: 12px; padding: 30px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto;">
-                    <h2 style="color: #1a472a; margin-bottom: 20px;">🍳 Nova Receita</h2>
+                <div style="background: white; border-radius: 12px; padding: 30px; max-width: 700px; width: 100%; max-height: 95vh; overflow-y: auto;">
+                    <h2 style="color: #1a472a; margin-bottom: 30px; text-align: center; font-size: 24px;">📋 Ficha Técnica</h2>
                     
-                    <label style="display: block; margin-bottom: 15px;">
-                        <strong style="color: #1a472a;">Título da Receita:</strong>
-                        <input type="text" id="receitaTitulo" placeholder="Ex: Risoto de Cogumelos" style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #1a472a; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
-                    </label>
-                    
-                    <label style="display: block; margin-bottom: 15px;">
-                        <strong style="color: #1a472a;">Categoria:</strong>
-                        <select id="receitaCategoria" style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #1a472a; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
-                            <option>Entrada</option>
-                            <option selected>Prato Principal</option>
-                            <option>Acompanhamento</option>
-                            <option>Sobremesa</option>
-                            <option>Bebida</option>
-                        </select>
-                    </label>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                        <label>
-                            <strong style="color: #1a472a;">Tempo:</strong>
-                            <input type="text" id="receitaTempo" placeholder="Ex: 30 min" style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #1a472a; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                    <div style="border-top: 3px solid #d4a574; border-bottom: 3px solid #d4a574; padding: 20px 0; margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 15px;">
+                            <strong style="color: #1a472a; font-size: 14px;">Nome da Receita / Prato:</strong>
+                            <input type="text" id="receitaTitulo" placeholder="Ex: Risoto de Cogumelos" style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #1a472a; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
                         </label>
-                        <label>
-                            <strong style="color: #1a472a;">Porções:</strong>
-                            <input type="text" id="receitaPorcoes" placeholder="Ex: 4 pessoas" style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #1a472a; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
-                        </label>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <label>
+                                <strong style="color: #1a472a; font-size: 14px;">Código/Referência:</strong>
+                                <input type="text" id="receitaCodigo" placeholder="Ex: REC-001" style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #1a472a; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                            </label>
+                            
+                            <label>
+                                <strong style="color: #1a472a; font-size: 14px;">Categoria:</strong>
+                                <select id="receitaCategoria" style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #1a472a; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                                    <option>Entrada</option>
+                                    <option selected>Prato Principal</option>
+                                    <option>Acompanhamento</option>
+                                    <option>Sobremesa</option>
+                                    <option>Bebida</option>
+                                </select>
+                            </label>
+                        </div>
                     </div>
                     
-                    <label style="display: block; margin-bottom: 15px;">
-                        <strong style="color: #1a472a;">Ingredientes (separados por vírgula):</strong>
-                        <textarea id="receitaIngredientes" placeholder="Ex: 2 xícaras arroz, 500ml vinho, 1L caldo..." style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #1a472a; border-radius: 6px; font-size: 14px; box-sizing: border-box; min-height: 80px;"></textarea>
-                    </label>
+                    <div style="background: #f8f6f3; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <h4 style="color: #1a472a; margin: 0 0 15px 0; font-size: 13px;">⏱️ TEMPOS E RENDIMENTO</h4>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                            <label style="font-size: 13px;">
+                                <strong style="color: #1a472a;">Tempo de Preparo:</strong>
+                                <input type="text" id="receitaTempo" placeholder="Ex: 30 min" style="width: 100%; padding: 8px; margin-top: 3px; border: 2px solid #1a472a; border-radius: 6px; font-size: 12px; box-sizing: border-box;">
+                            </label>
+                            <label style="font-size: 13px;">
+                                <strong style="color: #1a472a;">Tempo de Cozimento:</strong>
+                                <input type="text" id="receitaTempoCozimento" placeholder="Ex: 20 min" style="width: 100%; padding: 8px; margin-top: 3px; border: 2px solid #1a472a; border-radius: 6px; font-size: 12px; box-sizing: border-box;">
+                            </label>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <label style="font-size: 13px;">
+                                <strong style="color: #1a472a;">Rendimento/Porções:</strong>
+                                <input type="text" id="receitaPorcoes" placeholder="Ex: 4 pessoas" style="width: 100%; padding: 8px; margin-top: 3px; border: 2px solid #1a472a; border-radius: 6px; font-size: 12px; box-sizing: border-box;">
+                            </label>
+                            <label style="font-size: 13px;">
+                                <strong style="color: #1a472a;">Temperatura Serviço:</strong>
+                                <input type="text" id="receitaTemperatura" placeholder="Ex: 65°C / Quente" style="width: 100%; padding: 8px; margin-top: 3px; border: 2px solid #1a472a; border-radius: 6px; font-size: 12px; box-sizing: border-box;">
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <h4 style="color: #1a472a; margin: 20px 0 12px 0; font-size: 13px;">🥘 INGREDIENTES</h4>
+                    <textarea id="receitaIngredientes" placeholder="Ex:&#10;- 2 xícaras arroz arbóreo&#10;- 500ml vinho branco&#10;- 1L caldo de vegetais&#10;- 300g cogumelos picados&#10;(um ingrediente por linha)" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 2px solid #1a472a; border-radius: 6px; font-size: 13px; box-sizing: border-box; min-height: 100px; font-family: 'Courier New', monospace;"></textarea>
+                    
+                    <h4 style="color: #1a472a; margin: 20px 0 12px 0; font-size: 13px;">👨‍🍳 MODO DE PREPARO</h4>
+                    <textarea id="receitaModo" placeholder="Ex:&#10;1. Refogue cebola na manteiga&#10;2. Adicione arroz e mexa bem&#10;3. Vá adicionando caldo gradualmente&#10;(um passo por linha)" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 2px solid #1a472a; border-radius: 6px; font-size: 13px; box-sizing: border-box; min-height: 100px; font-family: 'Courier New', monospace;"></textarea>
                     
                     <label style="display: block; margin-bottom: 20px;">
-                        <strong style="color: #1a472a;">Modo de Preparo (separado por pontos):</strong>
-                        <textarea id="receitaModo" placeholder="Ex: 1. Primeiro passo. 2. Segundo passo..." style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #1a472a; border-radius: 6px; font-size: 14px; box-sizing: border-box; min-height: 100px;"></textarea>
+                        <strong style="color: #1a472a; font-size: 13px;">💡 Dicas / Observações:</strong>
+                        <textarea id="receitaDicas" placeholder="Ex: Pode ser preparado com antecedência e aquecido na hora de servir" style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #d4a574; border-radius: 6px; font-size: 13px; box-sizing: border-box; min-height: 60px;"></textarea>
                     </label>
                     
                     <div style="display: flex; gap: 10px;">
-                        <button onclick="salvarNovaReceita(); this.parentElement.parentElement.parentElement.remove();" style="flex: 1; padding: 12px; background: #1a472a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">Salvar Receita</button>
+                        <button onclick="salvarNovaReceita(); this.parentElement.parentElement.parentElement.remove();" style="flex: 1; padding: 12px; background: #1a472a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">✓ Salvar Ficha Técnica</button>
                         <button onclick="this.parentElement.parentElement.parentElement.remove();" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">Cancelar</button>
                     </div>
                 </div>
@@ -1528,12 +1553,16 @@
             const titulo = document.getElementById('receitaTitulo').value.trim();
             const categoria = document.getElementById('receitaCategoria').value;
             const tempo = document.getElementById('receitaTempo').value.trim();
+            const tempoCozimento = document.getElementById('receitaTempoCozimento').value.trim();
             const porcoes = document.getElementById('receitaPorcoes').value.trim();
+            const temperatura = document.getElementById('receitaTemperatura').value.trim();
             const ingredientes = document.getElementById('receitaIngredientes').value.trim();
             const modo = document.getElementById('receitaModo').value.trim();
+            const dicas = document.getElementById('receitaDicas').value.trim();
+            const codigo = document.getElementById('receitaCodigo').value.trim();
             
             if (!titulo || !tempo || !porcoes || !ingredientes || !modo) {
-                alert('Por favor, preencha todos os campos!');
+                alert('Por favor, preencha os campos obrigatórios: Nome, Tempo, Porções, Ingredientes e Modo!');
                 return;
             }
             
@@ -1543,15 +1572,20 @@
             // Gerar ID novo
             const novoId = Math.max(0, ...receitasArmazenadas.map(r => r.id || 0)) + 1;
             
-            // Criar nova receita
+            // Criar nova ficha técnica
             const novaReceita = {
                 id: novoId,
                 titulo: titulo,
+                codigo: codigo || `REC-${String(novoId).padStart(3, '0')}`,
                 categoria: categoria,
                 tempo: tempo,
+                tempoCozimento: tempoCozimento,
                 porcoes: porcoes,
+                temperatura: temperatura,
                 ingredientes: ingredientes,
-                modo: modo
+                modo: modo,
+                dicas: dicas,
+                criadoEm: new Date().toLocaleDateString('pt-BR')
             };
             
             // Adicionar à lista
@@ -1561,7 +1595,7 @@
             localStorage.setItem('receitas_customizadas', JSON.stringify(receitasArmazenadas));
             
             // Mostrar mensagem
-            mostrarToast('✓ Receita salva com sucesso!');
+            mostrarToast('✓ Ficha Técnica salva com sucesso!');
             
             // Disparar evento para sincronizar com contagem
             window.dispatchEvent(new Event('receitas-atualizadas'));
