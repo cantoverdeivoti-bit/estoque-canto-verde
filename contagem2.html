@@ -1553,17 +1553,66 @@
         // 🍳 LISTENER PARA QUANDO RECEITAS SÃO ATUALIZADAS NO PAINEL
         window.addEventListener('receitas-atualizadas', () => {
             const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
-            // Remover receitas antigas e adicionar novas
-            receitas.length = 5; // Manter só as 5 receitas originais
-            receitas.push(...receitasCustomizadas);
-            console.log('✅ Receitas atualizadas:', receitas.length);
+            receitas.length = 0; // Limpar array
+            receitas.push(...receitasCustomizadas); // Adicionar novas
+            
+            console.log('✅ Receitas atualizadas via evento:', receitas.length);
+            
+            // Se seção de receitas está visível, re-renderizar
+            const receitasContainer = document.getElementById('receitas-container');
+            if (receitasContainer && receitasContainer.style.display !== 'none' && receitasContainer.innerHTML !== '') {
+                renderizarReceitas();
+                console.log('🔄 Receitas re-renderizadas na tela');
+            }
         });
 
-        window.addEventListener('storage', () => {
+        // 🍳 LISTENER PARA MUDANÇAS NO LOCALSTORAGE (SINCRONIZAÇÃO ENTRE ABAS)
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'receitas_customizadas') {
+                console.log('📡 Sincronização de receitas detectada de outra aba!');
+                
+                const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+                receitas.length = 0; // Limpar array
+                receitas.push(...receitasCustomizadas); // Adicionar novas
+                
+                console.log('✅ Receitas sincronizadas:', receitas.length);
+                
+                // Se seção de receitas está visível, re-renderizar
+                const receitasContainer = document.getElementById('receitas-container');
+                if (receitasContainer && receitasContainer.style.display !== 'none' && receitasContainer.innerHTML !== '') {
+                    renderizarReceitas();
+                    console.log('🔄 Receitas re-renderizadas após sincronização');
+                }
+                
+                return; // Não continuar com os outros listeners
+            }
+            
+            // Sincronizar outros dados (estoque, setores)
             carregarSetoresCustomizados();
             renderizar();
             atualizarContador();
         });
+
+        // 🍳 SINCRONIZAÇÃO PERIÓDICA DE RECEITAS (A CADA 2 SEGUNDOS)
+        let ultimasReceitas = JSON.stringify(receitas);
+        setInterval(() => {
+            const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            const novasReceitas = JSON.stringify(receitasCustomizadas);
+            
+            if (novasReceitas !== ultimasReceitas) {
+                console.log('📡 Mudança de receitas detectada! Sincronizando...');
+                receitas.length = 0;
+                receitas.push(...receitasCustomizadas);
+                ultimasReceitas = novasReceitas;
+                
+                // Re-renderizar se visível
+                const receitasContainer = document.getElementById('receitas-container');
+                if (receitasContainer && receitasContainer.style.display !== 'none' && receitasContainer.innerHTML !== '') {
+                    renderizarReceitas();
+                    console.log('✅ Receitas sincronizadas em tempo real!');
+                }
+            }
+        }, 2000);
     </script>
 </body>
 </html>
