@@ -734,6 +734,10 @@
         </div>
 
         <div id="setores"></div>
+        <div id="debug-receitas" style="display: none; background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 15px; margin: 20px 0; color: #333; font-size: 12px;">
+            <strong>🔍 DEBUG:</strong>
+            <div id="debug-msg"></div>
+        </div>
         <div id="receitas-container" style="display: none;"></div>
 
         <div class="footer-buttons">
@@ -1038,6 +1042,7 @@
         // 🍳 FUNÇÃO PARA ALTERNAR RECEITAS
         function toggleReceitas() {
             const receitasContainer = document.getElementById('receitas-container');
+            const debugContainer = document.getElementById('debug-receitas');
             const setoresContainer = document.getElementById('setores');
             
             console.log('🍳 Clicou em Receitas!');
@@ -1050,6 +1055,14 @@
             const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
             console.log('📊 Receitas encontradas:', receitasCustomizadas.length);
             console.log('📋 Detalhes:', receitasCustomizadas);
+            
+            // Mostrar debug visual
+            const debugMsg = document.getElementById('debug-msg');
+            debugMsg.innerHTML = `
+                <p>📊 Receitas no localStorage: <strong>${receitasCustomizadas.length}</strong></p>
+                <p>📋 Dados: ${JSON.stringify(receitasCustomizadas).substring(0, 100)}...</p>
+            `;
+            debugContainer.style.display = 'block';
             
             receitas.length = 0;
             receitas.push(...receitasCustomizadas);
@@ -1065,11 +1078,12 @@
                 console.log('✅ Receitas visíveis');
             } else {
                 receitasContainer.style.display = 'none';
+                debugContainer.style.display = 'none';
                 console.log('❌ Receitas ocultas');
             }
         }
         
-        // 🍳 FUNÇÃO PARA RENDERIZAR RECEITAS NO CONTAINER
+        // 🍳 FUNÇÃO PARA RENDERIZAR RECEITAS COM DEBUG VISUAL
         function renderizarReceitas() {
             const container = document.getElementById('receitas-container');
             
@@ -1079,8 +1093,15 @@
             if (receitas.length === 0) {
                 container.innerHTML = `
                     <div style="background: white; border-radius: 12px; padding: 30px; margin: 20px 0; border-top: 4px solid #d4a574; text-align: center;">
-                        <p style="color: #999; font-size: 14px;">Nenhuma receita criada ainda.</p>
-                        <p style="color: #999; font-size: 12px;">Crie no painel para aparecer aqui.</p>
+                        <h2 style="color: #1a472a; margin: 0 0 20px 0;">🍳 Receitas</h2>
+                        <p style="color: #999; font-size: 16px; margin: 20px 0;">Nenhuma receita encontrada!</p>
+                        <p style="color: #666; font-size: 13px; margin: 10px 0;">
+                            📌 Receitas salvas no localStorage: ${JSON.stringify(JSON.parse(localStorage.getItem('receitas_customizadas') || '[]')).length}
+                        </p>
+                        <p style="color: #666; font-size: 12px; margin: 20px 0;">
+                            💡 Crie receitas no PAINEL e volte aqui!
+                        </p>
+                        <button onclick="location.reload()" style="padding: 10px 20px; background: #d4a574; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">🔄 Recarregar Página</button>
                     </div>
                 `;
                 return;
@@ -1089,6 +1110,7 @@
             let html = `
                 <div style="background: white; border-radius: 12px; padding: 20px; margin: 20px 0; border-top: 4px solid #d4a574;">
                     <h2 style="color: #1a472a; margin: 0 0 20px 0;">🍳 Receitas</h2>
+                    <p style="color: #d4a574; font-size: 12px; margin: 0 0 20px 0;">📊 Total: <strong>${receitas.length} receita${receitas.length !== 1 ? 's' : ''}</strong></p>
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
             `;
