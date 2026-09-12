@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔍 Debug Sincronização de Receitas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a472a;
+            margin-bottom: 30px;
+        }
+        .botao {
+            padding: 12px 20px;
+            margin: 10px 5px;
+            background: #1a472a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .botao:hover {
+            background: #2d6a3f;
+        }
+        .botao-perigo {
+            background: #dc2626;
+        }
+        .botao-perigo:hover {
+            background: #b91c1c;
+        }
+        #resultado {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f6f3;
+            border-radius: 8px;
+            border-left: 4px solid #d4a574;
+            max-height: 600px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .success {
+            color: #4ade80;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc2626;
+            font-weight: bold;
+        }
+        .info {
+            color: #1a472a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Sincronização de Receitas</h1>
+        
+        <button class="botao" onclick="verificarLocalStorage()">📊 Ver localStorage</button>
+        <button class="botao" onclick="verificarReceitas()">📋 Ver Receitas Salvas</button>
+        <button class="botao" onclick="testarSincronizacao()">📡 Testar Sincronização</button>
+        <button class="botao" onclick="forcarRecarregar()">🔄 Forçar Recarregar</button>
+        <button class="botao botao-perigo" onclick="limparTudo()">🗑️ Limpar TUDO</button>
+        
+        <div id="resultado"></div>
+    </div>
+
+    <script>
+        function log(tipo, mensagem) {
+            const resultado = document.getElementById('resultado');
+            let classe = 'info';
+            
+            if (tipo === 'success') classe = 'success';
+            if (tipo === 'error') classe = 'error';
+            
+            resultado.innerHTML += `<div class="${classe}">${mensagem}</div>`;
+            resultado.scrollTop = resultado.scrollHeight;
+        }
+
+        function verificarLocalStorage() {
+            document.getElementById('resultado').innerHTML = '';
+            log('info', '📊 VERIFICANDO LOCALSTORAGE...\n');
+            
+            const chaves = Object.keys(localStorage);
+            log('info', `Total de chaves: ${chaves.length}\n`);
+            
+            chaves.forEach(chave => {
+                const valor = localStorage.getItem(chave);
+                const tamanho = new Blob([valor]).size;
+                log('info', `${chave} (${tamanho} bytes):`);
+                
+                try {
+                    const json = JSON.parse(valor);
+                    log('success', JSON.stringify(json, null, 2));
+                } catch (e) {
+                    log('info', valor.substring(0, 100) + '...\n');
+                }
+            });
+        }
+
+        function verificarReceitas() {
+            document.getElementById('resultado').innerHTML = '';
+            log('info', '📋 VERIFICANDO RECEITAS SALVAS...\n');
+            
+            const receitas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            
+            if (receitas.length === 0) {
+                log('error', '❌ NENHUMA RECEITA ENCONTRADA!\n');
+            } else {
+                log('success', `✅ RECEITAS ENCONTRADAS: ${receitas.length}\n`);
+                
+                receitas.forEach((r, idx) => {
+                    log('info', `\n📌 RECEITA ${idx + 1}:`);
+                    log('success', JSON.stringify(r, null, 2));
+                });
+            }
+            
+            console.log('Receitas no console:', receitas);
+        }
+
+        function testarSincronizacao() {
+            document.getElementById('resultado').innerHTML = '';
+            log('info', '📡 TESTANDO SINCRONIZAÇÃO...\n');
+            
+            const receitas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            
+            if (receitas.length === 0) {
+                log('error', '❌ Nenhuma receita para sincronizar!\n');
+                log('info', 'Crie uma receita no painel primeiro.\n');
+                return;
+            }
+            
+            log('success', '✅ Receitas carregadas do localStorage\n');
+            
+            // Simular o que os links fazem
+            log('info', 'Simulando carregamento nos links...\n');
+            
+            receitas.forEach((r, idx) => {
+                log('success', `📋 Receita ${idx + 1}: "${r.titulo}"`);
+                log('info', `   ID: ${r.id}`);
+                log('info', `   Categoria: ${r.categoria}`);
+                log('info', `   Tempo: ${r.tempo}`);
+                log('info', `   Porções: ${r.porcoes}\n`);
+            });
+            
+            log('success', '\n✅ Se as receitas aparecem acima, a sincronização DEVE funcionar!\n');
+        }
+
+        function forcarRecarregar() {
+            document.getElementById('resultado').innerHTML = '';
+            log('info', '🔄 FORÇANDO RECARREGAMENTO...\n');
+            
+            // Disparar evento
+            window.dispatchEvent(new Event('receitas-atualizadas'));
+            window.dispatchEvent(new StorageEvent('storage', {
+                key: 'receitas_customizadas',
+                newValue: localStorage.getItem('receitas_customizadas'),
+                oldValue: null,
+                storageArea: localStorage
+            }));
+            
+            log('success', '✅ Eventos disparados!\n');
+            log('info', 'Se você tem abas abertas dos links, elas devem sincronizar agora.\n');
+            
+            setTimeout(() => {
+                verificarReceitas();
+            }, 500);
+        }
+
+        function limparTudo() {
+            if (confirm('⚠️ ATENÇÃO! Isso vai deletar TODAS as receitas! Tem certeza?')) {
+                localStorage.removeItem('receitas_customizadas');
+                document.getElementById('resultado').innerHTML = '';
+                log('error', '🗑️ RECEITAS LIMPAS!\n');
+            }
+        }
+
+        // Verificar ao carregar
+        window.addEventListener('DOMContentLoaded', verificarReceitas);
+    </script>
+</body>
+</html>

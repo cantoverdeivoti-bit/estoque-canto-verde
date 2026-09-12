@@ -1040,15 +1040,21 @@
             const receitasContainer = document.getElementById('receitas-container');
             const setoresContainer = document.getElementById('setores');
             
+            console.log('🍳 Clicou em Receitas!');
+            
             // Fechar estoque se estiver aberto
             setoresContainer.style.display = 'none';
             
             // 🍳 SEMPRE RECARREGAR RECEITAS DO LOCALSTORAGE QUANDO CLICAR
+            console.log('📡 Recarregando receitas do localStorage...');
             const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            console.log('📊 Receitas encontradas:', receitasCustomizadas.length);
+            console.log('📋 Detalhes:', receitasCustomizadas);
+            
             receitas.length = 0;
             receitas.push(...receitasCustomizadas);
             
-            console.log('📡 Recarregando receitas ao clicar:', receitas.length);
+            console.log('✅ Array de receitas atualizado:', receitas.length);
             
             // Renderizar receitas
             renderizarReceitas();
@@ -1056,8 +1062,10 @@
             // Alternar visibilidade
             if (receitasContainer.style.display === 'none') {
                 receitasContainer.style.display = 'block';
+                console.log('✅ Receitas visíveis');
             } else {
                 receitasContainer.style.display = 'none';
+                console.log('❌ Receitas ocultas');
             }
         }
         
@@ -1608,29 +1616,25 @@
             atualizarContador();
         });
 
-        // 🍳 SINCRONIZAÇÃO PERIÓDICA DE RECEITAS (A CADA 1 SEGUNDO)
-        let ultimasReceitas = JSON.stringify(receitas);
+        // 🍳 POLLING SUPER AGRESSIVO (A CADA 500MS ENQUANTO SEÇÃO ESTÁ VISÍVEL)
         setInterval(() => {
-            const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
-            const novasReceitas = JSON.stringify(receitasCustomizadas);
+            const receitasContainer = document.getElementById('receitas-container');
             
-            if (novasReceitas !== ultimasReceitas) {
-                console.log('📡 Mudança de receitas detectada! Sincronizando...');
-                receitas.length = 0;
-                receitas.push(...receitasCustomizadas);
-                ultimasReceitas = novasReceitas;
+            // Só fazer polling se seção está visível
+            if (receitasContainer && receitasContainer.style.display !== 'none') {
+                const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+                const receitasAtuais = JSON.stringify(receitas);
+                const receitasNovas = JSON.stringify(receitasCustomizadas);
                 
-                console.log('✅ Receitas sincronizadas:', receitas.length);
-                console.log('📋 Receitas:', receitas);
-                
-                // Re-renderizar se visível
-                const receitasContainer = document.getElementById('receitas-container');
-                if (receitasContainer && receitasContainer.style.display !== 'none' && receitasContainer.innerHTML !== '') {
+                if (receitasNovas !== receitasAtuais) {
+                    console.log('🔥 MUDANÇA DETECTADA! Sincronizando...');
+                    receitas.length = 0;
+                    receitas.push(...receitasCustomizadas);
                     renderizarReceitas();
-                    console.log('🔄 Receitas re-renderizadas em tempo real!');
+                    console.log('✅ Sincronizado com sucesso!');
                 }
             }
-        }, 1000);
+        }, 500);
         
         // 🍳 LISTENER PARA QUANDO ABA FICA VISÍVEL (SINCRONIZAR IMEDIATAMENTE)
         document.addEventListener('visibilitychange', () => {
