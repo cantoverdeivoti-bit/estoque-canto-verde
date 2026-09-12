@@ -850,6 +850,10 @@
             {id: 5, titulo: "Suco Natural de Morango", categoria: "Bebida", tempo: "5 min", porcoes: "2 copos", ingredientes: "400g morango fresco, 200ml água gelada, 2 colheres mel ou açúcar, gelo, limão a gosto", modo: "1. Lave e corte morangos. 2. Coloque no liquidificador. 3. Adicione água e gelo. 4. Adicione mel/açúcar. 5. Bata bem. 6. Peneira se preferir. 7. Sirva imediatamente com gelo."}
         ];
 
+        // 🍳 CARREGAR RECEITAS CUSTOMIZADAS DO PAINEL
+        const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+        receitas.push(...receitasCustomizadas);
+
         let dados = JSON.parse(localStorage.getItem('contagem_estoque') || '{}');
         let produtosNovos = JSON.parse(localStorage.getItem('produtos_novos') || '{}');
         let nomeFuncionarioGlobal = '';
@@ -1510,6 +1514,15 @@
         window.addEventListener('load', inicializarFirebase);
 
         // Sincronizar com mudanças no localStorage (novo setor criado no painel)
+        // 🍳 LISTENER PARA QUANDO RECEITAS SÃO ATUALIZADAS NO PAINEL
+        window.addEventListener('receitas-atualizadas', () => {
+            const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            // Remover receitas antigas e adicionar novas
+            receitas.length = 5; // Manter só as 5 receitas originais
+            receitas.push(...receitasCustomizadas);
+            console.log('✅ Receitas atualizadas:', receitas.length);
+        });
+
         window.addEventListener('storage', () => {
             carregarSetoresCustomizados();
             renderizar();
