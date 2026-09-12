@@ -133,6 +133,37 @@
             transform: translateY(0);
         }
 
+        .btn-estoque {
+            background: #2d6a3f;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(45, 106, 63, 0.3);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+            margin-right: 10px;
+        }
+
+        .btn-estoque:hover {
+            background: #1a472a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(45, 106, 63, 0.4);
+        }
+
+        .btn-estoque:active {
+            background: #0f2d1a;
+            transform: translateY(0);
+        }
+
         .btn-receitas {
             background: #d4a574;
             color: white;
@@ -693,6 +724,7 @@
                     <p class="subtitle">Sistema de Gestão</p>
                 </div>
             </div>
+            <button class="btn-estoque" onclick="abrirModalEstoque()">📦 Estoque</button>
             <button class="btn-receitas" onclick="abrirModalReceitasRapido()">🍳 Receitas</button>
             <button class="btn-adicionar" onclick="abrirModal()">+</button>
         </div>
@@ -975,6 +1007,74 @@
             });
         }
         
+        // 📦 FUNÇÃO PARA ABRIR MODAL DE ESTOQUE
+        function abrirModalEstoque() {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px;';
+            
+            let setoresHTML = `
+                <div style="background: white; border-radius: 12px; padding: 30px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto;">
+                    <h1 style="color: #1a472a; margin-bottom: 30px;">📦 Setores de Estoque</h1>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            `;
+            
+            Object.keys(estoque).forEach(setor => {
+                const totalProdutos = Object.keys(estoque[setor]).length;
+                const nomeOperador = localStorage.getItem(`setor_${setor}_nome`) || 'Não iniciado';
+                const statusEmojis = nomeOperador === 'Não iniciado' ? '⏳' : '✅';
+                
+                setoresHTML += `
+                    <div onclick="fecharModalEscolherSetor(); scrollParaSetor('${setor}')" style="background: linear-gradient(135deg, #2d6a3f 0%, #1a472a 100%); padding: 20px; border-radius: 8px; cursor: pointer; color: white; transition: all 0.3s ease; border: 2px solid transparent;" onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='#d4a574';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='transparent';">
+                        <h3 style="margin: 0; font-size: 16px; margin-bottom: 8px;">${setor}</h3>
+                        <p style="margin: 0; font-size: 13px; opacity: 0.9;">📊 ${totalProdutos} produtos</p>
+                        <p style="margin: 8px 0 0 0; font-size: 11px; opacity: 0.8;">${statusEmojis} ${nomeOperador}</p>
+                    </div>
+                `;
+            });
+            
+            setoresHTML += `
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" style="width: 100%; margin-top: 20px; padding: 12px; background: #1a472a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">Fechar</button>
+                </div>
+            `;
+            
+            modal.innerHTML = setoresHTML;
+            document.body.appendChild(modal);
+            
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.remove();
+            };
+        }
+        
+        // 📦 FUNÇÃO PARA FECHAR MODAL E NAVEGAR PARA SETOR
+        function fecharModalEscolherSetor() {
+            document.querySelectorAll('[style*="rgba(0,0,0,0.7)"]').forEach(el => {
+                if (el.style.backgroundColor.includes('0,0,0')) {
+                    el.remove();
+                }
+            });
+        }
+        
+        // 📦 FUNÇÃO PARA SCROLLAR PARA SETOR E ABRIR
+        function scrollParaSetor(setor) {
+            setTimeout(() => {
+                const setorElements = document.querySelectorAll('.setor-header');
+                for (let el of setorElements) {
+                    if (el.textContent.includes(setor)) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Abrir setor automaticamente
+                        const content = el.nextElementSibling;
+                        if (content && content.classList.contains('setor-content')) {
+                            content.classList.add('open');
+                            el.querySelector('.setor-icon').classList.add('open');
+                        }
+                        break;
+                    }
+                }
+            }, 100);
+        }
+
         // 🍳 FUNÇÃO PARA ABRIR RECEITAS RÁPIDO DO HEADER
         function abrirModalReceitasRapido() {
             const nomeSalvo = localStorage.getItem('setor_🍳 RECEITAS_nome');
