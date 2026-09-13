@@ -1016,6 +1016,144 @@
         let db, contagemRef;
         let firebaseReady = false;
 
+        // ================= ☁️ SINCRONIZAÇÃO EM NUVEM =================
+        // Antes, receitas / setores / produtos / preços viviam apenas no
+        // localStorage, que é isolado por aparelho e por navegador. Por isso
+        // nada do que era criado no painel chegava aos celulares.
+        // Agora o Firestore é a fonte de verdade e o localStorage é só cache.
+
+        // ---------- Receitas (coleção 'receitas') ----------
+        let receitasRef = null;
+        let receitasCache = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+
+        function lerReceitas() {
+            return receitasCache.slice();
+        }
+
+        function gravarReceitas(lista) {
+            const anterior = receitasCache.slice();
+            receitasCache = lista.slice();
+            try {
+                localStorage.setItem('receitas_customizadas', JSON.stringify(receitasCache));
+            } catch (e) {}
+            if (!receitasRef) {
+                console.warn('⚠️ Nuvem indisponível — receita salva SÓ neste aparelho.');
+                return;
+            }
+            const idsAtuais = new Set(receitasCache.map(r => String(r.id)));
+            receitasCache.forEach(r => {
+                receitasRef.doc(String(r.id)).set(r)
+                    .catch(e => console.error('❌ Erro ao salvar receita na nuvem:', e));
+            });
+            anterior.forEach(r => {
+                if (!idsAtuais.has(String(r.id))) {
+                    receitasRef.doc(String(r.id)).delete()
+                        .catch(e => console.error('❌ Erro ao deletar receita na nuvem:', e));
+                }
+            });
+        }
+
+        function iniciarSyncReceitas(aoAtualizar, migrarLocais) {
+            if (!db) return;
+            receitasRef = db.collection('receitas');
+            let primeiraLeitura = true;
+            receitasRef.onSnapshot(snapshot => {
+                const remotas = snapshot.docs.map(d => {
+                    const r = d.data() || {};
+                    r.id = Number(d.id);
+                    return r;
+                }).sort((a, b) => (a.id || 0) - (b.id || 0));
+
+                if (primeiraLeitura && migrarLocais && remotas.length === 0) {
+                    primeiraLeitura = false;
+                    const locais = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+                    if (locais.length > 0) {
+                        console.log('⬆️ Enviando ' + locais.length + ' receita(s) deste aparelho para a nuvem...');
+                        gravarReceitas(locais);
+                        return;
+                    }
+                }
+                primeiraLeitura = false;
+
+                receitasCache = remotas;
+                try {
+                    localStorage.setItem('receitas_customizadas', JSON.stringify(receitasCache));
+                } catch (e) {}
+                console.log('🍳 Receitas sincronizadas da nuvem:', receitasCache.length);
+                if (typeof aoAtualizar === 'function') aoAtualizar();
+            }, err => console.error('❌ Erro no sync de receitas:', err));
+        }
+
+        // ---------- Catálogo: setores, produtos, edições, preços ----------
+        // Documento único 'catalogo/config'. Cada chave vai como texto JSON,
+        // o que evita qualquer problema com acentos e pontos nos nomes.
+        const CHAVES_NUVEM = ['setores_customizados', 'produtos_novos', 'estoque', 'painel_estoque'];
+        let nuvemRef = null;
+        let aplicandoNuvem = false;
+
+        function lsGet(chave, padrao) {
+            try {
+                return JSON.parse(localStorage.getItem(chave) || padrao);
+            } catch (e) {
+                console.warn('Cache inválido em ' + chave, e);
+                return JSON.parse(padrao);
+            }
+        }
+
+        function lsSet(chave, valor) {
+            try {
+                localStorage.setItem(chave, JSON.stringify(valor));
+            } catch (e) {}
+            if (aplicandoNuvem) return;   // evita eco: nuvem -> local -> nuvem
+            enviarParaNuvem();
+        }
+
+        function enviarParaNuvem() {
+            if (!nuvemRef) {
+                console.warn('⚠️ Nuvem indisponível — alteração salva SÓ neste aparelho.');
+                return;
+            }
+            const pacote = { atualizadoEm: new Date().toISOString() };
+            CHAVES_NUVEM.forEach(k => { pacote[k] = localStorage.getItem(k) || ''; });
+            nuvemRef.set(pacote, { merge: true })
+                .catch(e => console.error('❌ Erro ao enviar catálogo para a nuvem:', e));
+        }
+
+        function recarregarDoCache() {
+            const estoqueNuvem = lsGet('estoque', 'null');
+            if (estoqueNuvem && typeof estoqueNuvem === 'object') {
+                Object.keys(estoque).forEach(s => delete estoque[s]);
+                Object.assign(estoque, estoqueNuvem);
+            }
+            produtosNovos = lsGet('produtos_novos', '{}');
+            if (typeof painel !== 'undefined') painel = lsGet('painel_estoque', '{}');
+            carregarSetoresCustomizados();
+            carregarProdutosNovos();
+        }
+
+        function iniciarSyncNuvem(aoAtualizar) {
+            if (!db) return;
+            nuvemRef = db.collection('catalogo').doc('config');
+            nuvemRef.onSnapshot(doc => {
+                if (!doc.exists) {
+                    console.log('⬆️ Enviando catálogo deste aparelho para a nuvem...');
+                    enviarParaNuvem();
+                    return;
+                }
+                const d = doc.data() || {};
+                aplicandoNuvem = true;
+                CHAVES_NUVEM.forEach(k => {
+                    if (typeof d[k] === 'string' && d[k] !== '') {
+                        try { localStorage.setItem(k, d[k]); } catch (e) {}
+                    }
+                });
+                aplicandoNuvem = false;
+                console.log('☁️ Catálogo sincronizado da nuvem.');
+                if (typeof aoAtualizar === 'function') aoAtualizar();
+            }, err => console.error('❌ Erro no sync do catálogo:', err));
+        }
+        // ================= fim do bloco de sincronização =================
+
         // Inicializar Firebase de forma assíncrona (não bloqueia UI)
         function inicializarFirebase() {
             if (typeof firebase === 'undefined') {
@@ -1037,6 +1175,15 @@
                 firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
                 contagemRef = db.collection('contagens');
+                iniciarSyncReceitas(function () {
+                    const cont = document.getElementById('gerenciamento-receitas');
+                    if (cont && cont.style.display !== 'none') renderizarListaReceitas();
+                }, true);
+                iniciarSyncNuvem(function () {
+                    recarregarDoCache();
+                    renderizar();
+                    atualizarEstatisticas();
+                });
                 firebaseReady = true;
                 console.log('✅ Firebase inicializado com sucesso!');
                 
@@ -1068,9 +1215,9 @@
             "SALGADOS": {"rissole brócolis": "varia","rissole salsicha": "varia","Risole calabresa": "varia","Risole queijo-milho": "varia","mini churros doce de leite": "varia","Folhado goiaba": "varia","Enroladinho": "varia","Coxinha panko": "varia","trouxinha": "varia"}
         };
 
-        let painel = JSON.parse(localStorage.getItem('painel_estoque') || '{}');
+        let painel = lsGet('painel_estoque', '{}');
         let contagem = JSON.parse(localStorage.getItem('contagem_estoque') || '{}');
-        let produtosNovos = JSON.parse(localStorage.getItem('produtos_novos') || '{}');
+        let produtosNovos = lsGet('produtos_novos', '{}');
 
         function inicializar() {
             carregarSetoresCustomizados();
@@ -1082,11 +1229,12 @@
                 option.textContent = setor;
                 setorFilter.appendChild(option);
             });
+            recarregarDoCache();
             renderizar();
             atualizarEstatisticas();
             window.addEventListener('storage', () => {
                 contagem = JSON.parse(localStorage.getItem('contagem_estoque') || '{}');
-                produtosNovos = JSON.parse(localStorage.getItem('produtos_novos') || '{}');
+                produtosNovos = lsGet('produtos_novos', '{}');
                 carregarSetoresCustomizados();
                 carregarProdutosNovos();
                 renderizar();
@@ -1095,7 +1243,7 @@
         }
 
         function carregarSetoresCustomizados() {
-            const setoresCustomizados = JSON.parse(localStorage.getItem('setores_customizados') || '[]');
+            const setoresCustomizados = lsGet('setores_customizados', '[]');
             setoresCustomizados.forEach(setor => {
                 if (!estoque[setor]) {
                     estoque[setor] = {};
@@ -1221,20 +1369,20 @@
             painel[chave].precoAtual = precoFormatado;
             painel[chave].dataPrecoAtual = obterDataAtual();
             
-            localStorage.setItem('painel_estoque', JSON.stringify(painel));
+            lsSet('painel_estoque', painel);
             renderizar();
         }
 
         function salvarCampo(chave, campo, valor) {
             if (!painel[chave]) painel[chave] = { status: '', precoAnterior: '', precoAtual: '', empresa: '', dataPrecoAnterior: '', dataPrecoAtual: '', quantidadeComprada: '' };
             painel[chave][campo] = valor;
-            localStorage.setItem('painel_estoque', JSON.stringify(painel));
+            lsSet('painel_estoque', painel);
         }
 
         function marcarStatus(chave, status) {
             if (!painel[chave]) painel[chave] = { precoAnterior: '', precoAtual: '', empresa: '', dataPrecoAnterior: '', dataPrecoAtual: '', quantidadeComprada: '' };
             painel[chave].status = painel[chave].status === status ? '' : status;
-            localStorage.setItem('painel_estoque', JSON.stringify(painel));
+            lsSet('painel_estoque', painel);
             renderizar();
             atualizarEstatisticas();
         }
@@ -1242,7 +1390,7 @@
         function filtrar() { renderizar(); }
 
         function salvar() {
-            localStorage.setItem('painel_estoque', JSON.stringify(painel));
+            lsSet('painel_estoque', painel);
             mostrarToast('✓ Dados salvos com sucesso!');
         }
 
@@ -1334,10 +1482,10 @@
             estoque[nomeSetor] = {};
             
             // Salva em localStorage
-            const setoresCustomizados = JSON.parse(localStorage.getItem('setores_customizados') || '[]');
+            const setoresCustomizados = lsGet('setores_customizados', '[]');
             if (!setoresCustomizados.includes(nomeSetor)) {
                 setoresCustomizados.push(nomeSetor);
-                localStorage.setItem('setores_customizados', JSON.stringify(setoresCustomizados));
+                lsSet('setores_customizados', setoresCustomizados);
             }
 
             // Atualiza o filtro de setores
@@ -1422,8 +1570,8 @@
             if (!painel[chaveProdutoEmEdicao]) painel[chaveProdutoEmEdicao] = {};
             painel[chaveProdutoEmEdicao].unidade = unidade;
             
-            localStorage.setItem('estoque', JSON.stringify(estoque));
-            localStorage.setItem('painel_estoque', JSON.stringify(painel));
+            lsSet('estoque', estoque);
+            lsSet('painel_estoque', painel);
             
             fecharModalEditar();
             renderizar();
@@ -1450,8 +1598,8 @@
                 painel[chave].dataPrecoAtual = obterDataAtual();
             }
             
-            localStorage.setItem('painel_estoque', JSON.stringify(painel));
-            localStorage.setItem('produtos_novos', JSON.stringify(produtosNovos));
+            lsSet('painel_estoque', painel);
+            lsSet('produtos_novos', produtosNovos);
             fecharModal();
             renderizar();
             atualizarEstatisticas();
@@ -1485,7 +1633,7 @@
         // 🍳 RENDERIZAR LISTA DE TODAS AS RECEITAS
         function renderizarListaReceitas() {
             const container = document.getElementById('gerenciamento-receitas');
-            const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            const receitasCustomizadas = lerReceitas();
             
             let html = `
                 <h2 style="color: #1a472a; margin-bottom: 20px; border-bottom: 3px solid #d4a574; padding-bottom: 10px;">
@@ -1539,7 +1687,7 @@
 
         // 🍳 ABRIR MODAL PARA EDITAR RECEITA
         function abrirModalEditarReceita(id) {
-            const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            const receitasCustomizadas = lerReceitas();
             const receita = receitasCustomizadas.find(r => r.id === id);
             
             if (!receita) {
@@ -1652,7 +1800,7 @@
                 return;
             }
             
-            let receitasArmazenadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            let receitasArmazenadas = lerReceitas();
             const index = receitasArmazenadas.findIndex(r => r.id === id);
             
             console.log('🔍 Receita encontrada no índice:', index);
@@ -1675,7 +1823,7 @@
                 console.log('✅ Receita editada:', receitasArmazenadas[index]);
                 
                 try {
-                    localStorage.setItem('receitas_customizadas', JSON.stringify(receitasArmazenadas));
+                    gravarReceitas(receitasArmazenadas);
                     console.log('💾 Salvo em localStorage com sucesso!');
                 } catch (erro) {
                     console.error('❌ ERRO ao salvar em localStorage:', erro);
@@ -1704,10 +1852,10 @@
                 return;
             }
             
-            let receitasArmazenadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            let receitasArmazenadas = lerReceitas();
             receitasArmazenadas = receitasArmazenadas.filter(r => r.id !== id);
             
-            localStorage.setItem('receitas_customizadas', JSON.stringify(receitasArmazenadas));
+            gravarReceitas(receitasArmazenadas);
             mostrarToast('✓ Receita deletada com sucesso!');
             window.dispatchEvent(new Event('receitas-atualizadas'));
             renderizarListaReceitas();
@@ -1818,7 +1966,7 @@
             }
             
             // Carregar receitas existentes
-            let receitasArmazenadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            let receitasArmazenadas = lerReceitas();
             console.log('📊 Receitas antes:', receitasArmazenadas.length);
             
             // Gerar ID novo
@@ -1847,7 +1995,7 @@
             
             // Salvar em localStorage
             try {
-                localStorage.setItem('receitas_customizadas', JSON.stringify(receitasArmazenadas));
+                gravarReceitas(receitasArmazenadas);
                 console.log('💾 Salvo em localStorage com sucesso!');
                 console.log('📊 Total de receitas agora:', receitasArmazenadas.length);
                 console.log('📋 Todas as receitas:', receitasArmazenadas);

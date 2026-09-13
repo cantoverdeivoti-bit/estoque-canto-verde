@@ -789,6 +789,144 @@
         let db, contagemRef, setoresRef;
         let firebaseReady = false;
 
+        // ================= ☁️ SINCRONIZAÇÃO EM NUVEM =================
+        // Antes, receitas / setores / produtos / preços viviam apenas no
+        // localStorage, que é isolado por aparelho e por navegador. Por isso
+        // nada do que era criado no painel chegava aos celulares.
+        // Agora o Firestore é a fonte de verdade e o localStorage é só cache.
+
+        // ---------- Receitas (coleção 'receitas') ----------
+        let receitasRef = null;
+        let receitasCache = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+
+        function lerReceitas() {
+            return receitasCache.slice();
+        }
+
+        function gravarReceitas(lista) {
+            const anterior = receitasCache.slice();
+            receitasCache = lista.slice();
+            try {
+                localStorage.setItem('receitas_customizadas', JSON.stringify(receitasCache));
+            } catch (e) {}
+            if (!receitasRef) {
+                console.warn('⚠️ Nuvem indisponível — receita salva SÓ neste aparelho.');
+                return;
+            }
+            const idsAtuais = new Set(receitasCache.map(r => String(r.id)));
+            receitasCache.forEach(r => {
+                receitasRef.doc(String(r.id)).set(r)
+                    .catch(e => console.error('❌ Erro ao salvar receita na nuvem:', e));
+            });
+            anterior.forEach(r => {
+                if (!idsAtuais.has(String(r.id))) {
+                    receitasRef.doc(String(r.id)).delete()
+                        .catch(e => console.error('❌ Erro ao deletar receita na nuvem:', e));
+                }
+            });
+        }
+
+        function iniciarSyncReceitas(aoAtualizar, migrarLocais) {
+            if (!db) return;
+            receitasRef = db.collection('receitas');
+            let primeiraLeitura = true;
+            receitasRef.onSnapshot(snapshot => {
+                const remotas = snapshot.docs.map(d => {
+                    const r = d.data() || {};
+                    r.id = Number(d.id);
+                    return r;
+                }).sort((a, b) => (a.id || 0) - (b.id || 0));
+
+                if (primeiraLeitura && migrarLocais && remotas.length === 0) {
+                    primeiraLeitura = false;
+                    const locais = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+                    if (locais.length > 0) {
+                        console.log('⬆️ Enviando ' + locais.length + ' receita(s) deste aparelho para a nuvem...');
+                        gravarReceitas(locais);
+                        return;
+                    }
+                }
+                primeiraLeitura = false;
+
+                receitasCache = remotas;
+                try {
+                    localStorage.setItem('receitas_customizadas', JSON.stringify(receitasCache));
+                } catch (e) {}
+                console.log('🍳 Receitas sincronizadas da nuvem:', receitasCache.length);
+                if (typeof aoAtualizar === 'function') aoAtualizar();
+            }, err => console.error('❌ Erro no sync de receitas:', err));
+        }
+
+        // ---------- Catálogo: setores, produtos, edições, preços ----------
+        // Documento único 'catalogo/config'. Cada chave vai como texto JSON,
+        // o que evita qualquer problema com acentos e pontos nos nomes.
+        const CHAVES_NUVEM = ['setores_customizados', 'produtos_novos', 'estoque', 'painel_estoque'];
+        let nuvemRef = null;
+        let aplicandoNuvem = false;
+
+        function lsGet(chave, padrao) {
+            try {
+                return JSON.parse(localStorage.getItem(chave) || padrao);
+            } catch (e) {
+                console.warn('Cache inválido em ' + chave, e);
+                return JSON.parse(padrao);
+            }
+        }
+
+        function lsSet(chave, valor) {
+            try {
+                localStorage.setItem(chave, JSON.stringify(valor));
+            } catch (e) {}
+            if (aplicandoNuvem) return;   // evita eco: nuvem -> local -> nuvem
+            enviarParaNuvem();
+        }
+
+        function enviarParaNuvem() {
+            if (!nuvemRef) {
+                console.warn('⚠️ Nuvem indisponível — alteração salva SÓ neste aparelho.');
+                return;
+            }
+            const pacote = { atualizadoEm: new Date().toISOString() };
+            CHAVES_NUVEM.forEach(k => { pacote[k] = localStorage.getItem(k) || ''; });
+            nuvemRef.set(pacote, { merge: true })
+                .catch(e => console.error('❌ Erro ao enviar catálogo para a nuvem:', e));
+        }
+
+        function recarregarDoCache() {
+            const estoqueNuvem = lsGet('estoque', 'null');
+            if (estoqueNuvem && typeof estoqueNuvem === 'object') {
+                Object.keys(estoque).forEach(s => delete estoque[s]);
+                Object.assign(estoque, estoqueNuvem);
+            }
+            produtosNovos = lsGet('produtos_novos', '{}');
+            if (typeof painel !== 'undefined') painel = lsGet('painel_estoque', '{}');
+            carregarSetoresCustomizados();
+            carregarProdutosNovos();
+        }
+
+        function iniciarSyncNuvem(aoAtualizar) {
+            if (!db) return;
+            nuvemRef = db.collection('catalogo').doc('config');
+            nuvemRef.onSnapshot(doc => {
+                if (!doc.exists) {
+                    console.log('⬆️ Enviando catálogo deste aparelho para a nuvem...');
+                    enviarParaNuvem();
+                    return;
+                }
+                const d = doc.data() || {};
+                aplicandoNuvem = true;
+                CHAVES_NUVEM.forEach(k => {
+                    if (typeof d[k] === 'string' && d[k] !== '') {
+                        try { localStorage.setItem(k, d[k]); } catch (e) {}
+                    }
+                });
+                aplicandoNuvem = false;
+                console.log('☁️ Catálogo sincronizado da nuvem.');
+                if (typeof aoAtualizar === 'function') aoAtualizar();
+            }, err => console.error('❌ Erro no sync do catálogo:', err));
+        }
+        // ================= fim do bloco de sincronização =================
+
         // Inicializar Firebase de forma assíncrona (não bloqueia UI)
         function inicializarFirebase() {
             if (typeof firebase === 'undefined') {
@@ -811,6 +949,17 @@
                 db = firebase.firestore();
                 contagemRef = db.collection('contagens');
                 setoresRef = db.collection('setores');
+                iniciarSyncReceitas(function () {
+                    receitas.length = 0;
+                    receitas.push(...receitasCache);
+                    const cont = document.getElementById('receitas-container');
+                    if (cont && cont.style.display !== 'none') renderizarReceitas();
+                }, false);
+                iniciarSyncNuvem(function () {
+                    recarregarDoCache();
+                    renderizar();
+                    atualizarContador();
+                });
                 firebaseReady = true;
                 console.log('✅ Firebase inicializado com sucesso!');
                 
@@ -845,14 +994,14 @@
         const receitas = [];
 
         // 🍳 CARREGAR RECEITAS CUSTOMIZADAS DO PAINEL
-        const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+        const receitasCustomizadas = lerReceitas();
         receitas.push(...receitasCustomizadas);
         
         console.log('📋 Receitas Carregadas:', receitas);
         console.log('📊 Total de receitas:', receitas.length);
 
         let dados = JSON.parse(localStorage.getItem('contagem_estoque') || '{}');
-        let produtosNovos = JSON.parse(localStorage.getItem('produtos_novos') || '{}');
+        let produtosNovos = lsGet('produtos_novos', '{}');
         let nomeFuncionarioGlobal = '';
         let dataContagemGlobal = '';
         let setorAtualAberto = '';
@@ -867,7 +1016,7 @@
 
         function inicializar() {
             // Inicializar setores customizados se não existirem
-            const setoresCustomizados = JSON.parse(localStorage.getItem('setores_customizados') || '[]');
+            const setoresCustomizados = lsGet('setores_customizados', '[]');
             const setoresAdicionar = ['CASA DE MADEIRA', 'ESTOQUE CHA', 'FRUTAS E LEGUMES'];
             
             setoresAdicionar.forEach(setor => {
@@ -877,12 +1026,12 @@
             });
             
             if (setoresCustomizados.length > 0) {
-                localStorage.setItem('setores_customizados', JSON.stringify(setoresCustomizados));
+                lsSet('setores_customizados', setoresCustomizados);
             }
             
             // 🍳 FORÇAR CARREGAMENTO DE RECEITAS AO INICIALIZAR
             console.log('🔄 Inicializando página...');
-            const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            const receitasCustomizadas = lerReceitas();
             receitas.length = 0;
             receitas.push(...receitasCustomizadas);
             
@@ -891,8 +1040,7 @@
                 console.log('📋 Lista:', receitasCustomizadas);
             }
             
-            carregarSetoresCustomizados();
-            carregarProdutosNovos();
+            recarregarDoCache();
             renderizar();
             atualizarContador();
             
@@ -909,7 +1057,7 @@
         }
 
         function carregarSetoresCustomizados() {
-            const setoresCustomizados = JSON.parse(localStorage.getItem('setores_customizados') || '[]');
+            const setoresCustomizados = lsGet('setores_customizados', '[]');
             setoresCustomizados.forEach(setor => {
                 if (!estoque[setor]) {
                     estoque[setor] = {};
@@ -1045,7 +1193,7 @@
             setoresContainer.style.display = 'none';
             
             // Carregar receitas do localStorage
-            const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+            const receitasCustomizadas = lerReceitas();
             receitas.length = 0;
             receitas.push(...receitasCustomizadas);
             
@@ -1073,7 +1221,7 @@
                         <h2 style="color: #1a472a; margin: 0 0 20px 0;">🍳 Receitas</h2>
                         <p style="color: #999; font-size: 16px; margin: 20px 0;">Nenhuma receita encontrada!</p>
                         <p style="color: #666; font-size: 13px; margin: 10px 0;">
-                            📌 Receitas salvas no localStorage: ${JSON.stringify(JSON.parse(localStorage.getItem('receitas_customizadas') || '[]')).length}
+                            📌 Receitas sincronizadas da nuvem: ${receitasCache.length}
                         </p>
                         <p style="color: #666; font-size: 12px; margin: 20px 0;">
                             💡 Crie receitas no PAINEL e volte aqui!
@@ -1442,7 +1590,7 @@
             delete estoque[setorAtual][produto];
             
             // Atualizar localStorage
-            localStorage.setItem('estoque', JSON.stringify(estoque));
+            lsSet('estoque', estoque);
             
             // Re-renderizar
             renderizar();
@@ -1549,7 +1697,7 @@
             if (!produtosNovos[setor]) produtosNovos[setor] = {};
             produtosNovos[setor][nome] = qtd || 'varia';
             estoque[setor][nome] = qtd || 'varia';
-            localStorage.setItem('produtos_novos', JSON.stringify(produtosNovos));
+            lsSet('produtos_novos', produtosNovos);
             fecharModal();
             renderizar();
             mostrarToast(`Produto "${nome}" adicionado!`);
@@ -1576,7 +1724,7 @@
         // 🍳 LISTENER PARA MUDANÇAS NO LOCALSTORAGE (SINCRONIZAÇÃO ENTRE ABAS)
         window.addEventListener('storage', (event) => {
             if (event.key === 'receitas_customizadas') {
-                const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+                const receitasCustomizadas = lerReceitas();
                 receitas.length = 0;
                 receitas.push(...receitasCustomizadas);
                 
@@ -1595,7 +1743,7 @@
         // 🍳 SINCRONIZAÇÃO SIMPLES - Verificar receitas a cada segundo
         setInterval(() => {
             if (receitas.length === 0) {
-                const receitasCustomizadas = JSON.parse(localStorage.getItem('receitas_customizadas') || '[]');
+                const receitasCustomizadas = lerReceitas();
                 if (receitasCustomizadas.length > 0) {
                     receitas.push(...receitasCustomizadas);
                 }
