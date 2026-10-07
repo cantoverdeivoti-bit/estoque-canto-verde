@@ -712,6 +712,9 @@
         #setores .btn-confirmar:hover { background: #dddddd; }
         #setores .btn-confirmar:active { background: #16a34a; color: #fff; transform: scale(0.9); }
         #setores .btn-confirmar.confirmado { background: #16a34a; color: #fff; font-size: 20px; }
+        .header-acoes { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .header-acoes .btn-estoque { margin-right: 0; height: 44px; }
+        .header-acoes .btn-adicionar { height: 44px; width: 44px; padding: 0; border-radius: 8px; }
     </style>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
@@ -752,9 +755,10 @@
                     <p class="subtitle">Sistema de Gestão</p>
                 </div>
             </div>
-            <button class="btn-estoque" onclick="toggleEstoque()">📦 Estoque</button>
-            <button class="btn-receitas" onclick="toggleReceitas()">🍳 Receitas</button>
-            <button class="btn-adicionar" onclick="abrirModal()">+</button>
+            <div class="header-acoes">
+                <button class="btn-estoque" onclick="toggleEstoque()">📦 Estoque</button>
+                <button class="btn-adicionar" onclick="abrirModal()" aria-label="Cadastrar produto">+</button>
+            </div>
         </div>
 
         <div class="info-box">
