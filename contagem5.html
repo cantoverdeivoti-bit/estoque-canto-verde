@@ -684,6 +684,34 @@
                 margin: auto;
             }
         }
+        /* === VISUAL ESCURO + BOTÃO REDONDO DE CONFIRMAR (lista de estoque) === */
+        body { background: #1a1a1a; }
+        .info-box { background: #24362b; color: #d7eadc; box-shadow: none; }
+        .contador { right: auto; left: 1rem; }
+        #receitas-container { background: var(--bg-light); border-radius: 14px; padding: 2px 12px; }
+        #setores .setor { background: #2a2a2a; border-color: #404040; box-shadow: none; }
+        #setores .setor:hover { transform: none; box-shadow: none; }
+        #setores .setor-content.open { background: #2a2a2a; }
+        #setores .produto { background: #2a2a2a; border-bottom-color: #404040; }
+        #setores .produto.confirmado { background: rgba(74, 222, 128, 0.08); }
+        #setores .produto-nome { color: #f0f0f0; font-size: 16px; margin-bottom: 0; }
+        #setores .produto-ideal { color: #9ca3af; }
+        #setores .input-container { gap: 12px; }
+        #setores .input-container input[type="text"] {
+            background: #1a1a1a; color: #f0f0f0; border: 1px solid #404040;
+            height: 46px; font-size: 16px; box-shadow: none; min-width: 0;
+        }
+        #setores .input-container input[type="text"]:focus { border-color: #4ade80; box-shadow: none; }
+        #setores .input-container input::placeholder { color: #777; font-weight: 400; }
+        #setores .btn-confirmar {
+            width: 46px; min-width: 46px; height: 46px; padding: 0;
+            border-radius: 50%; border: none; background: #dddddd; color: #1a1a1a;
+            font-size: 12px; letter-spacing: 0; box-shadow: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #setores .btn-confirmar:hover { background: #dddddd; }
+        #setores .btn-confirmar:active { background: #16a34a; color: #fff; transform: scale(0.9); }
+        #setores .btn-confirmar.confirmado { background: #16a34a; color: #fff; font-size: 20px; }
     </style>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
@@ -730,7 +758,7 @@
         </div>
 
         <div class="info-box">
-            Digite a quantidade e clique em OK para salvar automaticamente
+            Digite a quantidade e toque na bolinha OK ao lado para confirmar
         </div>
 
         <div id="setores"></div>
@@ -1072,7 +1100,50 @@
             });
         }
 
+        // Redesenha a lista mantendo os setores abertos, a posição da rolagem
+        // e o que foi digitado mas ainda não confirmado.
+        function nomeDoSetor(setorEl) {
+            const el = setorEl.querySelector('.setor-header > div > div');
+            return el ? el.textContent.trim() : '';
+        }
+
         function renderizar() {
+            const container = document.getElementById('setores');
+            const abertos = {};
+            const pendentes = {};
+            const rolagemPagina = window.scrollY;
+            if (container) {
+                container.querySelectorAll('.setor').forEach(s => {
+                    const c = s.querySelector('.setor-content');
+                    if (c && c.classList.contains('open')) abertos[nomeDoSetor(s)] = c.scrollTop;
+                });
+                container.querySelectorAll('.input-container input').forEach(i => {
+                    const chave = i.id.replace(/^input_/, '');
+                    if (i.value.trim() !== (dados[chave] || '').toString()) pendentes[i.id] = i.value;
+                });
+            }
+
+            renderizarBase();
+
+            container.querySelectorAll('.setor').forEach(s => {
+                const nome = nomeDoSetor(s);
+                if (!(nome in abertos)) return;
+                const c = s.querySelector('.setor-content');
+                const icone = s.querySelector('.setor-icon');
+                c.classList.add('open');
+                if (icone) icone.classList.add('open');
+                c.scrollTop = abertos[nome];
+            });
+            Object.keys(pendentes).forEach(id => {
+                const i = document.getElementById(id);
+                if (!i) return;
+                i.value = pendentes[id];
+                marcarPendente(i, id.replace(/^input_/, ''));
+            });
+            window.scrollTo(0, rolagemPagina);
+        }
+
+        function renderizarBase() {
             const container = document.getElementById('setores');
             container.innerHTML = '';
 
@@ -1152,7 +1223,7 @@
                             </div>
                             <div class="produto-ideal">Ideal: ${estoque[setor][produto]}</div>
                             <div class="input-container">
-                                <input type="text" id="input_${chave}" placeholder="Qtd..." value="${valor}" onkeypress="if(event.key==='Enter') confirmarItem('${chave}')">
+                                <input type="text" id="input_${chave}" placeholder="Qtd..." value="${valor}" inputmode="decimal" oninput="marcarPendente(this, '${chave}')" onkeypress="if(event.key==='Enter') confirmarItem('${chave}')">
                                 <button class="btn-confirmar ${valor ? 'confirmado' : ''}" onclick="confirmarItem('${chave}')">${valor ? '✓' : 'OK'}</button>
                             </div>
                             ${valor ? '<div class="status-badge">✓ Confirmado</div>' : ''}
@@ -1498,6 +1569,17 @@
             modal.onclick = (e) => {
                 if (e.target === modal) modal.remove();
             };
+        }
+
+        // Se a quantidade for alterada depois de confirmada, a bolinha volta para "OK"
+        // até confirmar de novo (o valor só é salvo ao tocar na bolinha).
+        function marcarPendente(input, chave) {
+            const btn = input.parentElement.querySelector('.btn-confirmar');
+            if (!btn) return;
+            const salvo = (dados[chave] || '').toString();
+            const igual = salvo && input.value.trim() === salvo;
+            btn.classList.toggle('confirmado', !!igual);
+            btn.textContent = igual ? '✓' : 'OK';
         }
 
         function confirmarItem(chave) {
